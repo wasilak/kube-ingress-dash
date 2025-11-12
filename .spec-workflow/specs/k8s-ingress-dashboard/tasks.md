@@ -1,0 +1,182 @@
+# Tasks Document: Kubernetes Ingress Dashboard
+
+- [x] 1. Set up Next.js project with shadcn/ui
+  - File: package.json, next.config.js, tsconfig.json, components.json
+  - Initialize Next.js application with TypeScript
+  - Configure shadcn/ui components
+  - Set up project structure
+  - Purpose: Establish the foundation for the Next.js application with proper UI components
+  - _Leverage: Next.js documentation, shadcn/ui setup guides_
+  - _Requirements: 6.1, 6.2_
+  - _Prompt: Role: Frontend Developer specializing in Next.js and React | Task: Set up Next.js project with TypeScript and configure shadcn/ui components for the Kubernetes ingress dashboard, following requirements 6.1 and 6.2 for proper project structure and UI components. Create package.json, next.config.js, tsconfig.json, and components.json files with appropriate configurations | Restrictions: Must follow Next.js best practices, properly integrate shadcn/ui, configure TypeScript correctly | Success: Next.js app initializes successfully, shadcn/ui components are available, project structure is properly organized, TypeScript compiles without errors
+
+- [x] 2. Create Kubernetes API client service
+  - File: lib/k8s/client.ts
+  - Implement Kubernetes API client using official JS client
+  - Handle in-cluster and out-of-cluster authentication
+  - Set up RBAC configuration
+  - Purpose: Provide secure access to Kubernetes API for ingress data
+  - _Leverage: Official Kubernetes JS client (kubernetes-client)_
+  - _Requirements: 5.0, 5.1, 5.2_
+  - _Prompt: Role: Backend Developer specializing in Kubernetes API integration | Task: Create Kubernetes API client service following requirements 5.0, 5.1, and 5.2 for proper authentication and RBAC handling, using the official Kubernetes JavaScript client to connect both in-cluster and out-of-cluster | Restrictions: Must handle both in-cluster and out-of-cluster auth, implement proper RBAC, ensure secure credential handling | Success: Client connects to Kubernetes API in both contexts, RBAC is properly handled, authentication works as specified
+
+- [x] 3. Implement ingress streaming service
+  - File: lib/k8s/ingress-stream.ts
+  - Create service to stream ingress changes from Kubernetes
+  - Handle ADD, MODIFY, DELETE events
+  - Implement reconnection logic for network disruptions
+  - Purpose: Provide real-time updates of ingress resources
+  - _Leverage: Kubernetes client watch functionality_
+  - _Requirements: 1.0, 1.1, 1.2
+  - _Prompt: Role: Backend Developer specializing in streaming and real-time systems | Task: Implement ingress streaming service following requirements 1.0, 1.1, and 1.2 to stream ingress changes in real-time with proper event handling and reconnection logic | Restrictions: Must handle all event types (ADD, MODIFY, DELETE), implement robust reconnection, maintain data consistency | Success: Real-time updates happen within 2 seconds, all event types are handled, reconnection works properly after network disruptions
+
+- [x] 4. Create ingress data transformation utilities
+  - File: lib/utils/ingress-transformer.ts
+  - Transform raw Kubernetes ingress objects to UI-friendly format
+  - Extract relevant information like hosts, paths, URLs
+  - Handle annotations and custom configurations
+  - Purpose: Convert Kubernetes ingress data to a format suitable for the UI
+  - _Leverage: Ingress data model structures_
+  - _Requirements: 1.0, 1.1
+  - _Prompt: Role: Backend Developer specializing in data transformation and mapping | Task: Create ingress data transformation utilities following requirements 1.0 and 1.1 to convert raw Kubernetes objects to UI-friendly format with all relevant information | Restrictions: Must handle all ingress fields properly, maintain data integrity, handle edge cases | Success: Ingress objects are properly transformed, all relevant fields are extracted, custom configurations are handled
+
+- [x] 5. Design ingress data model
+  - File: types/ingress.ts
+  - Define TypeScript interfaces for ingress data
+  - Include all relevant fields for UI display
+  - Support additional metadata from annotations
+  - Purpose: Establish type safety for ingress data throughout the application
+  - _Leverage: TypeScript advanced types_
+  - _Requirements: 1.0, 1.1
+  - _Prompt: Role: TypeScript Developer specializing in type systems and interfaces | Task: Design comprehensive TypeScript interfaces for ingress data following requirements 1.0 and 1.1, defining all fields needed for the UI display | Restrictions: Must follow TypeScript best practices, maintain type safety, include all necessary fields | Success: All ingress data has proper TypeScript interfaces, type safety is maintained throughout the app, all required fields are included
+
+- [x] 6. Implement backend API endpoints
+  - File: pages/api/ingresses.ts (or app/api/ingresses/route.ts for app router)
+  - Create endpoint to serve ingress data to frontend
+  - Implement WebSocket or Server-Sent Events for real-time updates
+  - Add error handling for Kubernetes API issues
+  - Purpose: Provide API for frontend to access ingress data
+  - _Leverage: Next.js API routes, WebSocket libraries_
+  - _Requirements: 1.0, 1.1, 1.2, 5.0
+  - _Prompt: Role: Full Stack Developer specializing in API development and real-time systems | Task: Implement backend API endpoints for ingress data following requirements 1.0, 1.1, 1.2, and 5.0, providing real-time updates to the frontend | Restrictions: Must implement proper real-time communication, handle errors gracefully, maintain performance | Success: API serves ingress data correctly, real-time updates work, error handling is implemented
+
+- [x] 7. Create theme management system
+  - File: components/theme-provider.tsx, hooks/use-theme.ts
+  - Implement light/dark/system theme provider
+  - Add theme switching functionality
+  - Store preferences in localStorage
+  - Purpose: Manage light/dark/system theme preferences for the UI
+  - _Leverage: React Context API, shadcn/ui theme utilities_
+  - _Requirements: 4.0, 4.1, 4.2
+  - _Prompt: Role: Frontend Developer specializing in React Context and theming | Task: Create theme management system following requirements 4.0, 4.1, and 4.2 to support light/dark/system themes with user preferences and system defaults | Restrictions: Must default to system theme, remember user preferences, integrate with shadcn/ui | Success: Theme system works correctly, defaults to system theme, remembers user preferences, integrates properly with UI components
+
+- [x] 8. Design attractive ingress card component with yellow theme
+  - File: components/ingress-card.tsx, globals.css
+  - Create visually appealing card for each ingress with custom yellow theme
+  - Display service names, links, and key information using yellow-themed UI elements
+  - Implement click handling to open in new tab
+  - Add support for both light and dark yellow theme variants
+  - Purpose: Present ingresses in an attractive, navigable format with yellow theme styling
+  - _Leverage: shadcn/ui components, Tailwind CSS, shadcn MCP for theme guidance_
+  - _Requirements: 2.0, 2.1, 2.2
+  - _Prompt: Role: UI/UX Developer specializing in React components and visual design | Task: Design attractive ingress card component with custom yellow theme following requirements 2.0, 2.1, and 2.2 to display services with names, links, and key information, implementing new tab navigation and both light/dark yellow theme variants | Restrictions: Must be visually appealing, follow shadcn/ui design principles, handle new tab opening properly, implement yellow theme with proper CSS variables for both light and dark modes | Success: Cards are visually appealing with yellow theme, display all required information, links open in new tabs as expected, both light and dark yellow themes work properly
+
+- [x] 9. Implement search and filtering functionality
+  - File: components/search-bar.tsx, hooks/use-search.ts, app/page.tsx
+  - Create universal search bar at the top
+  - Implement real-time filtering of ingress list
+  - Update URL with search parameters
+  - Purpose: Allow users to search and filter ingresses efficiently
+  - _Leverage: React hooks, URLSearchParams API_
+  - _Requirements: 3.0, 3.1, 3.2
+  - _Prompt: Role: Frontend Developer specializing in React hooks and search functionality | Task: Implement search and filtering functionality following requirements 3.0, 3.1, and 3.2, creating real-time filtering with URL parameter updates | Restrictions: Must filter in real-time, update URL properly, maintain search state across page loads | Success: Search filters results in real-time, URL updates with search parameters, search state is maintained
+
+- [x] 10. Create dashboard layout and main page
+  - File: app/page.tsx, app/layout.tsx
+  - Design main dashboard layout with header, search, and card grid
+  - Integrate all components together
+  - Add loading and error states
+  - Purpose: Assemble all components into a complete dashboard UI
+  - _Leverage: Next.js page layouts, shadcn/ui components_
+  - _Requirements: 2.0, 3.0, 4.0
+  - _Prompt: Role: Frontend Architect specializing in Next.js layouts and UI composition | Task: Create dashboard layout and main page following requirements 2.0, 3.0, and 4.0, integrating all components into a cohesive UI with proper loading and error states | Restrictions: Must follow Next.js layout conventions, integrate all components properly, handle all states | Success: Dashboard layout is cohesive and functional, all components are integrated, loading/error states are handled properly
+
+- [x] 11. Improve color theme to lime and standardize class usage
+  - File: src/app/globals.css, src/components/ingress-card.tsx
+  - Update color theme from yellow to lime as per shadcn color recommendations
+  - Update globals.css with lime-based CSS variables for both light and dark modes
+  - Update component to use generic Tailwind class names (border, bg-muted, text-primary, etc.) instead of specific color classes (lime-*, yellow-*, etc.)
+  - Purpose: Enhance visual appeal with more modern lime color scheme and make theme changes easier in the future
+  - _Leverage: shadcn/ui color system, Tailwind CSS_
+  - _Requirements: 2.0, 4.0
+  - _Prompt: Role: UI/UX Developer specializing in color systems and visual design | Task: Update the dashboard theme from yellow to lime and standardize class usage to make future theme changes easier, ensuring consistency across all components and both light and dark modes | Restrictions: Must maintain accessibility standards, ensure proper contrast ratios, maintain all functionality, use generic class names instead of specific color names | Success: All UI elements use lime-based theme consistently, both light and dark modes look good, accessibility is maintained, and future theme changes can be made by only updating CSS variables
+
+- [ ] 12. Implement comprehensive UI improvements
+  - File: src/app/page.tsx, src/components/ingress-card.tsx, src/components/search-bar.tsx
+  - Add Kubernetes context information at the top of the dashboard
+  - Update ingress cards to have transparent background  
+  - Improve light theme text readability with better contrast
+  - Add loading spinner when fetching ingresses
+  - Add stats display: show total ingresses, TLS vs non-TLS counts, with filter status
+  - Update host display: show hosts as clickable buttons with URLs as text (vertical layout)
+  - Remove "Visit" buttons, use hosts directly as links
+  - Remove redundant "TLS" badge when padlock icon is present
+  - Add spacing between card title and "Hosts" section
+  - Deduplicate paths in display (e.g., merge duplicate "/" paths)
+  - Update URL to reflect current search filter
+  - Update to indigo color theme with vibrant light mode and toned down dark mode
+  - Update app title to "kube-ingress-dash"
+  - Purpose: Enhance UI experience with better information display, proper loading states, and improved visual design
+  - _Leverage: shadcn/ui components, Tailwind CSS, React hooks_
+  - _Requirements: 2.0, 3.0, 4.0
+  - _Prompt: Role: UI/UX Developer specializing in React applications and visual design | Task: Implement comprehensive UI improvements to address readability, functionality, and visual design issues, including transparent cards, better stats display, improved host buttons, proper loading states, and indigo theme | Restrictions: Must maintain accessibility standards, ensure all functionality works properly, update URL with search params, use generic class names for easy theming | Success: UI is more readable with better contrast, loading states work properly, hosts are displayed as clickable buttons, stats show properly, all requested improvements are implemented
+
+- [ ] 13. Add Docker configuration
+  - File: Dockerfile, .dockerignore
+  - Create multi-stage Dockerfile for the application
+  - Optimize image size and build time
+  - Add proper environment configuration
+  - Purpose: Containerize the application for deployment
+  - _Leverage: Docker best practices, multi-stage builds_
+  - _Requirements: 6.1
+  - _Prompt: Role: DevOps Engineer specializing in Docker containerization | Task: Create Docker configuration for the application following requirement 6.1, implementing a multi-stage build with proper optimization | Restrictions: Must use multi-stage build, optimize image size, configure environment properly | Success: Dockerfile builds successfully, image is optimized, environment is properly configured
+
+- [ ] 14. Create Helm chart
+  - File: charts/k8s-ingress-dashboard/Chart.yaml, values.yaml, templates/*.yaml
+  - Generate Helm chart for Kubernetes deployment
+  - Include all necessary Kubernetes resources (Deployment, Service, RBAC)
+  - Implement proper configuration values
+  - Purpose: Enable easy deployment to Kubernetes clusters via Helm
+  - _Leverage: Helm chart best practices, Kubernetes manifests_
+  - _Requirements: 6.2
+  - _Prompt: Role: DevOps Engineer specializing in Helm charts and Kubernetes deployments | Task: Create comprehensive Helm chart for the application following requirement 6.2, including all necessary Kubernetes resources and configuration values | Restrictions: Must include proper RBAC, follow Helm best practices, provide configurable values | Success: Helm chart deploys successfully, includes all necessary resources, values are configurable
+
+- [ ] 15. Implement comprehensive error handling
+  - File: lib/utils/error-handler.ts, components/error-boundary.tsx
+  - Add error boundaries for UI components
+  - Create centralized error handling
+  - Implement Kubernetes API error handling
+  - Purpose: Ensure application handles errors gracefully
+  - _Leverage: React error boundaries, centralized error handling patterns_
+  - _Requirements: 1.2, 5.2
+  - _Prompt: Role: Full Stack Developer specializing in error handling and resilience | Task: Implement comprehensive error handling following requirements 1.2 and 5.2, creating error boundaries and centralized error handling for both UI and API errors | Restrictions: Must handle all error scenarios, provide clear user feedback, maintain application stability | Success: All error scenarios are handled properly, users receive clear feedback, application remains stable
+
+- [ ] 16. Add testing framework and initial tests
+  - File: jest.config.js, tests/setup.ts, tests/unit/..., tests/integration/...
+  - Configure Jest for both backend and frontend
+  - Write unit tests for key components and services
+  - Add integration tests for API endpoints
+  - Purpose: Ensure code quality and prevent regressions
+  - _Leverage: Jest, React Testing Library, Testing Library_
+  - _Requirements: All
+  - _Prompt: Role: QA Engineer specializing in testing frameworks and test automation | Task: Add comprehensive testing framework and initial tests covering all requirements, using Jest and Testing Library for both unit and integration tests | Restrictions: Must cover all key components, follow testing best practices, ensure good test coverage | Success: Testing framework is configured, key components are tested, tests pass consistently
+
+- [ ] 17. Create documentation
+  - File: README.md, docs/deployment.md, docs/development.md
+  - Write comprehensive documentation for the project
+  - Include setup, development, and deployment instructions
+  - Document API endpoints and configuration options
+  - Purpose: Provide clear guidance for users and developers
+  - _Leverage: Standard documentation templates_
+  - _Requirements: All
+  - _Prompt: Role: Technical Writer specializing in software documentation | Task: Create comprehensive documentation covering all requirements, including setup, development, and deployment instructions with API documentation | Restrictions: Must be clear and comprehensive, cover all aspects of the project, follow documentation standards | Success: All documentation is clear and complete, covers setup and deployment, includes API documentation

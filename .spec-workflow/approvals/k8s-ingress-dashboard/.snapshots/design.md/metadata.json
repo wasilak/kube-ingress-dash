@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/k8s-ingress-dashboard/design.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-11-12T14:39:44.160Z",
+      "trigger": "initial",
+      "approvalId": "approval_1762958384153_r771h4rg4",
+      "approvalTitle": "Design for Kubernetes Ingress Dashboard"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2025-11-12T15:29:56.635Z",
+      "trigger": "approved",
+      "approvalId": "approval_1762958384153_r771h4rg4",
+      "approvalTitle": "Design for Kubernetes Ingress Dashboard"
+    }
+  ]
+}

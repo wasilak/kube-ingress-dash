@@ -1,0 +1,12 @@
+{
+  "id": "approval_1762958384153_r771h4rg4",
+  "title": "Design for Kubernetes Ingress Dashboard",
+  "filePath": ".spec-workflow/specs/k8s-ingress-dashboard/design.md",
+  "type": "document",
+  "status": "approved",
+  "createdAt": "2025-11-12T14:39:44.153Z",
+  "category": "spec",
+  "categoryName": "k8s-ingress-dashboard",
+  "response": "Approved via dashboard",
+  "respondedAt": "2025-11-12T15:29:56.636Z"
+}
