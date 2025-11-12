@@ -1,0 +1,12 @@
+{
+  "id": "approval_1762958499584_xot73zxcp",
+  "title": "Tasks for Kubernetes Ingress Dashboard",
+  "filePath": ".spec-workflow/specs/k8s-ingress-dashboard/tasks.md",
+  "type": "document",
+  "status": "approved",
+  "createdAt": "2025-11-12T14:41:39.584Z",
+  "category": "spec",
+  "categoryName": "k8s-ingress-dashboard",
+  "response": "Approved via dashboard",
+  "respondedAt": "2025-11-12T15:31:59.578Z"
+}

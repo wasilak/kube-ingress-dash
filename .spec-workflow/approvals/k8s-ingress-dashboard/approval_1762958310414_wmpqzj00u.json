@@ -1,0 +1,12 @@
+{
+  "id": "approval_1762958310414_wmpqzj00u",
+  "title": "Requirements for Kubernetes Ingress Dashboard",
+  "filePath": ".spec-workflow/specs/k8s-ingress-dashboard/requirements.md",
+  "type": "document",
+  "status": "approved",
+  "createdAt": "2025-11-12T14:38:30.414Z",
+  "category": "spec",
+  "categoryName": "k8s-ingress-dashboard",
+  "response": "Approved via dashboard",
+  "respondedAt": "2025-11-12T15:29:31.223Z"
+}

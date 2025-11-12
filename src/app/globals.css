@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%; /* White background */
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 230 70% 60%; /* Vibrant indigo primary for light theme */
+    --primary-foreground: 0 0% 100%; /* White text on indigo */
+    --secondary: 230 50% 85%; /* Light indigo */
+    --secondary-foreground: 222.2 84% 4.9%; /* Dark text on light indigo */
+    --muted: 230 30% 95%; /* Very light indigo-muted */
+    --muted-foreground: 230 15% 40%; /* Muted indigo text */
+    --accent: 230 60% 75%; /* Medium indigo accent */
+    --accent-foreground: 0 0% 100%; /* White accent text */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 230 30% 80%; /* Light indigo border */
+    --input: 230 30% 80%; /* Light indigo input border */
+    --ring: 230 70% 60%; /* Indigo ring */
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%; /* Dark background */
+    --foreground: 210 40% 98%; /* Light foreground */
+    --card: 222.2 70% 8%; /* Dark card background */
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 230 50% 40%; /* Softer indigo in dark mode */
+    --primary-foreground: 210 40% 98%; /* Light text on indigo */
+    --secondary: 230 30% 20%; /* Darker indigo */
+    --secondary-foreground: 210 40% 98%; /* Light text */
+    --muted: 230 20% 15%; /* Dark indigo-muted */
+    --muted-foreground: 230 20% 60%; /* Lighter muted text */
+    --accent: 230 40% 30%; /* Dark indigo accent */
+    --accent-foreground: 210 40% 98%; /* Light accent text */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 230 20% 25%; /* Darker indigo border */
+    --input: 230 20% 25%; /* Darker indigo input border */
+    --ring: 230 50% 40%; /* Darker indigo ring */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
