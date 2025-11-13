@@ -1,0 +1,51 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "pinDigests": false,
+  "enabled": true,
+  "separateMajorMinor": true,
+  "automerge": false,
+  "packageRules": [
+    {
+      "matchManagers": ["pep621"],
+      "groupName": "Python dependencies",
+      "separateMajorMinor": true,
+      "rangeStrategy": "bump"
+    },
+    {
+      "matchManagers": ["npm"],
+      "groupName": "Main application dependencies",
+      "matchPaths": ["package.json", "package-lock.json"],
+      "separateMajorMinor": true
+    },
+    {
+      "matchManagers": ["npm"],
+      "groupName": "Documentation dependencies",
+      "matchPaths": ["docs-site/**"],
+      "separateMajorMinor": true
+    },
+    {
+      "matchPackageNames": ["@docusaurus/core", "@docusaurus/preset-classic", "@docusaurus/theme-mermaid"],
+      "groupName": "Docusaurus dependencies",
+      "matchPaths": ["docs-site/**"],
+      "separateMajorMinor": true
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": false
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"]
+  }
+}

@@ -1,4 +1,5 @@
-{{- if .Values.rbac.create -}}
+{{- if .Values.rbac.create }}
+{{- if .Values.rbac.enabled }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -13,25 +14,32 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ include "kube-ingress-dash.fullname" . }}-cluster-role
+  name: {{ include "kube-ingress-dash.fullname" . }}-clusterrole
+  labels:
+    {{- include "kube-ingress-dash.labels" . | nindent 4 }}
 rules:
-- apiGroups: [""]
-  resources: ["namespaces", "services", "pods"]
-  verbs: ["get", "list"]
-- apiGroups: ["networking.k8s.io"]
-  resources: ["ingresses"]
-  verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["services", "pods", "endpoints", "namespaces"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch"]
 ---
+{{- if .Values.rbac.clusterRoleBinding }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ include "kube-ingress-dash.fullname" . }}-cluster-role-binding
+  name: {{ include "kube-ingress-dash.fullname" . }}-clusterrolebinding
+  labels:
+    {{- include "kube-ingress-dash.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{ include "kube-ingress-dash.fullname" . }}-cluster-role
+  name: {{ include "kube-ingress-dash.fullname" . }}-clusterrole
 subjects:
-- kind: ServiceAccount
-  name: {{ include "kube-ingress-dash.serviceAccountName" . }}
-  namespace: {{ .Release.Namespace }}
-{{- end -}}
+  - kind: ServiceAccount
+    name: {{ include "kube-ingress-dash.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}
+{{- end }}
+{{- end }}

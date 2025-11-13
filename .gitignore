@@ -90,3 +90,22 @@ localStorage.json
 # Temporary files
 tmp/
 temp/
+
+# Docusaurus
+docs-site/build/
+docs-site/.docusaurus/
+docs-site/node_modules/
+
+# Docusaurus temporary files
+docs-site/.cache/
+docs-site/.temp/
+docs-site/.swcrc
+docs-site/.tsx
+docs-site/.ts
+docs-site/.js
+docs-site/.jsx
+docs-site/.json
+
+# Docusaurus generated files
+docs-site/src/pages/
+docs-site/dist/

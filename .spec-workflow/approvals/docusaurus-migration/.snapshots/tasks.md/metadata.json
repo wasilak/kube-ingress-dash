@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/docusaurus-migration/tasks.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-11-13T19:55:13.156Z",
+      "trigger": "initial",
+      "approvalId": "approval_1763063713151_516k499ez",
+      "approvalTitle": "Tasks for Docusaurus Documentation Migration"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2025-11-13T19:57:52.563Z",
+      "trigger": "approved",
+      "approvalId": "approval_1763063713151_516k499ez",
+      "approvalTitle": "Tasks for Docusaurus Documentation Migration"
+    }
+  ]
+}

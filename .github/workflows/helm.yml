@@ -1,0 +1,55 @@
+name: Helm Chart
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Run on semantic version tags (e.g., v1.0.0)
+  workflow_dispatch:
+
+env:
+  HELM_REGISTRY: ghcr.io
+  HELM_NAMESPACE: ${{ github.repository_owner }}
+
+jobs:
+  publish-helm-chart:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'latest'
+
+      - name: Log into Helm registry
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ${{ env.HELM_REGISTRY }} -u ${{ github.actor }} --password-stdin
+
+      - name: Package and push Helm chart to OCI registry
+        run: |
+          cd charts
+          # Extract version from tag (removing 'v' prefix)
+          VERSION=${GITHUB_REF_NAME#v}
+          CHART_NAME=kube-ingress-dash
+          
+          # Update version in Chart.yaml temporarily for this build
+          sed -i "s/version: .*/version: $VERSION/" $CHART_NAME/Chart.yaml
+          sed -i "s/appVersion: .*/appVersion: \"$VERSION\"/" $CHART_NAME/Chart.yaml
+          
+          # Package the chart
+          helm package $CHART_NAME/
+          
+          # Push to OCI registry
+          helm push $CHART_NAME-$VERSION.tgz oci://${{ env.HELM_REGISTRY }}/${{ env.HELM_NAMESPACE }}
+          
+      - name: Run chart-testing (optional)
+        uses: helm/chart-testing-action@v2.6.1
+        with:
+          command: lint
+          chart-dirs: charts
+          debug: true

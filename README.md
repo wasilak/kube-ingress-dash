@@ -1,82 +1,99 @@
-# kube-ingress-dash
+<div align="center">
 
-A Kubernetes Ingress Dashboard for monitoring and navigating services running in Kubernetes clusters. This tool provides real-time visibility into ingress resources, making it easy to discover, access, and monitor services.
+# kube-ingress-dash 🚀
 
-## Features
+[![License: MIT](https://img.shields.io/github/license/wasilak/kube-ingress-dash)](https://github.com/wasilak/kube-ingress-dash/blob/main/LICENSE)
+[![GitHub Release](https://img.shields.io/github/v/release/wasilak/kube-ingress-dash)](https://github.com/wasilak/kube-ingress-dash/releases)
+[![Docker Pulls](https://img.shields.io/docker/pulls/kube-ingress-dash/kube-ingress-dash)](https://hub.docker.com/r/kube-ingress-dash/kube-ingress-dash)
+[![GitHub stars](https://img.shields.io/github/stars/wasilak/kube-ingress-dash?style=social)](https://github.com/wasilak/kube-ingress-dash/stargazers)
 
-- **Real-time Ingress Monitoring**: Watch ingress resources update in real-time
-- **Search and Filter**: Quickly find ingresses by name, namespace, host, or path
-- **Advanced Filtering**: Multi-select component for filtering by labels and annotations
-- **Kubernetes Context Information**: View cluster, namespace, and other context information
-- **TLS Visualization**: Clear indicators for TLS-enabled ingresses
-- **Responsive Dashboard**: Clean, modern UI built with shadcn/ui and Tailwind CSS
-- **Dark/Light Theme**: Toggle between light, dark, and system themes with custom indigo theme
-- **Service Navigation**: Direct links to your services from the dashboard
-- **Error Handling**: Comprehensive error boundaries and centralized error reporting
-- **Testing**: Comprehensive test suite with Jest and React Testing Library
+<p><b>Kubernetes Ingress Dashboard for monitoring and navigating services</b></p>
 
-## Prerequisites
+<p>Real-time visibility into ingress resources, making it easy to discover, access, and monitor services running in your Kubernetes clusters</p>
 
-- Kubernetes cluster with appropriate RBAC permissions
-- Node.js v18+ (for local development)
-- Docker (for containerized deployment)
-- Helm (for Kubernetes deployment)
+[**Try Live Demo**](https://example.com) · [**Documentation**](https://wasilak.github.io/kube-ingress-dash) · [**Report Bug**](https://github.com/wasilak/kube-ingress-dash/issues) · [**Request Feature**](https://github.com/wasilak/kube-ingress-dash/issues)
 
-## Installation & Setup
+</div>
 
-### Local Development
+## 🎯 Why kube-ingress-dash?
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd kube-ingress-dash
-   ```
+Tired of hunting through `kubectl get ingress` outputs? kube-ingress-dash brings your Kubernetes ingress resources to life with beautiful visualizations and intuitive navigation. Built with ❤️ and Next.js, it's the tool that turns complex Kubernetes monitoring into a delightful experience.
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+## ✨ Features
 
-3. Run the development server:
-   ```bash
-   npm run dev
-   ```
+| Feature | Description | Status |
+|--------|-------------|---------|
+| 🔄 **Real-time Monitoring** | Watch ingress resources update in real-time | ✅ |
+| 🔍 **Smart Search & Filter** | Find ingresses by name, namespace, host, or path | ✅ |
+| 🏷️ **Advanced Filtering** | Multi-select for filtering by labels/annotations | ✅ |
+| 🌐 **Context Info** | View cluster, namespace, and context details | ✅ |
+| 🔒 **TLS Visualization** | Clear indicators for TLS-enabled ingresses | ✅ |
+| 🎨 **Responsive UI** | Modern UI with shadcn/ui and Tailwind CSS | ✅ |
+| 🌙 **Dark/Light Theme** | Toggle between light, dark, and system themes | ✅ |
+| 🧭 **Service Navigation** | Direct links to your services | ✅ |
+| 🛡️ **Error Handling** | Comprehensive error boundaries | ✅ |
+| 🧪 **Testing** | Jest + React Testing Library | ✅ |
 
-4. Open [http://localhost:3000](http://localhost:3000) to view the dashboard.
+## 🚀 Quick Start
 
-### Containerized Deployment
+### Deploy with Helm (Recommended)
 
-#### Using Docker
+```bash
+# Add the Helm repository
+helm repo add kube-ingress-dash https://wasilak.github.io/kube-ingress-dash
 
-1. Build the Docker image:
-   ```bash
-   docker build -t kube-ingress-dash .
-   ```
+# Install the chart
+helm install kube-ingress-dash oci://ghcr.io/wasilak/kube-ingress-dash/kube-ingress-dash
+```
 
-2. Run the container:
-   ```bash
-   docker run -p 3000:3000 kube-ingress-dash
-   ```
+### Try with Docker
 
-#### Using Helm
+```bash
+# Pull and run the latest image
+docker run -p 3000:3000 ghcr.io/wasilak/kube-ingress-dash:latest
+```
 
-1. Install the Helm chart:
-   ```bash
-   helm install kube-ingress-dash ./charts/k8s-ingress-dashboard
-   ```
+### From Source
 
-2. Or deploy from a remote repository:
-   ```bash
-   helm install kube-ingress-dash <repo-url>/k8s-ingress-dashboard
-   ```
+```bash
+# Clone, build, and run
+git clone https://github.com/wasilak/kube-ingress-dash.git
+cd kube-ingress-dash
+npm install
+npm run dev
+```
 
-## Configuration
+## 🛠️ Prerequisites
 
-### Kubernetes RBAC
+- **Kubernetes**: Cluster with appropriate RBAC permissions
+- **Node.js**: v18+ (for local development)
+- **Docker**: For containerized deployment
+- **Helm**: For Kubernetes deployment
 
-The application requires the following Kubernetes permissions:
+## 🏗️ Architecture Overview
+
+```mermaid
+graph LR
+    A[Browser] --> B{kube-ingress-dash}
+    B --> C[K8s API Server]
+    C --> D[Ingress Resources]
+    C --> E[Service Resources]
+    C --> F[Pod Resources]
+    B --> G[Real-time Dashboard]
+    G --> H[Visualizations]
+```
+
+## 📋 Kubernetes RBAC Setup
+
+The application requires specific permissions. Set up RBAC with:
 
 ```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kube-ingress-dash-viewer
+  namespace: default
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -88,131 +105,56 @@ rules:
 - apiGroups: ["networking.k8s.io"]
   resources: ["ingresses"]
   verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kube-ingress-dash-viewer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kube-ingress-dash-viewer
+subjects:
+- kind: ServiceAccount
+  name: kube-ingress-dash-viewer
+  namespace: default
 ```
 
-### Environment Variables
+## 📚 Documentation
 
-The application doesn't require any environment variables for basic operation, but you can configure:
+For comprehensive documentation and deployment guides, visit our [Documentation Site](https://wasilak.github.io/kube-ingress-dash).
 
-- `NODE_ENV`: Set to 'production' for production deployments
-- `PORT`: Port to run the application on (default: 3000)
+## 🤝 Contributing
 
-## API Endpoints
+We welcome contributions! Here's how you can help:
 
-### GET /api/ingresses
-
-Fetch all ingresses or filter by namespace:
-
-- Query Parameters:
-  - `namespace` (optional): Filter ingresses by namespace
-  - `search` (optional): Search term to filter ingresses by name, host, or path
-
-Example response:
-```json
-{
-  "ingresses": [...],
-  "timestamp": "2023-10-01T12:00:00Z",
-  "namespace": "all",
-  "count": 5
-}
-```
-
-## Development
-
-### Project Structure
-
-```
-kube-ingress-dash/
-├── src/
-│   ├── app/              # Next.js app router pages
-│   ├── components/       # React components (ui, business logic)
-│   ├── hooks/            # Custom React hooks
-│   ├── lib/              # Library files (K8s client, utils)
-│   └── types/            # TypeScript type definitions
-├── charts/               # Helm charts
-├── tests/                # Test files
-└── ...
-```
-
-### Running Tests
-
-```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Generate coverage report
-npm run test:coverage
-```
-
-### Multiselect Component
-
-The dashboard includes a custom multiselect component for advanced filtering:
-
-- **Dynamic Sizing**: Automatically expands vertically as more options are selected
-- **Overflow Handling**: Shows "+X more" indicator when too many options are selected
-- **Tag Removal**: Individual tags can be removed by clicking the close button
-- **Searchable Dropdown**: Options can be searched within the dropdown menu
-- **Keyboard Navigation**: Supports keyboard navigation and selection
-
-### Build for Production
-
-```bash
-npm run build
-```
-
-## Contributing
-
-1. Fork the repository
+1. [Fork](https://github.com/wasilak/kube-ingress-dash/fork) the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Add tests for your changes
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a [Pull Request](https://github.com/wasilak/kube-ingress-dash/compare)
 
-## Architecture
+Check out our [Contributing Guide](CONTRIBUTING.md) for more details!
 
-### Frontend
-- Next.js 14 with App Router
-- TypeScript
-- Tailwind CSS with shadcn/ui components
-- Real-time updates with WebSocket/Server-Sent Events
+## 📄 License
 
-### Backend
-- Next.js API routes
-- Kubernetes JavaScript client
-- RBAC-aware authentication
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
-### Deployment
-- Docker multi-stage builds
-- Helm chart for Kubernetes deployment
-- Standard Kubernetes resources (Deployment, Service, RBAC)
+## 🤖 Support & Community
 
-## Troubleshooting
+- 🐛 **Issues**: [GitHub Issues](https://github.com/wasilak/kube-ingress-dash/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/wasilak/kube-ingress-dash/discussions)
+- 🐙 **GitHub**: [Follow us](https://github.com/wasilak) for updates
 
-### Common Issues
+---
 
-1. **Permission Denied Errors**: Ensure the service account has proper RBAC permissions to view ingresses.
+<div align="center">
 
-2. **Ingresses Not Showing**: Verify that the Kubernetes API server is accessible and the application has network connectivity to it.
+[![GitHub followers](https://img.shields.io/github/followers/wasilak?style=social)](https://github.com/wasilak)
+[![Twitter Follow](https://img.shields.io/twitter/follow/kubeingressdash?style=social)](https://twitter.com/intent/follow?screen_name=kubeingressdash)
 
-3. **RBAC Configuration**: If running outside the cluster, ensure `KUBECONFIG` is properly set.
+**Made with ❤️ for the Kubernetes community**
 
-### Debugging
+[⭐ Star this repo if you find it useful!](https://github.com/wasilak/kube-ingress-dash)
 
-Enable development mode to get detailed error information:
-
-```bash
-NODE_ENV=development npm run dev
-```
-
-## License
-
-[MIT](LICENSE)
-
-## Support
-
-For support, please open an issue in the GitHub repository.
+</div>

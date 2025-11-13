@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/helm-chart-consolidation/design.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-11-13T18:41:00.623Z",
+      "trigger": "initial",
+      "approvalId": "approval_1763059260617_gdx7raka8",
+      "approvalTitle": "Design for Helm Chart Consolidation and Modern CI/CD"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2025-11-13T18:47:04.722Z",
+      "trigger": "approved",
+      "approvalId": "approval_1763059260617_gdx7raka8",
+      "approvalTitle": "Design for Helm Chart Consolidation and Modern CI/CD"
+    }
+  ]
+}
