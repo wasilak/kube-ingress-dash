@@ -1,0 +1,17 @@
+apiVersion: v2
+name: kube-ingress-dash
+description: A Kubernetes Ingress Dashboard - real-time monitoring and navigation tool for Kubernetes services
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - kubernetes
+  - ingress
+  - dashboard
+  - monitoring
+home: https://github.com/kube-ingress-dash/kube-ingress-dash
+sources:
+  - https://github.com/kube-ingress-dash/kube-ingress-dash
+maintainers:
+  - name: Kube Ingress Dash Team
+    email: team@kube-ingress-dash.com

@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      target: builder  # Use the builder stage so we have dev dependencies
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - .:/app
+      - /app/node_modules  # Anonymous volume to preserve node_modules in container
+    working_dir: /app
+    command: sh -c "npm run dev"
+    stdin_open: true
+    tty: true

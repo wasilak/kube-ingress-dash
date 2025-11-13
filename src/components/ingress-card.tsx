@@ -44,23 +44,27 @@ const IngressCard: React.FC<IngressCardProps> = ({ ingress, onClick }) => {
             <div className="space-y-1">
               <div className="flex items-center gap-1 text-xs font-medium">
                 <Globe className="h-3 w-3" />
-                <span>Hosts</span>
+                <span>Hosts ({ingress.hosts.length})</span>
               </div>
               <div className="space-y-1 mt-1"> {/* Added spacing and vertical layout */}
                 {ingress.hosts.map((host, index) => {
                   // Create URLs from hosts (if not already present in urls)
-                  const hostUrl = ingress.urls.find(url => url.includes(host)) || 
-                                 (host.startsWith('http') ? host : `https://${host}`);
-                  
+                  const hostUrl = (ingress.urls && Array.isArray(ingress.urls) && ingress.urls.length > 0) 
+                                 ? ingress.urls.find(url => url.includes(host)) 
+                                 : null;
+                                 
+                  const finalUrl = hostUrl || (host.startsWith('http') ? host : `https://${host}`);
+
                   return (
                     <Button
                       key={index}
                       variant="outline"
                       size="sm"
-                      className="w-full justify-start h-8 text-xs px-3"
-                      onClick={() => handleLinkClick(hostUrl)}
+                      className="w-full justify-start h-8 text-xs px-3 truncate"
+                      onClick={() => handleLinkClick(finalUrl)}
+                      title={finalUrl}
                     >
-                      {hostUrl}
+                      {finalUrl}
                     </Button>
                   );
                 })}
@@ -68,26 +72,20 @@ const IngressCard: React.FC<IngressCardProps> = ({ ingress, onClick }) => {
             </div>
           )}
 
-          {/* Paths - deduplicated */}
+          {/* Paths - updated to list format */}
           {ingress.paths.length > 0 && (
             <div className="space-y-1">
-              <div className="text-xs font-medium">Paths</div>
-              <div className="flex flex-wrap gap-1">
-                {/* Deduplicate paths by filtering unique values */}
-                {Array.from(new Set(ingress.paths)).slice(0, 5).map((path, index) => (
-                  <Badge
+              <div className="text-xs font-medium">Paths ({ingress.paths.length})</div>
+              <div className="flex flex-col gap-1">
+                {/* List unique paths */}
+                {Array.from(new Set(ingress.paths)).map((path, index) => (
+                  <div
                     key={index}
-                    variant="outline"
-                    className="text-xs px-2 py-1"
+                    className="w-full justify-start h-8 text-xs px-3 truncate border border-input rounded-md bg-transparent flex items-center"
                   >
                     {path}
-                  </Badge>
+                  </div>
                 ))}
-                {ingress.paths.length > 5 && (
-                  <Badge variant="outline" className="text-xs px-2 py-1">
-                    +{ingress.paths.length - 5} more
-                  </Badge>
-                )}
               </div>
             </div>
           )}
