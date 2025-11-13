@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  # Production build of the app
+  app:
+    build:
+      context: .
+      target: runner
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
