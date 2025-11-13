@@ -1,0 +1,41 @@
+/**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+:root {
+  --ifm-color-primary: #2563eb;
+  --ifm-color-primary-dark: #1d4ed8;
+  --ifm-color-primary-darker: #1a47c5;
+  --ifm-color-primary-darkest: #1438a2;
+  --ifm-color-primary-light: #3b82f6;
+  --ifm-color-primary-lighter: #60a5fa;
+  --ifm-color-primary-lightest: #93c5fd;
+  --ifm-code-font-size: 95%;
+}
+
+.docusaurus-highlight-code-line {
+  background-color: rgba(0, 0, 0, 0.1);
+  display: block;
+  margin: 0 calc(-1 * var(--ifm-pre-padding));
+  padding: 0 var(--ifm-pre-padding);
+}
+
+html[data-theme='dark'] .docusaurus-highlight-code-line {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Custom styles for kube-ingress-dash documentation */
+.hero--primary {
+  background-color: #f8fafc;
+  --ifm-hero-background-color: #f8fafc;
+  --ifm-hero-text-color: #1e293b;
+}
+
+html[data-theme='dark'] .hero--primary {
+  background-color: #0f172a;
+  --ifm-hero-background-color: #0f172a;
+  --ifm-hero-text-color: #f1f5f9;
+}

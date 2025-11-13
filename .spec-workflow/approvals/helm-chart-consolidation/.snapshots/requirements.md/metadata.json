@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/helm-chart-consolidation/requirements.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-11-13T18:39:35.513Z",
+      "trigger": "initial",
+      "approvalId": "approval_1763059175501_0nib3k6ls",
+      "approvalTitle": "Requirements for Helm Chart Consolidation and Modern CI/CD"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2025-11-13T18:46:43.576Z",
+      "trigger": "approved",
+      "approvalId": "approval_1763059175501_0nib3k6ls",
+      "approvalTitle": "Requirements for Helm Chart Consolidation and Modern CI/CD"
+    }
+  ]
+}

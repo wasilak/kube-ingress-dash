@@ -2,7 +2,7 @@
 
 # Image configuration
 image:
-  repository: kube-ingress-dash
+  repository: ghcr.io/kube-ingress-dash/kube-ingress-dash
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -64,6 +64,14 @@ strategy:
     maxSurge: 1
     maxUnavailable: 0
 
+# Autoscaling configuration (from k8s-ingress-dashboard chart)
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
 # Environment variables
 env: []
 # - name: SOME_VAR
@@ -72,23 +80,11 @@ env: []
 # Pod annotations
 podAnnotations: {}
 
-# Service Account
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: false
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
-
-# RBAC configuration for Kubernetes API access
-rbac:
-  create: false  # Set to true if the dashboard needs to access Kubernetes API
-
-# Security context
+# Pod security context (from k8s-ingress-dashboard chart)
 podSecurityContext: {}
   # fsGroup: 2000
+
+# Security context (from k8s-ingress-dashboard chart)
 securityContext: {}
   # capabilities:
   #   drop:
@@ -96,3 +92,26 @@ securityContext: {}
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
+
+# Service Account (from k8s-ingress-dashboard chart)
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# RBAC configuration for Kubernetes API access (combining features from both charts)
+rbac:
+  # Specifies whether RBAC resources should be created (from kube-ingress-dash chart)
+  create: true
+  # Specifies whether RBAC resources should be enabled (from k8s-ingress-dashboard chart)
+  enabled: true
+  # ClusterRole name
+  clusterRoleName: "kube-ingress-dash-viewer"
+  # Create ClusterRoleBinding
+  clusterRoleBinding: true
+  # ServiceAccount name for the role binding
+  serviceAccountName: "kube-ingress-dash-viewer"
