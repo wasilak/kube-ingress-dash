@@ -43,3 +43,5 @@ logs
 # Build outputs
 dist
 build
+
+docs-site
