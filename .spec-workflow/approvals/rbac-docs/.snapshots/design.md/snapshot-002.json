@@ -1,0 +1,16 @@
+{
+  "id": "snapshot_1763154119346_jcc887m1j",
+  "approvalId": "approval_1763154032149_kioflic3b",
+  "approvalTitle": "RBAC Documentation Design",
+  "version": 2,
+  "timestamp": "2025-11-14T21:01:59.346Z",
+  "trigger": "approved",
+  "status": "pending",
+  "content": "# Design: RBAC Documentation\n\n## Overview\nProvide clear documentation for RBAC setup, including example manifests and troubleshooting tips. Link docs from error screens and main documentation.\n\n## Key Components\n- RBAC docs page (Markdown)\n- Example Role/RoleBinding manifests\n- Troubleshooting section\n\n## Flow\n1. User accesses RBAC docs from app or main docs\n2. Docs provide setup steps and examples\n3. Troubleshooting tips for common issues\n\n## Considerations\n- Keep docs up to date with Kubernetes versions\n- Make examples easy to copy\n- Link from relevant error screens\n",
+  "fileStats": {
+    "size": 575,
+    "lines": 20,
+    "lastModified": "2025-11-14T21:00:09.365Z"
+  },
+  "comments": []
+}

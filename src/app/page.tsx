@@ -16,6 +16,7 @@ import { IngressData } from '@/types/ingress';
 import { useTheme } from '@/components/theme-provider';
 import ErrorBoundary from '@/components/error-boundary';
 import { MultiSelect } from '@/components/multi-select';
+import { NamespaceFilter } from '@/components/ui/namespace-filter';
 import { getAllLabels, getAllAnnotations, filterIngressesAdvanced } from '@/lib/utils/ingress-transformer';
 import { ErrorHandler } from '@/lib/error-handler';
 import { Loader2, Server, Database, Network, Filter } from 'lucide-react';
@@ -30,6 +31,9 @@ export default function DashboardPage() {
   const [selectedAnnotations, setSelectedAnnotations] = useState<string[]>([]);
   const [allLabels, setAllLabels] = useState<string[]>([]);
   const [allAnnotations, setAllAnnotations] = useState<string[]>([]);
+  const [allNamespaces, setAllNamespaces] = useState<string[]>([]);
+  const [selectedNamespaces, setSelectedNamespaces] = useState<string[]>([]);
+  const [namespaceLoading, setNamespaceLoading] = useState(true);
 
   // Memoize options to prevent unnecessary re-renders
   const labelOptions = React.useMemo(
@@ -71,6 +75,37 @@ export default function DashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once on mount
 
+  // Fetch all namespaces when component mounts
+  useEffect(() => {
+    if (!isMounted) return;
+
+    const fetchNamespaces = async () => {
+      try {
+        setNamespaceLoading(true);
+        // Use the API to fetch namespaces instead of direct Kubernetes client
+        const response = await fetch('/api/namespaces');
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to fetch namespaces");
+        }
+
+        const data = await response.json();
+        setAllNamespaces(data.namespaces || []);
+      } catch (err: any) {
+        ErrorHandler.handle(err, "fetchNamespaces");
+        console.error("Failed to fetch namespaces:", err);
+        // Still set loading to false so the app doesn't hang
+        // Set an empty array as fallback
+        setAllNamespaces([]);
+      } finally {
+        setNamespaceLoading(false);
+      }
+    };
+
+    fetchNamespaces();
+  }, [isMounted]);
+
   // Kubernetes context information (simulated - would come from API in real implementation)
   const [k8sContext, setK8sContext] = useState({
     cluster: "default-cluster",
@@ -78,27 +113,55 @@ export default function DashboardPage() {
     context: "default"
   });
 
+  // Update k8sContext based on selected namespaces
+  useEffect(() => {
+    if (selectedNamespaces.length === 0) {
+      setK8sContext(prev => ({...prev, namespace: "all"}));
+    } else {
+      setK8sContext(prev => ({...prev, namespace: selectedNamespaces.join(', ') || "all"}));
+    }
+  }, [selectedNamespaces]);
+
   // Fetch ingress data from API - now depends on searchQuery which is initialized properly
   useEffect(() => {
     if (!isMounted) return; // Don't run until mounted to avoid hydration issues
-    
+
     const fetchIngresses = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/ingresses${searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ""}`);
-        
+
+        // Build query parameters
+        const params = new URLSearchParams();
+
+        // Add search query if present
+        if (searchQuery) {
+          params.append('search', searchQuery);
+        }
+
+        // Add namespace filter if present
+        if (selectedNamespaces.length > 0) {
+          // Add the selected namespaces as a parameter
+          params.append('namespaces', selectedNamespaces.join(','));
+        }
+        // If no namespaces are selected, no parameter is added, which means "all namespaces" by default
+
+        const queryString = params.toString();
+        const apiUrl = `/api/ingresses${queryString ? `?${queryString}` : ""}`;
+
+        const response = await fetch(apiUrl);
+
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || "Failed to fetch ingresses");
         }
-        
+
         const data = await response.json();
         setIngresses(data.ingresses);
-        
+
         // Update all available labels and annotations when ingresses change
         setAllLabels(getAllLabels(data.ingresses));
         setAllAnnotations(getAllAnnotations(data.ingresses));
-        
+
         // Apply advanced filtering with current selections
         const filtered = filterIngressesAdvanced(data.ingresses, searchQuery, selectedLabels, selectedAnnotations);
         setFilteredIngresses(filtered);
@@ -111,7 +174,7 @@ export default function DashboardPage() {
     };
 
     fetchIngresses();
-  }, [searchQuery, isMounted, selectedLabels, selectedAnnotations]);
+  }, [searchQuery, isMounted, selectedLabels, selectedAnnotations, selectedNamespaces]);
 
   // Apply advanced filtering when selectedLabels or selectedAnnotations change
   useEffect(() => {
@@ -211,7 +274,13 @@ export default function DashboardPage() {
               </div>
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <NamespaceFilter
+                namespaces={allNamespaces}
+                selected={selectedNamespaces}
+                onChange={setSelectedNamespaces}
+              />
+
               <div className="flex items-center space-x-2">
                 <Label htmlFor="theme-select">Theme:</Label>
                 <Select value={theme} onValueChange={handleThemeChange}>

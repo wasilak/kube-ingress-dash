@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/namespace-filter-ui/requirements.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-11-14T20:58:19.718Z",
+      "trigger": "initial",
+      "approvalId": "approval_1763153899712_dhxq9rd04",
+      "approvalTitle": "Namespace Filter UI Requirements"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2025-11-14T20:59:13.304Z",
+      "trigger": "approved",
+      "approvalId": "approval_1763153899712_dhxq9rd04",
+      "approvalTitle": "Namespace Filter UI Requirements"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "snapshot_1763153899718_wtu7i0o9b",
+  "approvalId": "approval_1763153899712_dhxq9rd04",
+  "approvalTitle": "Namespace Filter UI Requirements",
+  "version": 1,
+  "timestamp": "2025-11-14T20:58:19.718Z",
+  "trigger": "initial",
+  "status": "pending",
+  "content": "# Requirements: Namespace Filter UI\n\n## User Stories (EARS)\n- When viewing the dashboard, users shall be able to filter ingresses by namespace using a selector next to the theme switcher.\n- The namespace filter shall support selecting \"All\" and multiple namespaces at once.\n- The UI shall update the displayed ingresses based on the selected namespaces.\n- The filter shall be intuitive and accessible.\n\n## Acceptance Criteria\n- Namespace filter is present and functional.\n- \"All\" and multiselect options work as expected.\n- UI updates ingresses based on filter.\n",
+  "fileStats": {
+    "size": 562,
+    "lines": 13,
+    "lastModified": "2025-11-14T20:57:24.209Z"
+  },
+  "comments": []
+}

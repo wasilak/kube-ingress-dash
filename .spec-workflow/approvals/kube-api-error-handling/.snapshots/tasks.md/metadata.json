@@ -1,0 +1,14 @@
+{
+  "filePath": ".spec-workflow/specs/kube-api-error-handling/tasks.md",
+  "currentVersion": 1,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-11-14T21:02:42.722Z",
+      "trigger": "approved",
+      "approvalId": "approval_1763154145811_cg6mrr9y7",
+      "approvalTitle": "Kube API Error Handling Tasks"
+    }
+  ]
+}

@@ -30,22 +30,36 @@ export async function GET(request: NextRequest) {
 
     // Get namespace from query parameters if provided
     const namespace = request.nextUrl.searchParams.get('namespace') || undefined;
-    
+
+    // Get multiple namespaces from query parameters if provided (comma-separated)
+    const namespacesParam = request.nextUrl.searchParams.get('namespaces');
+    let namespaces: string[] | undefined;
+    if (namespacesParam) {
+      namespaces = namespacesParam.split(',').map(ns => ns.trim()).filter(ns => ns);
+    }
+
     // Get search term from query parameters if provided
     const searchTerm = request.nextUrl.searchParams.get('search') || undefined;
 
     // Fetch ingresses with enhanced error handling
     let ingresses;
     try {
-      ingresses = namespace 
-        ? await kubeClient.getIngressesByNamespace(namespace)
-        : await kubeClient.getIngresses();
+      if (namespaces && namespaces.length > 0) {
+        // Fetch ingresses from multiple namespaces
+        ingresses = await kubeClient.getIngressesByNamespaces(namespaces);
+      } else if (namespace) {
+        // Fetch ingresses from a single namespace (existing functionality)
+        ingresses = await kubeClient.getIngressesByNamespace(namespace);
+      } else {
+        // Fetch ingresses from all namespaces (default behavior)
+        ingresses = await kubeClient.getIngresses();
+      }
     } catch (k8sError: any) {
       const errorInfo = ErrorHandler.handleKubernetesError(
         k8sError,
         'GET /api/ingresses'
       );
-      
+
       return NextResponse.json(
         {
           error: 'Failed to fetch ingresses from Kubernetes API',
@@ -61,10 +75,11 @@ export async function GET(request: NextRequest) {
       ingresses = filterIngresses(ingresses, searchTerm);
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       ingresses,
       timestamp: new Date().toISOString(),
       namespace: namespace || 'all',
+      namespaces: namespaces, // Include the list of namespaces if filtering by multiple
       count: ingresses.length
     });
   } catch (error: any) {

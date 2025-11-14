@@ -1,0 +1,16 @@
+{
+  "id": "snapshot_1763154164139_cshro4hs1",
+  "approvalId": "approval_1763154145810_dh8gv62tv",
+  "approvalTitle": "Namespace Filter UI Tasks",
+  "version": 1,
+  "timestamp": "2025-11-14T21:02:44.139Z",
+  "trigger": "approved",
+  "status": "pending",
+  "content": "# Tasks: Namespace Filter UI\n\n- [ ] Implement NamespaceFilter UI component\n  _Prompt: Implement the task for spec namespace-filter-ui, first run spec-workflow-guide to get the workflow guide then implement the task:\n  Role: React developer\n  Task: Implement NamespaceFilter UI component with \"All\" and multiselect\n  Restrictions: Must be accessible and performant\n  _Leverage: Existing theme selector UI\n  _Requirements: Namespace filter is present and functional\n  Success: UI component works and passes accessibility checks\n\n- [ ] Update API to support namespace filtering\n  _Prompt: Implement the task for spec namespace-filter-ui, first run spec-workflow-guide to get the workflow guide then implement the task:\n  Role: Backend developer\n  Task: Update API to support namespace filtering\n  Restrictions: Do not break existing API endpoints\n  _Leverage: Existing ingress API\n  _Requirements: API accepts namespace filter parameter\n  Success: API returns ingresses for selected namespaces\n\n- [ ] Integrate filter with state management and UI updates\n  _Prompt: Implement the task for spec namespace-filter-ui, first run spec-workflow-guide to get the workflow guide then implement the task:\n  Role: Frontend developer\n  Task: Integrate filter with state management and UI updates\n  Restrictions: Must update UI in real time\n  _Leverage: Existing state management\n  _Requirements: UI updates ingresses based on filter\n  Success: UI updates correctly when filter changes\n",
+  "fileStats": {
+    "size": 1471,
+    "lines": 29,
+    "lastModified": "2025-11-14T21:02:28.559Z"
+  },
+  "comments": []
+}

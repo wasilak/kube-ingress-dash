@@ -1,0 +1,16 @@
+{
+  "id": "snapshot_1763154164451_osmc521h1",
+  "approvalId": "approval_1763154145796_g69n3pc0r",
+  "approvalTitle": "Helm Ingress Support Tasks",
+  "version": 1,
+  "timestamp": "2025-11-14T21:02:44.451Z",
+  "trigger": "approved",
+  "status": "pending",
+  "content": "# Tasks: Helm Ingress Support\n\n- [ ] Add ingress and TLS configuration options to values.yaml\n  _Prompt: Implement the task for spec helm-ingress-support, first run spec-workflow-guide to get the workflow guide then implement the task:\n  Role: Helm chart developer\n  Task: Add ingress and TLS configuration options to values.yaml\n  Restrictions: Do not break existing values\n  _Leverage: Existing values.yaml structure\n  _Requirements: Helm chart supports ingress and HTTPS configuration\n  Success: values.yaml supports all required ingress options\n\n- [ ] Create templates/ingress.yaml to generate ingress manifests\n  _Prompt: Implement the task for spec helm-ingress-support, first run spec-workflow-guide to get the workflow guide then implement the task:\n  Role: Helm chart developer\n  Task: Create templates/ingress.yaml to generate ingress manifests\n  Restrictions: Must support multiple hosts and TLS\n  _Leverage: Helm template functions\n  _Requirements: Chart generates valid ingress manifests\n  Success: templates/ingress.yaml works for all documented cases\n\n- [ ] Update documentation with ingress usage examples\n  _Prompt: Implement the task for spec helm-ingress-support, first run spec-workflow-guide to get the workflow guide then implement the task:\n  Role: Technical writer\n  Task: Update documentation with ingress usage examples\n  Restrictions: Examples must match chart options\n  _Leverage: Existing README structure\n  _Requirements: Documentation explains ingress configuration\n  Success: README includes clear ingress instructions\n",
+  "fileStats": {
+    "size": 1551,
+    "lines": 29,
+    "lastModified": "2025-11-14T21:02:26.497Z"
+  },
+  "comments": []
+}

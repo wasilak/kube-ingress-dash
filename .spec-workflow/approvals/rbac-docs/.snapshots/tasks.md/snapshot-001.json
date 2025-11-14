@@ -1,0 +1,16 @@
+{
+  "id": "snapshot_1763154163287_omdvmvs57",
+  "approvalId": "approval_1763154145811_7vubddih3",
+  "approvalTitle": "RBAC Documentation Tasks",
+  "version": 1,
+  "timestamp": "2025-11-14T21:02:43.287Z",
+  "trigger": "approved",
+  "status": "pending",
+  "content": "# Tasks: RBAC Documentation\n\n- [ ] Write RBAC docs page in Markdown\n  _Prompt: Implement the task for spec rbac-docs, first run spec-workflow-guide to get the workflow guide then implement the task:\n  Role: Technical writer\n  Task: Write RBAC docs page in Markdown\n  Restrictions: Must be clear and easy to follow\n  _Leverage: Existing documentation\n  _Requirements: RBAC docs are present and accessible\n  Success: Docs page is published and linked\n\n- [ ] Add example Role/RoleBinding manifests\n  _Prompt: Implement the task for spec rbac-docs, first run spec-workflow-guide to get the workflow guide then implement the task:\n  Role: Technical writer\n  Task: Add example Role/RoleBinding manifests\n  Restrictions: Must match app requirements\n  _Leverage: Kubernetes documentation\n  _Requirements: Example manifests included\n  Success: Examples are correct and copyable\n\n- [ ] Add troubleshooting tips for RBAC issues\n  _Prompt: Implement the task for spec rbac-docs, first run spec-workflow-guide to get the workflow guide then implement the task:\n  Role: Technical writer\n  Task: Add troubleshooting tips for RBAC issues\n  Restrictions: Must cover common problems\n  _Leverage: User feedback and support docs\n  _Requirements: Troubleshooting tips included\n  Success: Users can resolve RBAC issues\n",
+  "fileStats": {
+    "size": 1297,
+    "lines": 29,
+    "lastModified": "2025-11-14T21:02:34.646Z"
+  },
+  "comments": []
+}

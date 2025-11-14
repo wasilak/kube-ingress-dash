@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/kube-api-error-handling/requirements.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-11-14T20:58:25.497Z",
+      "trigger": "initial",
+      "approvalId": "approval_1763153905491_iege6z79a",
+      "approvalTitle": "Kube API Error Handling Requirements"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2025-11-14T20:59:12.409Z",
+      "trigger": "approved",
+      "approvalId": "approval_1763153905491_iege6z79a",
+      "approvalTitle": "Kube API Error Handling Requirements"
+    }
+  ]
+}

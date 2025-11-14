@@ -1,0 +1,16 @@
+{
+  "id": "snapshot_1763154120097_v8mfhs9ri",
+  "approvalId": "approval_1763154032135_ixxebfru3",
+  "approvalTitle": "Helm Ingress Support Design",
+  "version": 2,
+  "timestamp": "2025-11-14T21:02:00.097Z",
+  "trigger": "approved",
+  "status": "pending",
+  "content": "# Design: Helm Ingress Support\n\n## Overview\nAdd ingress and HTTPS support to the Helm chart, allowing users to configure ingress resources, TLS, and host rules via values.yaml. Ensure templates generate valid manifests and document all options.\n\n## Key Components\n- values.yaml: Add ingress and TLS configuration options\n- templates/ingress.yaml: Generate ingress manifests based on values\n- Documentation: Update README with usage examples\n\n## Flow\n1. User sets ingress options in values.yaml\n2. Chart renders ingress.yaml with correct rules and TLS\n3. Documentation provides clear instructions\n\n## Considerations\n- Support multiple hosts and paths\n- Allow disabling ingress\n- Validate values and manifests\n- Ensure compatibility with HTTPS/TLS\n",
+  "fileStats": {
+    "size": 746,
+    "lines": 21,
+    "lastModified": "2025-11-14T21:00:09.351Z"
+  },
+  "comments": []
+}

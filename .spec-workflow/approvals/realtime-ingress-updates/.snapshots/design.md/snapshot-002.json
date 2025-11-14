@@ -1,0 +1,16 @@
+{
+  "id": "snapshot_1763154119599_7g0iw6he5",
+  "approvalId": "approval_1763154032148_qysjt6y11",
+  "approvalTitle": "Real-Time Ingress Updates Design",
+  "version": 2,
+  "timestamp": "2025-11-14T21:01:59.599Z",
+  "trigger": "approved",
+  "status": "pending",
+  "content": "# Design: Real-Time Ingress Updates\n\n## Overview\nUse Kubernetes watch/stream API to receive ingress events and update the dashboard in real time. Ensure frontend reflects changes instantly.\n\n## Key Components\n- Backend: Watch ingresses via Kubernetes API\n- Frontend: Subscribe to updates (WebSocket/EventSource)\n- State management for ingress list\n\n## Flow\n1. Backend watches ingress resources\n2. On event, backend pushes update to frontend\n3. Frontend updates UI immediately\n\n## Considerations\n- Handle add, update, delete events\n- Error handling for stream interruptions\n- Efficient state updates\n",
+  "fileStats": {
+    "size": 599,
+    "lines": 20,
+    "lastModified": "2025-11-14T21:00:09.351Z"
+  },
+  "comments": []
+}

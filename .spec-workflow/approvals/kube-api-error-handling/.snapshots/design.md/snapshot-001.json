@@ -1,0 +1,16 @@
+{
+  "id": "snapshot_1763154032163_clvs8om36",
+  "approvalId": "approval_1763154032149_2ilo3blba",
+  "approvalTitle": "Kube API Error Handling Design",
+  "version": 1,
+  "timestamp": "2025-11-14T21:00:32.163Z",
+  "trigger": "initial",
+  "status": "pending",
+  "content": "# Design: Kube API Error Handling\n\n## Overview\nDetect permission/API errors and show a user-friendly error screen with a link to RBAC docs. Handle common error codes and provide actionable messages.\n\n## Key Components\n- Error detection in backend/API client\n- ErrorBoundary or ErrorScreen component in frontend\n- Link to RBAC documentation\n\n## Flow\n1. App detects API/permission error\n2. UI displays error screen with message and docs link\n3. User can access troubleshooting info\n\n## Considerations\n- Distinct visual style for error screen\n- Localized/helpful messages\n- Easy navigation to docs\n",
+  "fileStats": {
+    "size": 595,
+    "lines": 20,
+    "lastModified": "2025-11-14T21:00:09.351Z"
+  },
+  "comments": []
+}

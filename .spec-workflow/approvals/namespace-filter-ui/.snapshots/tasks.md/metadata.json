@@ -1,0 +1,14 @@
+{
+  "filePath": ".spec-workflow/specs/namespace-filter-ui/tasks.md",
+  "currentVersion": 1,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-11-14T21:02:44.139Z",
+      "trigger": "approved",
+      "approvalId": "approval_1763154145810_dh8gv62tv",
+      "approvalTitle": "Namespace Filter UI Tasks"
+    }
+  ]
+}

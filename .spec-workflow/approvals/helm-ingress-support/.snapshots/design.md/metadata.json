@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/helm-ingress-support/design.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-11-14T21:00:32.140Z",
+      "trigger": "initial",
+      "approvalId": "approval_1763154032135_ixxebfru3",
+      "approvalTitle": "Helm Ingress Support Design"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2025-11-14T21:02:00.097Z",
+      "trigger": "approved",
+      "approvalId": "approval_1763154032135_ixxebfru3",
+      "approvalTitle": "Helm Ingress Support Design"
+    }
+  ]
+}
