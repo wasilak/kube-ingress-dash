@@ -2,7 +2,7 @@
 
 # Image configuration
 image:
-  repository: ghcr.io/kube-ingress-dash/kube-ingress-dash
+  repository: ghcr.io/wasilak/kube-ingress-dash
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
