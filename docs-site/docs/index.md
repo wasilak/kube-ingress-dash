@@ -3,7 +3,10 @@ sidebar_position: 1
 title: Introduction
 ---
 
+
 # kube-ingress-dash
+
+![kube-ingress-dash collage](../../images/collage.png)
 
 A Kubernetes Ingress Dashboard for monitoring and navigating services running in Kubernetes clusters. This tool provides real-time visibility into ingress resources, making it easy to discover, access, and monitor services.
 
