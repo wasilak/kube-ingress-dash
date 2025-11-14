@@ -61,15 +61,8 @@ const config: Config = {
       onBrokenMarkdownLinks: 'throw',
     },
     preprocessor: ({ filePath, fileContent }) => {
-      // Read version from package.json
-      let pkgVersion = 'latest';
-      try {
-        pkgVersion = require('../package.json').version;
-      } catch (e) {
-        console.warn('Could not read package.json to get version:', e);
-      }
-      const helmVersion = process.env.HELM_VERSION || pkgVersion;
-      const dockerVersion = process.env.DOCKER_VERSION || helmVersion;
+      const helmVersion = process.env.HELM_VERSION || 'local';
+      const dockerVersion = process.env.DOCKER_VERSION || 'local';
       return fileContent
         .replaceAll('@HELM_VERSION@', helmVersion)
         .replaceAll('@DOCKER_VERSION@', dockerVersion);

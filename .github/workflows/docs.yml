@@ -38,9 +38,13 @@ jobs:
           cd docs-site
           npm ci
 
+      - name: Set docs version from git tag
+        run: echo "DOCS_VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+
       - name: Build Docusaurus documentation
         env:
           NODE_OPTIONS: "--localstorage-file=./local-storage"
+          DOCS_VERSION: ${{ env.DOCS_VERSION }}
         run: |
           cd docs-site
           npm run build
