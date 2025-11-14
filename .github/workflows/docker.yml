@@ -5,8 +5,15 @@ on:
     branches: ["main"]
     # Publish semver tags as releases.
     tags: ["v*.*.*"]
+    paths-ignore:
+      - ".github/workflows/**"
+      - "docs/**"
+
   pull_request:
     branches: ["main"]
+    paths-ignore:
+      - ".github/workflows/**"
+      - "docs/**"
 
   workflow_dispatch:
 
