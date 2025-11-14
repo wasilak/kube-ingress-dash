@@ -137,12 +137,93 @@ class KubernetesClient {
       const isRBACError = error?.response?.body?.message?.includes('forbidden') ||
                          error?.response?.body?.message?.includes('denied') ||
                          error?.response?.statusCode === 403;
-      
+
       return {
         hasPermissions: false,
         error: isRBACError ? 'Insufficient RBAC permissions' : error?.response?.body?.message || error.message,
         isRBACError
       };
+    }
+  }
+
+  /**
+   * Watch ingress resources for changes
+   */
+  async watchIngresses(
+    callback: (type: string, ingress: any) => void,
+    done: () => void,
+    errorCb: (err: any) => void
+  ) {
+    const k8s = require('@kubernetes/client-node');
+    const watch = new k8s.Watch(this.kubeConfig);
+
+    try {
+      await watch.watch(
+        '/apis/networking.k8s.io/v1/ingresses',
+        {},
+        (type: string, k8sObject: any) => {
+          try {
+            // Transform the Kubernetes object to our format
+            const ingressData = transformIngress(k8sObject);
+            callback(type, ingressData);
+          } catch (error) {
+            console.error('Error transforming ingress object:', error);
+            errorCb(error as Error);
+          }
+        },
+        (err: any) => {
+          if (err) {
+            console.error('Error in ingress watch:', err);
+            errorCb(err as Error);
+          } else {
+            done();
+          }
+        }
+      );
+    } catch (error) {
+      console.error('Failed to start ingress watch:', error);
+      errorCb(error as Error);
+    }
+  }
+
+  /**
+   * Watch ingresses in a specific namespace for changes
+   */
+  async watchIngressesByNamespace(
+    namespace: string,
+    callback: (type: string, ingress: any) => void,
+    done: () => void,
+    errorCb: (err: any) => void
+  ) {
+    const k8s = require('@kubernetes/client-node');
+    const watch = new k8s.Watch(this.kubeConfig);
+
+    try {
+      await watch.watch(
+        `/apis/networking.k8s.io/v1/namespaces/${namespace}/ingresses`,
+        {},
+        (type: string, k8sObject: any) => {
+          try {
+            // Transform the Kubernetes object to our format
+            const ingressData = transformIngress(k8sObject);
+            callback(type, ingressData);
+          } catch (error) {
+            console.error('Error transforming ingress object:', error);
+            errorCb(error as Error);
+          }
+        },
+        (err: any) => {
+          if (err) {
+            console.error('Error in ingress watch:', err);
+            errorCb(err as Error);
+          } else {
+            done();
+          }
+        }
+      );
+    } catch (error) {
+      console.error('Failed to start ingress watch:', error);
+      errorCb(error as Error);
     }
   }
 }
