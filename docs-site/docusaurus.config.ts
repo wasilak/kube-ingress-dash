@@ -62,7 +62,19 @@ const config: Config = {
     mermaid: true,
     hooks: {
       onBrokenMarkdownLinks: 'throw',
-    }
+    },
+    preprocessor: ({ filePath, fileContent }) => {
+      // Read version from package.json
+      let pkgVersion = '0.1.0';
+      try {
+        pkgVersion = require('../../package.json').version;
+      } catch (e) {}
+      const helmVersion = process.env.HELM_VERSION || pkgVersion;
+      const dockerVersion = process.env.DOCKER_VERSION || helmVersion;
+      return fileContent
+        .replaceAll('@HELM_VERSION@', helmVersion)
+        .replaceAll('@DOCKER_VERSION@', dockerVersion);
+    },
   },
   themeConfig: {
     image: 'img/docusaurus-social-card.jpg',
