@@ -21,7 +21,7 @@ Since our chart is published to GitHub Container Registry (GHCR) as an OCI chart
 
 ```bash
 # Install directly from OCI registry
-helm install kube-ingress-dash oci://ghcr.io/wasilak/kube-ingress-dash/kube-ingress-dash-chart --version 0.1.0
+helm install kube-ingress-dash oci://ghcr.io/wasilak/kube-ingress-dash-chart --version 0.1.0
 ```
 
 ## Installation
@@ -29,13 +29,13 @@ helm install kube-ingress-dash oci://ghcr.io/wasilak/kube-ingress-dash/kube-ingr
 ### 1. Install with Default Values
 
 ```bash
-helm install kube-ingress-dash oci://ghcr.io/wasilak/kube-ingress-dash/kube-ingress-dash-chart --version 0.1.0
+helm install kube-ingress-dash oci://ghcr.io/wasilak/kube-ingress-dash-chart --version 0.1.0
 ```
 
 ### 2. Install with Custom Values
 
 ```bash
-helm install kube-ingress-dash oci://ghcr.io/wasilak/kube-ingress-dash/kube-ingress-dash-chart --version 0.1.0 -f my-values.yaml
+helm install kube-ingress-dash oci://ghcr.io/wasilak/kube-ingress-dash-chart --version 0.1.0 -f my-values.yaml
 ```
 
 ## Configuration
@@ -47,7 +47,7 @@ The Helm chart provides extensive configuration options:
 #### Image Configuration
 ```yaml
 image:
-  repository: ghcr.io/wasilak/kube-ingress-dash/kube-ingress-dash
+  repository: ghcr.io/wasilak/kube-ingress-dash
   pullPolicy: IfNotPresent
   tag: ""  # Defaults to appVersion in Chart.yaml
 ```
