@@ -48,6 +48,8 @@ jobs:
           npm ci
 
       - name: Build Docusaurus documentation
+        env:
+          NODE_OPTIONS: "--localstorage-file=./local-storage"
         run: |
           cd docs-site
           npm run build
