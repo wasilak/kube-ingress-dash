@@ -20,13 +20,13 @@ The application is available as multi-architecture Docker images on GitHub Conta
 ### Pull the Image
 
 ```bash
-docker pull ghcr.io/wasilak/kube-ingress-dash:latest
+docker pull ghcr.io/wasilak/kube-ingress-dash:@DOCKER_VERSION@
 ```
 
 ### Run with Docker
 
 ```bash
-docker run -p 3000:3000 ghcr.io/wasilak/kube-ingress-dash:latest
+docker run -p 3000:3000 ghcr.io/wasilak/kube-ingress-dash:@DOCKER_VERSION@
 ```
 
 ## Building from Source
@@ -66,7 +66,7 @@ The appropriate image will be automatically selected based on your platform.
 # Example with environment variables
 docker run -p 3000:3000 \
   -e NODE_ENV=production \
-  ghcr.io/wasilak/kube-ingress-dash:latest
+  ghcr.io/wasilak/kube-ingress-dash:@DOCKER_VERSION@
 ```
 
 ## Kubernetes Deployment with Docker
@@ -93,7 +93,7 @@ spec:
       serviceAccountName: kube-ingress-dash-viewer  # Ensure proper RBAC
       containers:
       - name: kube-ingress-dash
-        image: ghcr.io/wasilak/kube-ingress-dash:latest
+  image: ghcr.io/wasilak/kube-ingress-dash:@DOCKER_VERSION@
         ports:
         - containerPort: 3000
         env:
