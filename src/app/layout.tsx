@@ -9,6 +9,9 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'Kubernetes Ingress Dashboard',
   description: 'Real-time monitoring and navigation for Kubernetes ingresses',
+  icons: {
+    icon: '/images/logo.svg',
+  },
 }
 
 export default function RootLayout({
@@ -18,6 +21,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/images/logo.svg" type="image/svg+xml" />
+      </head>
       <body className={inter.className}>
         <ErrorBoundary>
           <ThemeProvider>
