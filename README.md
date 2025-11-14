@@ -1,19 +1,17 @@
-<div align="center">
 
 # kube-ingress-dash 🚀
 
-[![License: MIT](https://img.shields.io/github/license/wasilak/kube-ingress-dash)](https://github.com/wasilak/kube-ingress-dash/blob/main/LICENSE)
-[![GitHub Release](https://img.shields.io/github/v/release/wasilak/kube-ingress-dash)](https://github.com/wasilak/kube-ingress-dash/releases)
-[![Docker Pulls](https://img.shields.io/docker/pulls/kube-ingress-dash/kube-ingress-dash)](https://hub.docker.com/r/kube-ingress-dash/kube-ingress-dash)
-[![GitHub stars](https://img.shields.io/github/stars/wasilak/kube-ingress-dash?style=social)](https://github.com/wasilak/kube-ingress-dash/stargazers)
+![GitHub License](https://img.shields.io/github/license/wasilak/kube-ingress-dash)
+![GitHub Release](https://img.shields.io/github/v/release/wasilak/kube-ingress-dash)
+![GitHub Repo stars](https://img.shields.io/github/stars/wasilak/kube-ingress-dash)
 
-<p><b>Kubernetes Ingress Dashboard for monitoring and navigating services</b></p>
+**Kubernetes Ingress Dashboard for monitoring and navigating services**
 
-<p>Real-time visibility into ingress resources, making it easy to discover, access, and monitor services running in your Kubernetes clusters</p>
+Real-time visibility into ingress resources, making it easy to discover, access, and monitor services running in your Kubernetes clusters.
 
-[**Try Live Demo**](https://example.com) · [**Documentation**](https://wasilak.github.io/kube-ingress-dash) · [**Report Bug**](https://github.com/wasilak/kube-ingress-dash/issues) · [**Request Feature**](https://github.com/wasilak/kube-ingress-dash/issues)
+[**Documentation**](https://wasilak.github.io/kube-ingress-dash) · [**Report Bug**](https://github.com/wasilak/kube-ingress-dash/issues) · [**Request Feature**](https://github.com/wasilak/kube-ingress-dash/issues)
 
-</div>
+![kube-ingress-dash collage](images/collage.png)
 
 ## 🎯 Why kube-ingress-dash?
 
@@ -148,13 +146,9 @@ Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 ---
 
-<div align="center">
-
 [![GitHub followers](https://img.shields.io/github/followers/wasilak?style=social)](https://github.com/wasilak)
 [![Twitter Follow](https://img.shields.io/twitter/follow/kubeingressdash?style=social)](https://twitter.com/intent/follow?screen_name=kubeingressdash)
 
 **Made with ❤️ for the Kubernetes community**
 
 [⭐ Star this repo if you find it useful!](https://github.com/wasilak/kube-ingress-dash)
-
-</div>
