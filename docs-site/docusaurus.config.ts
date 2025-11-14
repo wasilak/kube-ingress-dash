@@ -69,6 +69,11 @@ const config: Config = {
     },
   },
   themeConfig: {
+    colorMode: {
+      defaultMode: 'light',
+      disableSwitch: false,
+      respectPrefersColorScheme: true,
+    },
     image: 'img/docusaurus-social-card.jpg',
     navbar: {
       title: 'kube-ingress-dash',
