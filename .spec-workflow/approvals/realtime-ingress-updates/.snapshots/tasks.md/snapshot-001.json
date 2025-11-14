@@ -1,0 +1,16 @@
+{
+  "id": "snapshot_1763154163712_6yislnil7",
+  "approvalId": "approval_1763154145811_8fe33digv",
+  "approvalTitle": "Real-Time Ingress Updates Tasks",
+  "version": 1,
+  "timestamp": "2025-11-14T21:02:43.712Z",
+  "trigger": "approved",
+  "status": "pending",
+  "content": "# Tasks: Real-Time Ingress Updates\n\n- [ ] Implement backend watch for ingress resources\n  _Prompt: Implement the task for spec realtime-ingress-updates, first run spec-workflow-guide to get the workflow guide then implement the task:\n  Role: Backend developer\n  Task: Implement backend watch for ingress resources using Kubernetes API\n  Restrictions: Must handle add, update, delete events\n  _Leverage: Existing k8s client\n  _Requirements: Backend watches ingress resources\n  Success: Backend pushes updates on ingress changes\n\n- [ ] Implement frontend subscription to ingress updates\n  _Prompt: Implement the task for spec realtime-ingress-updates, first run spec-workflow-guide to get the workflow guide then implement the task:\n  Role: Frontend developer\n  Task: Implement frontend subscription to ingress updates (WebSocket/EventSource)\n  Restrictions: Must update UI instantly\n  _Leverage: Existing frontend state management\n  _Requirements: UI updates without manual refresh\n  Success: UI reflects ingress changes in real time\n\n- [ ] Handle stream interruptions and errors\n  _Prompt: Implement the task for spec realtime-ingress-updates, first run spec-workflow-guide to get the workflow guide then implement the task:\n  Role: Backend developer\n  Task: Handle stream interruptions and errors gracefully\n  Restrictions: Must provide fallback or retry\n  _Leverage: Existing error handling\n  _Requirements: Robust real-time updates\n  Success: App recovers from stream errors\n",
+  "fileStats": {
+    "size": 1478,
+    "lines": 29,
+    "lastModified": "2025-11-14T21:02:30.579Z"
+  },
+  "comments": []
+}

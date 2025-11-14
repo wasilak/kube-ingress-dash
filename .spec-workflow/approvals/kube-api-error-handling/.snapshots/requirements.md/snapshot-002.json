@@ -1,0 +1,16 @@
+{
+  "id": "snapshot_1763153952410_v4qfi06jj",
+  "approvalId": "approval_1763153905491_iege6z79a",
+  "approvalTitle": "Kube API Error Handling Requirements",
+  "version": 2,
+  "timestamp": "2025-11-14T20:59:12.409Z",
+  "trigger": "approved",
+  "status": "pending",
+  "content": "# Requirements: Kube API Error Handling\n\n## User Stories (EARS)\n- When the app cannot access the Kubernetes API (e.g., lack of permissions), users shall see a helpful error screen.\n- The error screen shall explain the issue and provide a link to RBAC documentation.\n- The app shall detect common permission errors and display relevant messages.\n- The error screen shall be visually distinct and easy to understand.\n\n## Acceptance Criteria\n- Permission/API errors are detected and handled.\n- User-friendly error screen is shown.\n- Link to RBAC docs is present.\n",
+  "fileStats": {
+    "size": 560,
+    "lines": 13,
+    "lastModified": "2025-11-14T20:57:24.209Z"
+  },
+  "comments": []
+}

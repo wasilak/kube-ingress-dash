@@ -1,0 +1,12 @@
+{
+  "id": "approval_1763154032135_ixxebfru3",
+  "title": "Helm Ingress Support Design",
+  "filePath": ".spec-workflow/specs/helm-ingress-support/design.md",
+  "type": "document",
+  "status": "approved",
+  "createdAt": "2025-11-14T21:00:32.135Z",
+  "category": "spec",
+  "categoryName": "helm-ingress-support",
+  "response": "Approved via dashboard",
+  "respondedAt": "2025-11-14T21:02:00.099Z"
+}

@@ -102,6 +102,29 @@ class KubernetesClient {
   }
 
   /**
+   * Get ingresses from multiple specific namespaces
+   */
+  async getIngressesByNamespaces(namespaces: string[]): Promise<IngressData[]> {
+    try {
+      // Fetch ingresses from all specified namespaces in parallel
+      const namespacePromises = namespaces.map(ns =>
+        this.getIngressesByNamespace(ns).catch(err => {
+          console.error(`Error fetching ingresses from namespace ${ns}:`, err);
+          return []; // Return empty array for failed namespaces so others can still work
+        })
+      );
+
+      const namespaceResults = await Promise.all(namespacePromises);
+
+      // Flatten the results from all namespaces into a single array
+      return namespaceResults.flat();
+    } catch (error) {
+      console.error('Error fetching ingresses from multiple namespaces:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Check if the client has proper RBAC permissions
    */
   async checkPermissions(): Promise<{ hasPermissions: boolean; error?: string; isRBACError?: boolean }> {

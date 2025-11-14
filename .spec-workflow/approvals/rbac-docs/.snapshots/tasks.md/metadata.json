@@ -1,0 +1,14 @@
+{
+  "filePath": ".spec-workflow/specs/rbac-docs/tasks.md",
+  "currentVersion": 1,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-11-14T21:02:43.287Z",
+      "trigger": "approved",
+      "approvalId": "approval_1763154145811_7vubddih3",
+      "approvalTitle": "RBAC Documentation Tasks"
+    }
+  ]
+}

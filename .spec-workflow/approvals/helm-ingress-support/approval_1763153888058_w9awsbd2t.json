@@ -1,0 +1,12 @@
+{
+  "id": "approval_1763153888058_w9awsbd2t",
+  "title": "Helm Ingress Support Requirements",
+  "filePath": ".spec-workflow/specs/helm-ingress-support/requirements.md",
+  "type": "document",
+  "status": "approved",
+  "createdAt": "2025-11-14T20:58:08.058Z",
+  "category": "spec",
+  "categoryName": "helm-ingress-support",
+  "response": "Approved via dashboard",
+  "respondedAt": "2025-11-14T20:59:13.715Z"
+}

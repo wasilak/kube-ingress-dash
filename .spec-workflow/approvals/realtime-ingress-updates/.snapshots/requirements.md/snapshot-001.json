@@ -1,0 +1,16 @@
+{
+  "id": "snapshot_1763153903425_itzavaa5z",
+  "approvalId": "approval_1763153903418_c7ma6fpwu",
+  "approvalTitle": "Real-Time Ingress Updates Requirements",
+  "version": 1,
+  "timestamp": "2025-11-14T20:58:23.425Z",
+  "trigger": "initial",
+  "status": "pending",
+  "content": "# Requirements: Real-Time Ingress Updates\n\n## User Stories (EARS)\n- When ingresses change in the cluster, users shall see updates in the dashboard in real time.\n- The app shall use Kubernetes watch/stream API to receive ingress events.\n- The UI shall reflect additions, deletions, and updates instantly.\n- Users shall not need to refresh the page to see changes.\n\n## Acceptance Criteria\n- Ingress changes are shown in real time.\n- UI updates without manual refresh.\n- Uses Kubernetes watch/stream API.\n",
+  "fileStats": {
+    "size": 502,
+    "lines": 13,
+    "lastModified": "2025-11-14T20:57:24.209Z"
+  },
+  "comments": []
+}

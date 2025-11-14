@@ -64,8 +64,8 @@ const config: Config = {
       const helmVersion = process.env.HELM_VERSION || 'local';
       const dockerVersion = process.env.DOCKER_VERSION || 'local';
       return fileContent
-        .replaceAll('@HELM_VERSION@', helmVersion)
-        .replaceAll('@DOCKER_VERSION@', dockerVersion);
+        .replace(/@HELM_VERSION@/g, helmVersion)
+        .replace(/@DOCKER_VERSION@/g, dockerVersion);
     },
   },
   themeConfig: {

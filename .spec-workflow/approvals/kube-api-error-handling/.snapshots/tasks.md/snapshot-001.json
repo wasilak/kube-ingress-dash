@@ -1,0 +1,16 @@
+{
+  "id": "snapshot_1763154162722_l5g65piln",
+  "approvalId": "approval_1763154145811_cg6mrr9y7",
+  "approvalTitle": "Kube API Error Handling Tasks",
+  "version": 1,
+  "timestamp": "2025-11-14T21:02:42.722Z",
+  "trigger": "approved",
+  "status": "pending",
+  "content": "# Tasks: Kube API Error Handling\n\n- [ ] Detect permission/API errors in backend\n  _Prompt: Implement the task for spec kube-api-error-handling, first run spec-workflow-guide to get the workflow guide then implement the task:\n  Role: Backend developer\n  Task: Detect permission/API errors in backend\n  Restrictions: Must cover common error codes\n  _Leverage: Existing API client\n  _Requirements: Permission/API errors are detected\n  Success: Errors are detected and passed to frontend\n\n- [ ] Implement ErrorScreen component in frontend\n  _Prompt: Implement the task for spec kube-api-error-handling, first run spec-workflow-guide to get the workflow guide then implement the task:\n  Role: React developer\n  Task: Implement ErrorScreen component with helpful message and docs link\n  Restrictions: Must be visually distinct and easy to understand\n  _Leverage: Existing ErrorBoundary\n  _Requirements: User-friendly error screen is shown\n  Success: Error screen displays correct message and link\n\n- [ ] Link error screen to RBAC documentation\n  _Prompt: Implement the task for spec kube-api-error-handling, first run spec-workflow-guide to get the workflow guide then implement the task:\n  Role: Frontend developer\n  Task: Link error screen to RBAC documentation\n  Restrictions: Link must be easy to find\n  _Leverage: Existing docs\n  _Requirements: Link to RBAC docs is present\n  Success: Users can access RBAC docs from error screen\n",
+  "fileStats": {
+    "size": 1429,
+    "lines": 29,
+    "lastModified": "2025-11-14T21:02:32.605Z"
+  },
+  "comments": []
+}

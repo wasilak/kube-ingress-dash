@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/realtime-ingress-updates/design.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2025-11-14T21:00:32.163Z",
+      "trigger": "initial",
+      "approvalId": "approval_1763154032148_qysjt6y11",
+      "approvalTitle": "Real-Time Ingress Updates Design"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2025-11-14T21:01:59.599Z",
+      "trigger": "approved",
+      "approvalId": "approval_1763154032148_qysjt6y11",
+      "approvalTitle": "Real-Time Ingress Updates Design"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "snapshot_1763154032160_pfzgrgmqf",
+  "approvalId": "approval_1763154032147_wh1escp8z",
+  "approvalTitle": "Namespace Filter UI Design",
+  "version": 1,
+  "timestamp": "2025-11-14T21:00:32.160Z",
+  "trigger": "initial",
+  "status": "pending",
+  "content": "# Design: Namespace Filter UI\n\n## Overview\nAdd a namespace filter component next to the theme selector. Support \"All\" and multiselect. Update API and UI to filter ingresses by selected namespaces.\n\n## Key Components\n- NamespaceFilter component (UI)\n- API: Accept namespace filter parameter\n- State management for selected namespaces\n\n## Flow\n1. User selects namespaces in filter\n2. App fetches and displays ingresses for selected namespaces\n3. UI updates in real time\n\n## Considerations\n- Accessibility and usability\n- Performance with many namespaces\n- Default to \"All\" on load\n",
+  "fileStats": {
+    "size": 579,
+    "lines": 20,
+    "lastModified": "2025-11-14T21:00:09.351Z"
+  },
+  "comments": []
+}

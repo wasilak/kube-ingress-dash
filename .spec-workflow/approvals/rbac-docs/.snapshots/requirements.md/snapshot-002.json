@@ -1,0 +1,16 @@
+{
+  "id": "snapshot_1763153951824_n0x8i84ri",
+  "approvalId": "approval_1763153907494_rne2oveab",
+  "approvalTitle": "RBAC Documentation Requirements",
+  "version": 2,
+  "timestamp": "2025-11-14T20:59:11.824Z",
+  "trigger": "approved",
+  "status": "pending",
+  "content": "# Requirements: RBAC Documentation\n\n## User Stories (EARS)\n- When setting up the app, users shall have access to clear documentation for RBAC setup in Kubernetes.\n- Documentation shall include example manifests for required roles and bindings.\n- Troubleshooting tips for common RBAC issues shall be provided.\n- Documentation shall be easy to find and understand.\n\n## Acceptance Criteria\n- RBAC docs are present and accessible.\n- Example manifests and troubleshooting tips included.\n- Linked from error screens and main docs.\n",
+  "fileStats": {
+    "size": 525,
+    "lines": 13,
+    "lastModified": "2025-11-14T20:57:24.218Z"
+  },
+  "comments": []
+}
