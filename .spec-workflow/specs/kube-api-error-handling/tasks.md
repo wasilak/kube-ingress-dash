@@ -1,6 +1,6 @@
 # Tasks: Kube API Error Handling
 
-- [ ] Detect permission/API errors in backend
+- [x] Detect permission/API errors in backend
   _Prompt: Implement the task for spec kube-api-error-handling, first run spec-workflow-guide to get the workflow guide then implement the task:
   Role: Backend developer
   Task: Detect permission/API errors in backend
@@ -9,7 +9,7 @@
   _Requirements: Permission/API errors are detected
   Success: Errors are detected and passed to frontend
 
-- [ ] Implement ErrorScreen component in frontend
+- [x] Implement ErrorScreen component in frontend
   _Prompt: Implement the task for spec kube-api-error-handling, first run spec-workflow-guide to get the workflow guide then implement the task:
   Role: React developer
   Task: Implement ErrorScreen component with helpful message and docs link
@@ -18,7 +18,7 @@
   _Requirements: User-friendly error screen is shown
   Success: Error screen displays correct message and link
 
-- [ ] Link error screen to RBAC documentation
+- [x] Link error screen to RBAC documentation
   _Prompt: Implement the task for spec kube-api-error-handling, first run spec-workflow-guide to get the workflow guide then implement the task:
   Role: Frontend developer
   Task: Link error screen to RBAC documentation
