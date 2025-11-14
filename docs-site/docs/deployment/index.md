@@ -1,0 +1,13 @@
+---
+title: Deployment Methods
+sidebar_position: 1
+---
+
+
+Choose your preferred deployment method for kube-ingress-dash:
+
+- **[Helm](deployment/helm)**: The recommended method for Kubernetes deployment
+- **[Docker](deployment/docker)**: For containerized deployment
+- **[Source](deployment/from-source)**: For local development and customization
+
+Each method has its own setup instructions and requirements. Click the links above for step-by-step guides.
