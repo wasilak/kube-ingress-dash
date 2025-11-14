@@ -214,7 +214,7 @@ export default function DashboardPage() {
         };
 
         eventSource.onerror = (error) => {
-          console.error('SSE connection error:', error);
+          console.error('SSE connection error:', error || 'Unknown SSE error');
           // Don't attempt to reconnect when there's an error state, just close
           if (eventSource) {
             eventSource.close();
