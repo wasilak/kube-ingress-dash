@@ -3,7 +3,7 @@ name: Helm Chart
 on:
   push:
     tags:
-      - 'v*.*.*'  # Run on semantic version tags (e.g., v1.0.0)
+      - "v*.*.*" # Run on semantic version tags (e.g., v1.0.0)
   workflow_dispatch:
 
 env:
@@ -24,7 +24,7 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@v4
         with:
-          version: 'latest'
+          version: "latest"
 
       - name: Log into Helm registry
         run: |
@@ -36,17 +36,22 @@ jobs:
           # Extract version from tag (removing 'v' prefix)
           VERSION=${GITHUB_REF_NAME#v}
           CHART_NAME=kube-ingress-dash
-          
+          CHART_PACKAGE_NAME=kube-ingress-dash-chart
+
           # Update version in Chart.yaml temporarily for this build
           sed -i "s/version: .*/version: $VERSION/" $CHART_NAME/Chart.yaml
           sed -i "s/appVersion: .*/appVersion: \"$VERSION\"/" $CHART_NAME/Chart.yaml
-          
+
+
           # Package the chart
-          helm package $CHART_NAME/
-          
-          # Push to OCI registry
-          helm push $CHART_NAME-$VERSION.tgz oci://${{ env.HELM_REGISTRY }}/${{ env.HELM_NAMESPACE }}
-          
+          helm package $CHART_NAME/ --destination .
+
+          # Rename the chart package to avoid collision
+          mv $CHART_NAME-$VERSION.tgz $CHART_PACKAGE_NAME-$VERSION.tgz
+
+          # Push to OCI registry under unique chart path
+          helm push $CHART_PACKAGE_NAME-$VERSION.tgz oci://${{ env.HELM_REGISTRY }}/${{ env.HELM_NAMESPACE }}
+
       - name: Run chart-testing (optional)
         uses: helm/chart-testing-action@v2.8.0
         with:
