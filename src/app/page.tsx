@@ -19,7 +19,8 @@ import { MultiSelect } from '@/components/multi-select';
 import { NamespaceFilter } from '@/components/ui/namespace-filter';
 import { getAllLabels, getAllAnnotations, filterIngressesAdvanced } from '@/lib/utils/ingress-transformer';
 import { ErrorHandler } from '@/lib/error-handler';
-import { Loader2, Server, Database, Network, Filter } from 'lucide-react';
+import ErrorScreen from '@/components/error-screen';
+import { Loader2, Server, Database, Filter } from 'lucide-react';
 
 export default function DashboardPage() {
   const [ingresses, setIngresses] = useState<IngressData[]>([]);
@@ -77,7 +78,7 @@ export default function DashboardPage() {
 
   // Fetch all namespaces when component mounts
   useEffect(() => {
-    if (!isMounted) return;
+    if (!isMounted || error) return; // Don't fetch namespaces if there's an error
 
     const fetchNamespaces = async () => {
       try {
@@ -87,7 +88,9 @@ export default function DashboardPage() {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to fetch namespaces");
+          // Don't throw error if it's a permission issue - just set error state
+          setError(errorData.error || errorData.details || "Failed to fetch namespaces");
+          return; // Exit early to avoid setting data
         }
 
         const data = await response.json();
@@ -95,16 +98,22 @@ export default function DashboardPage() {
       } catch (err: any) {
         ErrorHandler.handle(err, "fetchNamespaces");
         console.error("Failed to fetch namespaces:", err);
-        // Still set loading to false so the app doesn't hang
-        // Set an empty array as fallback
-        setAllNamespaces([]);
+
+        // Check if it's a permission or API error and set appropriate error state
+        if (err.message && (err.message.includes('Permission') || err.message.toLowerCase().includes('forbidden'))) {
+          setError(err.message || 'Permission error: Unable to access Kubernetes namespaces');
+        } else {
+          // Still set loading to false so the app doesn't hang
+          // Set an empty array as fallback
+          setAllNamespaces([]);
+        }
       } finally {
         setNamespaceLoading(false);
       }
     };
 
     fetchNamespaces();
-  }, [isMounted]);
+  }, [isMounted, error]); // Added error to the dependency array
 
   // Kubernetes context information (simulated - would come from API in real implementation)
   const [k8sContext, setK8sContext] = useState({
@@ -124,7 +133,7 @@ export default function DashboardPage() {
 
   // Set up real-time updates via Server-Sent Events
   useEffect(() => {
-    if (!isMounted) return;
+    if (!isMounted || error) return; // Don't start SSE if there's an error
 
     let eventSource: EventSource | null = null;
 
@@ -182,6 +191,11 @@ export default function DashboardPage() {
 
                 case 'error':
                   console.error('SSE Error:', ingressData);
+                  // Set error state to show the error screen
+                  setError(ingressData.error || ingressData.message || 'Kubernetes stream error');
+                  if (eventSource) {
+                    eventSource.close();
+                  }
                   break;
 
                 case 'done':
@@ -201,15 +215,17 @@ export default function DashboardPage() {
 
         eventSource.onerror = (error) => {
           console.error('SSE connection error:', error);
-          // Attempt to reconnect after 5 seconds
-          if (eventSource?.readyState === EventSource.CLOSED) {
-            setTimeout(setupEventSource, 5000);
+          // Don't attempt to reconnect when there's an error state, just close
+          if (eventSource) {
+            eventSource.close();
           }
         };
       } catch (error) {
         console.error('Failed to create EventSource:', error);
-        // Retry after 5 seconds
-        setTimeout(setupEventSource, 5000);
+        // Don't retry if there's an error state
+        if (eventSource) {
+          eventSource.close();
+        }
       }
     };
 
@@ -221,11 +237,11 @@ export default function DashboardPage() {
         eventSource.close();
       }
     };
-  }, [isMounted, selectedNamespaces]);
+  }, [isMounted, selectedNamespaces, error]); // Added error to the dependency array
 
   // Fetch ingress data from API - now depends on searchQuery which is initialized properly
   useEffect(() => {
-    if (!isMounted) return; // Don't run until mounted to avoid hydration issues
+    if (!isMounted || error) return; // Don't fetch ingresses if there's an error
 
     const fetchIngresses = async () => {
       try {
@@ -253,7 +269,9 @@ export default function DashboardPage() {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to fetch ingresses");
+          // Don't throw error if it's a permission issue - just set error state
+          setError(errorData.error || errorData.details || "Failed to fetch ingresses");
+          return; // Exit early to avoid setting data
         }
 
         const data = await response.json();
@@ -275,7 +293,7 @@ export default function DashboardPage() {
     };
 
     fetchIngresses();
-  }, [searchQuery, isMounted, selectedLabels, selectedAnnotations, selectedNamespaces]);
+  }, [searchQuery, isMounted, selectedLabels, selectedAnnotations, selectedNamespaces, error]); // Added error to the dependency array
 
   // Apply advanced filtering when selectedLabels or selectedAnnotations change
   useEffect(() => {
@@ -335,21 +353,38 @@ export default function DashboardPage() {
   }
 
   if (error) {
+    // Determine the type of error to display appropriate message
+    let errorType: 'permission' | 'api' | 'generic' = 'generic';
+    let errorTitle = 'Error';
+    let errorMessage = error;
+
+    // Check if the error is related to permissions
+    if (error.toLowerCase().includes('permission') || error.toLowerCase().includes('forbidden')) {
+      errorType = 'permission';
+      errorTitle = 'Permission Error';
+      errorMessage = 'You don\'t have sufficient permissions to access Kubernetes resources. Check your RBAC configuration.';
+    } else if (error.toLowerCase().includes('api') || error.toLowerCase().includes('kubernetes')) {
+      errorType = 'api';
+      errorTitle = 'API Error';
+      errorMessage = 'There was an issue connecting to the Kubernetes API. Please check your cluster configuration.';
+    }
+
     return (
-      <div className="min-h-screen bg-background p-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-destructive/20 border border-destructive text-destructive p-4 rounded-md">
-            <h2 className="text-xl font-bold">Error</h2>
-            <p>{error}</p>
-            <Button 
-              className="mt-2" 
-              onClick={() => window.location.reload()}
-            >
-              Retry
-            </Button>
-          </div>
+      <ErrorBoundary>
+        <div className="min-h-screen bg-background p-8">
+          <ErrorScreen
+            title={errorTitle}
+            message={errorMessage}
+            errorType={errorType}
+            documentationLink="https://wasilak.github.io/kube-ingress-dash/docs/architecture/rbac-setup"
+            documentationText="View RBAC Setup Documentation"
+            onRetry={() => {
+              // Clear the error state to allow background processes to restart
+              setError(null);
+            }}
+          />
         </div>
-      </div>
+      </ErrorBoundary>
     );
   }
 
@@ -360,7 +395,7 @@ export default function DashboardPage() {
           <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Network className="h-5 w-5" />
+                <img src="/images/logo.svg" alt="kube-ingress-dash logo" className="h-10 w-10" />
                 <h1 className="text-3xl font-bold">kube-ingress-dash</h1>
               </div>
               <div className="flex items-center gap-4 text-sm text-muted-foreground">

@@ -23,14 +23,8 @@ const NamespaceFilter: React.FC<NamespaceFilterProps> = ({
         defaultValue={selected}
         placeholder="Select namespaces"
         hideSelectAll={false}
+        maxCount={2} // Show up to 2 namespace badges, then show "+X selected"
       />
-      {selected.length > 0 && (
-        <div className="flex gap-1">
-          {selected.map(ns => (
-            <Badge key={ns} variant="secondary">{ns}</Badge>
-          ))}
-        </div>
-      )}
     </div>
   );
 };

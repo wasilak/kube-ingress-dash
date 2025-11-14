@@ -45,6 +45,7 @@ export async function GET(request: NextRequest) {
           type: 'error',
           data: {
             error: 'Internal server error',
+            message: process.env.NODE_ENV === 'development' ? (error as Error).message : 'An unexpected error occurred',
             details: process.env.NODE_ENV === 'development' ? (error as Error).message : 'An unexpected error occurred',
             errorInfo
           }
@@ -90,6 +91,7 @@ export async function GET(request: NextRequest) {
             type: 'error',
             data: {
               error: 'Watch callback error',
+              message: process.env.NODE_ENV === 'development' ? (error as Error).message : 'An unexpected error occurred',
               details: process.env.NODE_ENV === 'development' ? (error as Error).message : 'An unexpected error occurred',
               errorInfo
             }
@@ -110,6 +112,7 @@ export async function GET(request: NextRequest) {
           type: 'error',
           data: {
             error: 'Watch error',
+            message: process.env.NODE_ENV === 'development' ? (error as Error).message : 'An unexpected error occurred while watching resources',
             details: process.env.NODE_ENV === 'development' ? (error as Error).message : 'An unexpected error occurred while watching resources',
             errorInfo
           }
@@ -179,6 +182,7 @@ export async function GET(request: NextRequest) {
             type: 'error',
             data: {
               error: 'Failed to start watch',
+              message: process.env.NODE_ENV === 'development' ? (error as Error).message : 'An unexpected error occurred while starting the watch',
               details: process.env.NODE_ENV === 'development' ? (error as Error).message : 'An unexpected error occurred while starting the watch',
               errorInfo
             }
