@@ -2,9 +2,12 @@ name: Helm Chart
 
 on:
   push:
-    tags:
-      - "v*.*.*"
-      - "!v*-docs" # Exclude documentation tags
+    branches: ["main"]
+    tags: ["v*.*.*"]
+    paths-ignore:
+      - ".github/workflows/**"
+      - "docs-site/**"
+
   workflow_dispatch:
 
 env:
@@ -14,6 +17,9 @@ env:
 jobs:
   publish-helm-chart:
     runs-on: ubuntu-latest
+
+    if: ${{ !endsWith(github.ref_name, '-docs') && github.actor != 'dependabot[bot]' && github.actor != 'renovate[bot]' }}
+
     permissions:
       contents: read
       packages: write

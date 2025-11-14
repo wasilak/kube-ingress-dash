@@ -3,14 +3,7 @@ name: Docker
 on:
   push:
     branches: ["main"]
-    # Publish semver tags as releases.
-  tags: ["v*.*.*", "!v*-docs"]
-    paths-ignore:
-      - ".github/workflows/**"
-      - "docs-site/**"
-
-  pull_request:
-    branches: ["main"]
+    tags: ["v*.*.*"]
     paths-ignore:
       - ".github/workflows/**"
       - "docs-site/**"
@@ -21,7 +14,7 @@ jobs:
   ghcr:
     runs-on: ubuntu-latest
 
-    if: ${{ github.event_name != 'pull_request' }}
+    if: ${{ !endsWith(github.ref_name, '-docs') && github.actor != 'dependabot[bot]' && github.actor != 'renovate[bot]' }}
 
     env:
       # Use docker.io for Docker Hub if empty
