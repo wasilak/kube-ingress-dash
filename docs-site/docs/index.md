@@ -37,8 +37,8 @@ A Kubernetes Ingress Dashboard for monitoring and navigating services running in
 
 To quickly get started with kube-ingress-dash, you can use one of these deployment methods:
 
-- **Helm**: The recommended method for Kubernetes deployment
-- **Docker**: For containerized deployment
-- **Source**: For local development and customization
+- **[Helm](deployment/helm)**: The recommended method for Kubernetes deployment
+- **[Docker](deployment/docker)**: For containerized deployment
+- **[Source](deployment/from-source)**: For local development and customization
 
-Check out our [Deployment](./deployment/_category_.json) section for detailed instructions for each method.
+Check out our [Deployment](deployment) section for detailed instructions for each method.
