@@ -53,29 +53,9 @@ The application requires the following Kubernetes permissions:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: kube-ingress-dash-viewer
+	name: kube-ingress-dash-viewer
 rules:
 - apiGroups: [""]
-  resources: ["services", "pods", "endpoints", "namespaces"]
-  verbs: ["get", "list", "watch"]
-- apiGroups: ["networking.k8s.io"]
-  resources: ["ingresses"]
-  verbs: ["get", "list", "watch"]
+	resources: ["services", "pods", "endpoints", "namespaces"]
+	verbs: ["get", "list", "watch"]
 ```
-
-### Environment Variables
-
-The application doesn't require any environment variables for basic operation, but you can configure:
-
-- `NODE_ENV`: Set to 'production' for production deployments
-- `PORT`: Port to run the application on (default: 3000)
-
-## Development
-
-For development, run:
-
-```bash
-npm run dev
-```
-
-This starts the development server with hot reloading.

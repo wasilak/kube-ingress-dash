@@ -55,6 +55,7 @@ docker run -p 3000:3000 kube-ingress-dash
 ### Multi-architecture Support
 
 Our Docker images support multiple architectures:
+
 - `linux/amd64`
 - `linux/arm64`
 
@@ -65,8 +66,8 @@ The appropriate image will be automatically selected based on your platform.
 ```bash
 # Example with environment variables
 docker run -p 3000:3000 \
-  -e NODE_ENV=production \
-  ghcr.io/wasilak/kube-ingress-dash:@DOCKER_VERSION@
+	-e NODE_ENV=production \
+	ghcr.io/wasilak/kube-ingress-dash:@DOCKER_VERSION@
 ```
 
 ## Kubernetes Deployment with Docker
@@ -79,26 +80,26 @@ While Docker is typically used for local development, you can use Docker images 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kube-ingress-dash
+	name: kube-ingress-dash
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: kube-ingress-dash
-  template:
-    metadata:
-      labels:
-        app: kube-ingress-dash
-    spec:
-      serviceAccountName: kube-ingress-dash-viewer  # Ensure proper RBAC
-      containers:
-      - name: kube-ingress-dash
-  image: ghcr.io/wasilak/kube-ingress-dash:@DOCKER_VERSION@
-        ports:
-        - containerPort: 3000
-        env:
-        - name: PORT
-          value: "3000"
+	replicas: 1
+	selector:
+		matchLabels:
+			app: kube-ingress-dash
+	template:
+		metadata:
+			labels:
+				app: kube-ingress-dash
+		spec:
+			serviceAccountName: kube-ingress-dash-viewer  # Ensure proper RBAC
+			containers:
+			- name: kube-ingress-dash
+				image: ghcr.io/wasilak/kube-ingress-dash:@DOCKER_VERSION@
+				ports:
+				- containerPort: 3000
+				env:
+				- name: PORT
+					value: "3000"
 ```
 
 ### 2. Create a Service
@@ -107,13 +108,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: kube-ingress-dash
+	name: kube-ingress-dash
 spec:
-  selector:
-    app: kube-ingress-dash
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 3000
-  type: ClusterIP
+	selector:
+		app: kube-ingress-dash
+	ports:
+		- protocol: TCP
+			port: 80
+			targetPort: 3000
+	type: ClusterIP
 ```

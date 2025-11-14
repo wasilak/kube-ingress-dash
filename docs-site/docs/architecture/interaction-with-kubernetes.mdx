@@ -1,0 +1,61 @@
+---
+sidebar_position: 3
+title: "Architecture: Interaction with Kubernetes"
+---
+
+# Architecture: Interaction with Kubernetes
+
+This document describes how kube-ingress-dash interacts with Kubernetes and the overall system architecture.
+
+## System Architecture
+
+The following diagram illustrates the overall architecture of kube-ingress-dash:
+
+```mermaid
+graph TB
+	subgraph "Client"
+		A[Browser/End User]
+	end
+
+	subgraph "kube-ingress-dash Application"
+		B[Next.js Frontend]
+		C[Next.js API Routes]
+		D[Kubernetes Client]
+	end
+
+	subgraph "Kubernetes Cluster"
+		E[Kubernetes API Server]
+		F[Ingress Resources]
+		G[Service Resources]
+		H[Pod Resources]
+	end
+
+	A -- "HTTP Requests" --> B
+	B -- "Internal API Calls" --> C
+	C -- "Kubernetes API Calls" --> D
+	D -- "Watch/List API" --> E
+	E -- "Ingress Data" --> F
+	E -- "Service Data" --> G
+	E -- "Pod Data" --> H
+```
+
+## Detailed Interaction Flow
+
+The interaction between kube-ingress-dash and Kubernetes follows this flow:
+
+```mermaid
+sequenceDiagram
+	participant User as End User
+	participant Frontend as Frontend UI
+	participant Backend as Backend API
+	participant K8sAPI as Kubernetes API
+	participant Ingress as Ingress Resources
+
+	User->>Frontend: Opens dashboard
+	Frontend->>Backend: Fetch ingress data
+	Backend->>K8sAPI: List ingresses request
+	K8sAPI-->>Backend: Return ingress list
+	Backend-->>Frontend: Send formatted data
+	Frontend-->>User: Display ingresses
+	Backend->>K8sAPI: Watch for changes
+```

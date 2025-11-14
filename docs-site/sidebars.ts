@@ -1,10 +1,10 @@
 const sidebars = {
   sidebar: [
-    'index',
+  'index',
     {
       type: 'category',
       label: 'Architecture',
-      items: ['architecture/interaction-with-kubernetes'],
+  items: ['architecture/interaction-with-kubernetes'],
     },
     {
       type: 'category',
