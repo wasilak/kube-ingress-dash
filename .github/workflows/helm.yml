@@ -45,4 +45,4 @@ jobs:
           # Rename the chart package to avoid collision
           mv $CHART_NAME-$VERSION.tgz $CHART_PACKAGE_NAME-$VERSION.tgz
           # Push to OCI registry under unique chart path
-          helm push $CHART_PACKAGE_NAME-$VERSION.tgz oci://${{ env.HELM_REGISTRY }}/${{ env.HELM_NAMESPACE }}
+          helm push $CHART_PACKAGE_NAME-$VERSION.tgz oci://${{ env.HELM_REGISTRY }}/${{ env.HELM_NAMESPACE }}/$CHART_PACKAGE_NAME
