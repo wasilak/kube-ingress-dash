@@ -1,6 +1,6 @@
 # Tasks: Real-Time Ingress Updates
 
-- [ ] Implement backend watch for ingress resources
+- [x] Implement backend watch for ingress resources
   _Prompt: Implement the task for spec realtime-ingress-updates, first run spec-workflow-guide to get the workflow guide then implement the task:
   Role: Backend developer
   Task: Implement backend watch for ingress resources using Kubernetes API
@@ -9,7 +9,7 @@
   _Requirements: Backend watches ingress resources
   Success: Backend pushes updates on ingress changes
 
-- [ ] Implement frontend subscription to ingress updates
+- [x] Implement frontend subscription to ingress updates
   _Prompt: Implement the task for spec realtime-ingress-updates, first run spec-workflow-guide to get the workflow guide then implement the task:
   Role: Frontend developer
   Task: Implement frontend subscription to ingress updates (WebSocket/EventSource)
@@ -18,7 +18,7 @@
   _Requirements: UI updates without manual refresh
   Success: UI reflects ingress changes in real time
 
-- [ ] Handle stream interruptions and errors
+- [x] Handle stream interruptions and errors
   _Prompt: Implement the task for spec realtime-ingress-updates, first run spec-workflow-guide to get the workflow guide then implement the task:
   Role: Backend developer
   Task: Handle stream interruptions and errors gracefully

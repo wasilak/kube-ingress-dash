@@ -122,6 +122,107 @@ export default function DashboardPage() {
     }
   }, [selectedNamespaces]);
 
+  // Set up real-time updates via Server-Sent Events
+  useEffect(() => {
+    if (!isMounted) return;
+
+    let eventSource: EventSource | null = null;
+
+    const setupEventSource = () => {
+      // Build query parameters for the SSE endpoint
+      const params = new URLSearchParams();
+      if (selectedNamespaces.length > 0) {
+        params.append('namespaces', selectedNamespaces.join(','));
+      }
+
+      const queryString = params.toString();
+      const streamUrl = `/api/ingresses/stream${queryString ? `?${queryString}` : ""}`;
+
+      try {
+        eventSource = new EventSource(streamUrl);
+
+        eventSource.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            const { type, data: ingressData } = data;
+
+            // Update ingresses based on the event type
+            setIngresses(prevIngresses => {
+              let newIngresses = [...prevIngresses];
+
+              switch (type) {
+                case 'ingressAdded':
+                  // Add the new ingress if it's not already in the list
+                  const exists = newIngresses.some(ing =>
+                    ing.name === ingressData.name && ing.namespace === ingressData.namespace
+                  );
+                  if (!exists) {
+                    newIngresses.push(ingressData);
+                  }
+                  break;
+
+                case 'ingressModified':
+                  // Update the ingress if it exists, otherwise add it
+                  const index = newIngresses.findIndex(ing =>
+                    ing.name === ingressData.name && ing.namespace === ingressData.namespace
+                  );
+                  if (index !== -1) {
+                    newIngresses[index] = ingressData;
+                  } else {
+                    newIngresses.push(ingressData);
+                  }
+                  break;
+
+                case 'ingressDeleted':
+                  // Remove the ingress from the list
+                  newIngresses = newIngresses.filter(ing =>
+                    !(ing.name === ingressData.name && ing.namespace === ingressData.namespace)
+                  );
+                  break;
+
+                case 'error':
+                  console.error('SSE Error:', ingressData);
+                  break;
+
+                case 'done':
+                  console.log('SSE connection closed:', ingressData);
+                  break;
+
+                default:
+                  console.warn('Unknown event type:', type);
+              }
+
+              return newIngresses;
+            });
+          } catch (error) {
+            console.error('Error processing SSE event:', error);
+          }
+        };
+
+        eventSource.onerror = (error) => {
+          console.error('SSE connection error:', error);
+          // Attempt to reconnect after 5 seconds
+          if (eventSource?.readyState === EventSource.CLOSED) {
+            setTimeout(setupEventSource, 5000);
+          }
+        };
+      } catch (error) {
+        console.error('Failed to create EventSource:', error);
+        // Retry after 5 seconds
+        setTimeout(setupEventSource, 5000);
+      }
+    };
+
+    setupEventSource();
+
+    // Cleanup function to close the event source
+    return () => {
+      if (eventSource) {
+        eventSource.close();
+      }
+    };
+  }, [isMounted, selectedNamespaces]);
+
   // Fetch ingress data from API - now depends on searchQuery which is initialized properly
   useEffect(() => {
     if (!isMounted) return; // Don't run until mounted to avoid hydration issues

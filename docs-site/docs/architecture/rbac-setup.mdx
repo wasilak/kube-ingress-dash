@@ -1,0 +1,202 @@
+---
+sidebar_position: 2
+title: "RBAC Setup"
+---
+
+# RBAC Setup for kube-ingress-dash
+
+This document provides detailed information about setting up Role-Based Access Control (RBAC) for **kube-ingress-dash** in your Kubernetes cluster. RBAC permissions are essential for the application to securely access and display ingress resources.
+
+## Overview
+
+The kube-ingress-dash application requires specific RBAC permissions to access the Kubernetes API and retrieve ingress resources. This document explains the required permissions and provides example manifest files for setting up appropriate roles and bindings.
+
+## Required Permissions
+
+The application needs the following permissions:
+
+- **List, Get, Watch** ingress resources across all namespaces
+- **List, Get** namespaces to provide namespace filtering capabilities
+- **List, Get** services to provide service navigation features
+
+## Example RBAC Manifests
+
+### 1. Service Account
+
+First, create a service account for the application:
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kube-ingress-dash-sa
+  namespace: default  # Adjust to your preferred namespace
+```
+
+### 2. ClusterRole
+
+Create a ClusterRole with the required permissions:
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kube-ingress-dash-role
+rules:
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "list", "watch"]
+```
+
+### 3. ClusterRoleBinding
+
+Bind the ClusterRole to the service account:
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kube-ingress-dash-rolebinding
+subjects:
+- kind: ServiceAccount
+  name: kube-ingress-dash-sa
+  namespace: default  # Adjust to match your service account namespace
+roleRef:
+  kind: ClusterRole
+  name: kube-ingress-dash-role
+  apiGroup: rbac.authorization.k8s.io
+```
+
+## Namespaced Permissions (Alternative)
+
+If you prefer to restrict permissions to specific namespaces instead of cluster-wide access, you can use Role and RoleBinding instead:
+
+### 1. Role (for a specific namespace)
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: your-app-namespace
+  name: kube-ingress-dash-namespace-role
+rules:
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "list", "watch"]
+```
+
+### 2. RoleBinding (for a specific namespace)
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kube-ingress-dash-namespace-rolebinding
+  namespace: your-app-namespace
+subjects:
+- kind: ServiceAccount
+  name: kube-ingress-dash-sa
+  namespace: default  # Adjust to match your service account namespace
+roleRef:
+  kind: Role
+  name: kube-ingress-dash-namespace-role
+  apiGroup: rbac.authorization.k8s.io
+```
+
+## Using the RBAC Resources
+
+When deploying kube-ingress-dash, reference the service account in your deployment:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-ingress-dash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-ingress-dash
+  template:
+    metadata:
+      labels:
+        app: kube-ingress-dash
+    spec:
+      serviceAccountName: kube-ingress-dash-sa  # Reference the service account
+      containers:
+      - name: kube-ingress-dash
+        image: your-registry/kube-ingress-dash:latest
+        ports:
+        - containerPort: 3000
+```
+
+## Troubleshooting RBAC Issues
+
+Here are common RBAC-related issues you might encounter and how to resolve them:
+
+### 1. Permission Denied Errors
+
+**Symptom**: The application shows "Permission denied" or "Forbidden" errors.
+
+**Solution**: 
+- Verify that the ClusterRoleBinding or RoleBinding is correctly configured
+- Check that the service account name matches between your deployment and RBAC resources
+- Ensure the service account has the correct namespace
+
+### 2. Missing Resources
+
+**Symptom**: The application cannot find ingress resources or shows "Forbidden" when trying to access resources.
+
+**Solution**:
+- Verify that the ClusterRole or Role includes all necessary resources and verbs
+- Check that the resource names in the rules match exactly (e.g., "ingresses" not "ingress")
+
+### 3. Invalid Authentication Configuration
+
+**Symptom**: The application shows authentication errors or fails to connect to the Kubernetes API.
+
+**Solution**:
+- Ensure the service account has been correctly mounted in the pod
+- Verify the pod is using the correct service account
+- Check that the application is configured to use the mounted service account token
+
+### 4. Check Current Permissions
+
+You can verify the permissions granted to a service account using kubectl:
+
+```bash
+kubectl auth can-i --list --as=system:serviceaccount:default:kube-ingress-dash-sa
+```
+
+Replace `default` with your actual namespace and `kube-ingress-dash-sa` with your actual service account name.
+
+## Best Practices
+
+1. **Principle of Least Privilege**: Only grant the minimum permissions required for the application to function.
+
+2. **Use Namespaced Permissions When Possible**: If your use case allows, prefer Role/RoleBinding over ClusterRole/ClusterRoleBinding to limit the scope of permissions.
+
+3. **Regular Review**: Periodically review and audit RBAC permissions to ensure they remain appropriate for your security requirements.
+
+4. **Separate Service Accounts**: Use dedicated service accounts for different applications instead of sharing them.
+
+5. **Documentation**: Keep your RBAC documentation up to date as roles and requirements evolve.
+
+## Security Considerations
+
+- The ClusterRole approach provides broader access across the entire cluster. Only use this if the application genuinely needs cross-namespace visibility.
+
+- Consider using Pod Security Standards (if available in your Kubernetes version) to further restrict the application's capabilities.
+
+- Regularly audit RBAC permissions using tools like `kubectl auth can-i` to verify that permissions are as expected.
+
+For more information on Kubernetes RBAC, refer to the [official Kubernetes documentation](https://kubernetes.io/docs/reference/access-authn-authz/rbac/).

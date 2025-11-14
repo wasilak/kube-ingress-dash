@@ -1,6 +1,6 @@
 # Tasks: RBAC Documentation
 
-- [ ] Write RBAC docs page in Markdown
+- [x] Write RBAC docs page in Markdown
   _Prompt: Implement the task for spec rbac-docs, first run spec-workflow-guide to get the workflow guide then implement the task:
   Role: Technical writer
   Task: Write RBAC docs page in Markdown
@@ -9,7 +9,7 @@
   _Requirements: RBAC docs are present and accessible
   Success: Docs page is published and linked
 
-- [ ] Add example Role/RoleBinding manifests
+- [x] Add example Role/RoleBinding manifests
   _Prompt: Implement the task for spec rbac-docs, first run spec-workflow-guide to get the workflow guide then implement the task:
   Role: Technical writer
   Task: Add example Role/RoleBinding manifests
@@ -18,7 +18,7 @@
   _Requirements: Example manifests included
   Success: Examples are correct and copyable
 
-- [ ] Add troubleshooting tips for RBAC issues
+- [x] Add troubleshooting tips for RBAC issues
   _Prompt: Implement the task for spec rbac-docs, first run spec-workflow-guide to get the workflow guide then implement the task:
   Role: Technical writer
   Task: Add troubleshooting tips for RBAC issues
