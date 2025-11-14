@@ -3,7 +3,7 @@ name: Deploy Documentation
 on:
   push:
     tags:
-      - "v*"
+      - "v*-docs"
 
   workflow_dispatch:
 
