@@ -3,7 +3,8 @@ name: Helm Chart
 on:
   push:
     tags:
-      - "v*.*.*" # Run on semantic version tags (e.g., v1.0.0)
+      - "v*.*.*"
+      - "!v*-docs" # Exclude documentation tags
   workflow_dispatch:
 
 env:
@@ -40,7 +41,7 @@ jobs:
           # Update version in Chart.yaml temporarily for this build
           sed -i "s/version: .*/version: $VERSION/" $CHART_NAME/Chart.yaml
           sed -i "s/appVersion: .*/appVersion: \"$VERSION\"/" $CHART_NAME/Chart.yaml
-          # Package the chart
+          # Package the chartdocker pull ghcr.io/wasilak/kube-ingress-dash:latest
           helm package $CHART_NAME/ --destination .
           # Rename the chart package to avoid collision
           mv $CHART_NAME-$VERSION.tgz $CHART_PACKAGE_NAME-$VERSION.tgz
