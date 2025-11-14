@@ -48,7 +48,7 @@ jobs:
           helm push $CHART_NAME-$VERSION.tgz oci://${{ env.HELM_REGISTRY }}/${{ env.HELM_NAMESPACE }}
           
       - name: Run chart-testing (optional)
-        uses: helm/chart-testing-action@v2.6.1
+        uses: helm/chart-testing-action@v2.8.0
         with:
           command: lint
           chart-dirs: charts
