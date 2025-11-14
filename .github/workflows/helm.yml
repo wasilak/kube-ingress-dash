@@ -35,8 +35,9 @@ jobs:
           cd charts
           # Extract version from tag (removing 'v' prefix)
           VERSION=${GITHUB_REF_NAME#v}
-          CHART_NAME=kube-ingress-dash
-          CHART_PACKAGE_NAME=kube-ingress-dash-chart
+          # Derive chart name from GitHub Actions context
+          CHART_NAME="${{ github.event.repository.name }}"
+          CHART_PACKAGE_NAME=${CHART_NAME}-chart
 
           # Update version in Chart.yaml temporarily for this build
           sed -i "s/version: .*/version: $VERSION/" $CHART_NAME/Chart.yaml
@@ -51,10 +52,3 @@ jobs:
 
           # Push to OCI registry under unique chart path
           helm push $CHART_PACKAGE_NAME-$VERSION.tgz oci://${{ env.HELM_REGISTRY }}/${{ env.HELM_NAMESPACE }}
-
-      - name: Run chart-testing (optional)
-        uses: helm/chart-testing-action@v2.8.0
-        with:
-          command: lint
-          chart-dirs: charts
-          debug: true
