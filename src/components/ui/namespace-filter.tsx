@@ -13,15 +13,32 @@ const NamespaceFilter: React.FC<NamespaceFilterProps> = ({
   selected,
   onChange
 }) => {
-  const options: MultiSelectOption[] = namespaces.map(ns => ({ value: ns, label: ns }));
+  // Add "All" option to the beginning
+  const options: MultiSelectOption[] = [
+    { value: "All", label: "All" },
+    ...namespaces.map(ns => ({ value: ns, label: ns }))
+  ];
+
+  // Check if "All" is selected
+  const isAllSelected = selected.length === 1 && selected[0] === "All";
+
+  const handleValueChange = (values: string[]) => {
+    if (values.includes("All")) {
+      // If "All" is selected along with other values, just select "All"
+      onChange(["All"]);
+    } else {
+      // Remove "All" if other options are selected
+      onChange(values);
+    }
+  };
 
   return (
     <div aria-label="Namespace Filter" style={{ display: "flex", alignItems: "center", gap: 8 }}>
       <MultiSelect
         options={options}
-        onValueChange={onChange}
+        onValueChange={handleValueChange}
         defaultValue={selected}
-        placeholder="Select namespaces"
+        placeholder={isAllSelected ? "All namespaces" : "Select namespaces"}
         hideSelectAll={false}
         maxCount={2} // Show up to 2 namespace badges, then show "+X selected"
       />

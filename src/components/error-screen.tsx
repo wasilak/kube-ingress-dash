@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import Image from 'next/image';
 
 interface ErrorScreenProps {
   title?: string;
@@ -74,7 +75,13 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
       <div className="flex flex-col sm:flex-row items-start justify-between mb-8 gap-4">
         <div className="flex items-center gap-2">
           <div>
-            <img src="/images/logo.svg" alt="kube-ingress-dash logo" className="h-10 w-10 text-muted-foreground" />
+            <Image
+              src="/images/logo.svg"
+              alt="kube-ingress-dash logo"
+              width={40}
+              height={40}
+              className="text-muted-foreground"
+            />
           </div>
           <h1 className="text-3xl font-bold">kube-ingress-dash</h1>
         </div>
@@ -100,9 +107,11 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
         <Card className={`w-full max-w-2xl ${config.border}`}>
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
-              <img
+              <Image
                 src="/images/logo.svg"
                 alt="kube-ingress-dash logo"
+                width={64}
+                height={64}
                 className="h-16 w-16"
               />
             </div>
