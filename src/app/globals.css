@@ -2,7 +2,7 @@
 
 @layer base {
   :root {
-    /* Indigo theme colors from shadcn */
+    /* Indigo theme colors - high contrast for readability */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
@@ -26,7 +26,7 @@
   }
 
   .dark {
-    /* Dark mode indigo colors */
+    /* Dark mode indigo colors - high contrast for readability */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
@@ -192,6 +192,14 @@
   
   .text-destructive-foreground {
     color: hsl(var(--destructive-foreground));
+  }
+  
+  .text-foreground\/80 {
+    color: hsl(var(--foreground) / 0.8);
+  }
+  
+  .text-foreground\/70 {
+    color: hsl(var(--foreground) / 0.7);
   }
   
   .border-border {

@@ -4,7 +4,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ExternalLink, Globe, Lock, Server } from 'lucide-react';
+import { ExternalLink, Lock, Layers } from 'lucide-react';
 import { IngressData } from '@/types/ingress';
 
 interface IngressCardProps {
@@ -30,7 +30,8 @@ const IngressCard: React.FC<IngressCardProps> = ({ ingress, onClick }) => {
                 <Lock className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
               )}
             </div>
-            <CardDescription className="mt-1 text-xs leading-tight break-words">
+            <CardDescription className="mt-1 text-xs leading-tight break-words flex items-center gap-1">
+              <Layers className="h-3 w-3 flex-shrink-0" />
               {ingress.namespace}
             </CardDescription>
           </div>
@@ -42,9 +43,8 @@ const IngressCard: React.FC<IngressCardProps> = ({ ingress, onClick }) => {
           {/* Hosts - now as clickable buttons */}
           {ingress.hosts.length > 0 && (
             <div className="space-y-1">
-              <div className="flex items-center gap-1 text-xs font-medium">
-                <Globe className="h-3 w-3" />
-                <span>Hosts ({ingress.hosts.length})</span>
+              <div className="text-xs font-medium">
+                Hosts ({ingress.hosts.length})
               </div>
               <div className="space-y-1 mt-1"> {/* Added spacing and vertical layout */}
                 {ingress.hosts.map((host, index) => {
