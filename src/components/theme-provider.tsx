@@ -48,10 +48,15 @@ export function ThemeProvider({
       const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
         ? 'dark'
         : 'light';
-      root.classList.add(systemTheme);
-    } else {
-      root.classList.add(theme);
+      // Only add 'dark' class, not 'light' (light is the default)
+      if (systemTheme === 'dark') {
+        root.classList.add('dark');
+      }
+    } else if (theme === 'dark') {
+      // Only add 'dark' class, light is the default
+      root.classList.add('dark');
     }
+    // If theme is 'light', don't add any class (default state)
   }, [theme]);
 
   React.useEffect(() => {
@@ -62,7 +67,10 @@ export function ThemeProvider({
           ? 'dark'
           : 'light';
         root.classList.remove('light', 'dark');
-        root.classList.add(systemTheme);
+        // Only add 'dark' class if system is dark
+        if (systemTheme === 'dark') {
+          root.classList.add('dark');
+        }
       }
     };
 
