@@ -14,7 +14,7 @@ import { getAllLabels, getAllAnnotations, filterIngressesAdvanced } from '@/lib/
 import Image from 'next/image';
 import { ErrorHandler } from '@/lib/error-handler';
 import ErrorScreen from '@/components/error-screen';
-import { Loader2, Server, Database, Filter } from 'lucide-react';
+import { Loader2, Tag, FileText } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function DashboardPage() {
@@ -31,15 +31,45 @@ export default function DashboardPage() {
   const [selectedNamespaces, setSelectedNamespaces] = useState<string[]>([]);
   const [namespaceLoading, setNamespaceLoading] = useState(true);
 
-  // Memoize options to prevent unnecessary re-renders
+  // Memoize options to prevent unnecessary re-renders with counts
   const labelOptions = React.useMemo(
-    () => allLabels.map(label => ({ value: label, label: label })),
-    [allLabels]
+    () => allLabels.map(label => {
+      const count = ingresses.filter(ing => {
+        if (!ing.labels) return false;
+        return Object.keys(ing.labels).some(key => `${key}:${ing.labels![key]}` === label);
+      }).length;
+      return { value: label, label: `${label} (${count})` };
+    }),
+    [allLabels, ingresses]
   );
   
   const annotationOptions = React.useMemo(
-    () => allAnnotations.map(annotation => ({ value: annotation, label: annotation })),
-    [allAnnotations]
+    () => allAnnotations.map(annotation => {
+      const count = ingresses.filter(ing => {
+        if (!ing.annotations) return false;
+        return Object.keys(ing.annotations).some(key => `${key}:${ing.annotations![key]}` === annotation);
+      }).length;
+      return { value: annotation, label: `${annotation} (${count})` };
+    }),
+    [allAnnotations, ingresses]
+  );
+
+  // Calculate namespace counts
+  const namespaceCounts = React.useMemo(
+    () => {
+      const counts: Record<string, number> = {};
+      ingresses.forEach(ing => {
+        counts[ing.namespace] = (counts[ing.namespace] || 0) + 1;
+      });
+      return counts;
+    },
+    [ingresses]
+  );
+
+  // Filter namespaces to only show ones with ingresses
+  const namespacesWithIngresses = React.useMemo(
+    () => allNamespaces.filter(ns => namespaceCounts[ns] > 0),
+    [allNamespaces, namespaceCounts]
   );
 
   // State to track if component has mounted (for hydration)
@@ -54,6 +84,9 @@ export default function DashboardPage() {
     }
     return '';
   });
+
+  // Debounced search query for API calls
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
 
   // Set mounted state after initial render to avoid hydration issues
   useEffect(() => {
@@ -110,21 +143,7 @@ export default function DashboardPage() {
     fetchNamespaces();
   }, [isMounted, error]); // Added error to the dependency array
 
-  // Kubernetes context information (simulated - would come from API in real implementation)
-  const [k8sContext, setK8sContext] = useState({
-    cluster: "default-cluster",
-    namespace: "all",
-    context: "default"
-  });
 
-  // Update k8sContext based on selected namespaces
-  useEffect(() => {
-    if (selectedNamespaces.length === 0 || (selectedNamespaces.length === 1 && selectedNamespaces[0] === "All")) {
-      setK8sContext(prev => ({...prev, namespace: "All namespaces"}));
-    } else {
-      setK8sContext(prev => ({...prev, namespace: selectedNamespaces.join(', ') || "all"}));
-    }
-  }, [selectedNamespaces]);
 
   // Set up real-time updates via Server-Sent Events
   useEffect(() => {
@@ -250,8 +269,8 @@ export default function DashboardPage() {
         const params = new URLSearchParams();
 
         // Add search query if present
-        if (searchQuery) {
-          params.append('search', searchQuery);
+        if (debouncedSearchQuery) {
+          params.append('search', debouncedSearchQuery);
         }
 
         // Add namespace filter if present
@@ -295,15 +314,15 @@ export default function DashboardPage() {
     };
 
     fetchIngresses();
-  }, [searchQuery, isMounted, selectedLabels, selectedAnnotations, selectedNamespaces, error]); // Added error to the dependency array
+  }, [debouncedSearchQuery, isMounted, selectedLabels, selectedAnnotations, selectedNamespaces, error]); // Added error to the dependency array
 
   // Apply advanced filtering when selectedLabels or selectedAnnotations change
   useEffect(() => {
     if (!isMounted || ingresses.length === 0) return; // Don't run until mounted and ingresses are loaded
     
-    const filtered = filterIngressesAdvanced(ingresses, searchQuery, selectedLabels, selectedAnnotations);
+    const filtered = filterIngressesAdvanced(ingresses, debouncedSearchQuery, selectedLabels, selectedAnnotations);
     setFilteredIngresses(filtered);
-  }, [selectedLabels, selectedAnnotations, ingresses, searchQuery, isMounted]);
+  }, [selectedLabels, selectedAnnotations, ingresses, debouncedSearchQuery, isMounted]);
 
   // Update URL with search query using standard Web API
   useEffect(() => {
@@ -324,10 +343,19 @@ export default function DashboardPage() {
     }
   }, [searchQuery, isMounted]);
 
+  // Debounce effect for search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   // Handle search functionality
-  const handleSearch = (query: string) => {
+  const handleSearch = React.useCallback((query: string) => {
     setSearchQuery(query);
-  };
+  }, []);
 
 
 
@@ -392,28 +420,17 @@ export default function DashboardPage() {
       <ErrorBoundary>
         <div className="max-w-6xl mx-auto space-y-8">
           <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Image src="/images/logo.svg" alt="kube-ingress-dash logo" width={40} height={40} />
-                <h1 className="text-3xl font-bold">kube-ingress-dash</h1>
-              </div>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Server className="h-4 w-4" />
-                  {k8sContext.cluster}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Database className="h-4 w-4" />
-                  {k8sContext.namespace}
-                </span>
-              </div>
+            <div className="flex items-center gap-2">
+              <Image src="/images/logo.svg" alt="kube-ingress-dash logo" width={40} height={40} />
+              <h1 className="text-3xl font-bold">kube-ingress-dash</h1>
             </div>
             
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <NamespaceFilter
-                namespaces={allNamespaces}
+                namespaces={namespacesWithIngresses}
                 selected={selectedNamespaces}
                 onChange={setSelectedNamespaces}
+                namespaceCounts={namespaceCounts}
               />
 
               <ThemeToggle />
@@ -444,7 +461,7 @@ export default function DashboardPage() {
                   <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
                   <span>Not TLS: {nonTlsIngresses}</span>
                 </div>
-                <div className="text-muted-foreground">
+                <div className="text-foreground/70">
                   Showing: {filteredCount}/{totalIngresses}
                 </div>
               </div>
@@ -454,7 +471,7 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
               <div className="space-y-2">
                 <Label className="text-sm font-medium flex items-center gap-2">
-                  <Filter className="h-4 w-4" />
+                  <Tag className="h-4 w-4" />
                   Labels
                 </Label>
                 <MultiSelect
@@ -467,7 +484,10 @@ export default function DashboardPage() {
               </div>
               
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Annotations</Label>
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Annotations
+                </Label>
                 <MultiSelect
                   options={annotationOptions}
                   onValueChange={setSelectedAnnotations}
@@ -490,9 +510,9 @@ export default function DashboardPage() {
             <div className="text-center py-12">
               <h3 className="text-lg font-bold">No ingresses found</h3>
               <p className="text-muted-foreground mt-1">
-                {searchQuery ? `No ingresses match your search for "${searchQuery}"` : "There are no ingresses in your cluster"}
+                {debouncedSearchQuery ? `No ingresses match your search for "${debouncedSearchQuery}"` : "There are no ingresses in your cluster"}
               </p>
-              {searchQuery && (
+              {debouncedSearchQuery && (
                 <Button 
                   className="mt-4" 
                   onClick={() => handleSearch("")}
