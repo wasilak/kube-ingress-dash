@@ -1,6 +1,6 @@
 apiVersion: v2
 name: kube-ingress-dash
-description: A Kubernetes Ingress Dashboard for monitoring and navigating services
+description: A Kubernetes Ingress Dashboard
 type: application
 version: 0.1.0
 appVersion: "0.1.0"
@@ -15,5 +15,5 @@ icon: https://github.com/wasilak/kube-ingress-dash/raw/main/docs-site/static/img
 sources:
   - https://github.com/kube-ingress-dash/kube-ingress-dash
 maintainers:
-  - name: Kube Ingress Dash Team
-    email: team@kube-ingress-dash.com
+  - name: Piotr Boruc
+    email: piotr.m.boruc@gmail.com
