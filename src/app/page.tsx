@@ -18,6 +18,7 @@ import ErrorBoundary from '@/components/error-boundary';
 import { MultiSelect } from '@/components/multi-select';
 import { NamespaceFilter } from '@/components/ui/namespace-filter';
 import { getAllLabels, getAllAnnotations, filterIngressesAdvanced } from '@/lib/utils/ingress-transformer';
+import Image from 'next/image';
 import { ErrorHandler } from '@/lib/error-handler';
 import ErrorScreen from '@/components/error-screen';
 import { Loader2, Server, Database, Filter } from 'lucide-react';
@@ -124,8 +125,8 @@ export default function DashboardPage() {
 
   // Update k8sContext based on selected namespaces
   useEffect(() => {
-    if (selectedNamespaces.length === 0) {
-      setK8sContext(prev => ({...prev, namespace: "all"}));
+    if (selectedNamespaces.length === 0 || (selectedNamespaces.length === 1 && selectedNamespaces[0] === "All")) {
+      setK8sContext(prev => ({...prev, namespace: "All namespaces"}));
     } else {
       setK8sContext(prev => ({...prev, namespace: selectedNamespaces.join(', ') || "all"}));
     }
@@ -140,8 +141,12 @@ export default function DashboardPage() {
     const setupEventSource = () => {
       // Build query parameters for the SSE endpoint
       const params = new URLSearchParams();
-      if (selectedNamespaces.length > 0) {
-        params.append('namespaces', selectedNamespaces.join(','));
+      if (selectedNamespaces.length > 0 && !(selectedNamespaces.length === 1 && selectedNamespaces[0] === "All")) {
+        // Add the selected namespaces as a parameter, filtering out "All" if present
+        const namespacesToUse = selectedNamespaces.filter(ns => ns !== "All");
+        if (namespacesToUse.length > 0) {
+          params.append('namespaces', namespacesToUse.join(','));
+        }
       }
 
       const queryString = params.toString();
@@ -256,11 +261,14 @@ export default function DashboardPage() {
         }
 
         // Add namespace filter if present
-        if (selectedNamespaces.length > 0) {
-          // Add the selected namespaces as a parameter
-          params.append('namespaces', selectedNamespaces.join(','));
+        if (selectedNamespaces.length > 0 && !(selectedNamespaces.length === 1 && selectedNamespaces[0] === "All")) {
+          // Add the selected namespaces as a parameter, filtering out "All" if present
+          const namespacesToUse = selectedNamespaces.filter(ns => ns !== "All");
+          if (namespacesToUse.length > 0) {
+            params.append('namespaces', namespacesToUse.join(','));
+          }
         }
-        // If no namespaces are selected, no parameter is added, which means "all namespaces" by default
+        // If no namespaces are selected or "All" is selected, no parameter is added, which means "all namespaces" by default
 
         const queryString = params.toString();
         const apiUrl = `/api/ingresses${queryString ? `?${queryString}` : ""}`;
@@ -395,7 +403,7 @@ export default function DashboardPage() {
           <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <img src="/images/logo.svg" alt="kube-ingress-dash logo" className="h-10 w-10" />
+                <Image src="/images/logo.svg" alt="kube-ingress-dash logo" width={40} height={40} />
                 <h1 className="text-3xl font-bold">kube-ingress-dash</h1>
               </div>
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
