@@ -18,19 +18,19 @@ const IngressCard: React.FC<IngressCardProps> = ({ ingress, onClick }) => {
   };
 
   return (
-    <Card className="flex flex-col h-full overflow-hidden transition-shadow hover:shadow-md border bg-transparent">
+    <Card className="flex flex-col h-full overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1 hover:border-primary border bg-transparent">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <CardTitle className="text-lg truncate">
+            <div className="flex items-start gap-2">
+              <CardTitle className="text-base leading-tight break-words hyphens-auto flex-1 min-w-0" style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1rem)' }}>
                 {ingress.name}
               </CardTitle>
               {ingress.tls && (
-                <Lock className="h-4 w-4 text-primary" />
+                <Lock className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
               )}
             </div>
-            <CardDescription className="mt-1 text-sm truncate">
+            <CardDescription className="mt-1 text-xs leading-tight break-words">
               {ingress.namespace}
             </CardDescription>
           </div>

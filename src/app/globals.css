@@ -272,6 +272,16 @@
   .focus\:border-primary:focus {
     border-color: hsl(var(--primary));
   }
+  
+  /* Transform utilities */
+  .hover\:-translate-y-1:hover {
+    transform: translateY(-0.25rem);
+  }
+  
+  /* Shadow utilities */
+  .hover\:shadow-lg:hover {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  }
 }
 
 /* Custom keyframes for animations */
