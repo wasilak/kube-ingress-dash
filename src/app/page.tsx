@@ -3,17 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import SearchBar from '@/components/search-bar';
 import IngressCard from '@/components/ingress-card';
 import { IngressData } from '@/types/ingress';
-import { useTheme } from '@/components/theme-provider';
+
 import ErrorBoundary from '@/components/error-boundary';
 import { MultiSelect } from '@/components/multi-select';
 import { NamespaceFilter } from '@/components/ui/namespace-filter';
@@ -22,13 +15,14 @@ import Image from 'next/image';
 import { ErrorHandler } from '@/lib/error-handler';
 import ErrorScreen from '@/components/error-screen';
 import { Loader2, Server, Database, Filter } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function DashboardPage() {
   const [ingresses, setIngresses] = useState<IngressData[]>([]);
   const [filteredIngresses, setFilteredIngresses] = useState<IngressData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { theme, setTheme: setThemeState } = useTheme();
+
   const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
   const [selectedAnnotations, setSelectedAnnotations] = useState<string[]>([]);
   const [allLabels, setAllLabels] = useState<string[]>([]);
@@ -335,10 +329,7 @@ export default function DashboardPage() {
     setSearchQuery(query);
   };
 
-  // Update theme state to match theme provider
-  const handleThemeChange = (newTheme: string) => {
-    setThemeState(newTheme as "light" | "dark" | "system");
-  };
+
 
   // Calculate stats
   const totalIngresses = ingresses.length;
@@ -425,19 +416,7 @@ export default function DashboardPage() {
                 onChange={setSelectedNamespaces}
               />
 
-              <div className="flex items-center space-x-2">
-                <Label htmlFor="theme-select">Theme:</Label>
-                <Select value={theme} onValueChange={handleThemeChange}>
-                  <SelectTrigger id="theme-select" className="w-[120px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="light">Light</SelectItem>
-                    <SelectItem value="dark">Dark</SelectItem>
-                    <SelectItem value="system">System</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <ThemeToggle />
             </div>
           </header>
 

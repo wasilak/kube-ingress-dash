@@ -60,11 +60,12 @@ const IngressCard: React.FC<IngressCardProps> = ({ ingress, onClick }) => {
                       key={index}
                       variant="outline"
                       size="sm"
-                      className="w-full justify-start h-8 text-xs px-3 truncate"
+                      className="w-full justify-between h-8 text-xs px-3 truncate group"
                       onClick={() => handleLinkClick(finalUrl)}
                       title={finalUrl}
                     >
-                      {finalUrl}
+                      <span className="truncate">{finalUrl}</span>
+                      <ExternalLink className="h-3 w-3 ml-2 flex-shrink-0 opacity-50 group-hover:opacity-100 transition-opacity" />
                     </Button>
                   );
                 })}
@@ -73,22 +74,25 @@ const IngressCard: React.FC<IngressCardProps> = ({ ingress, onClick }) => {
           )}
 
           {/* Paths - updated to list format */}
-          {ingress.paths.length > 0 && (
-            <div className="space-y-1">
-              <div className="text-xs font-medium">Paths ({ingress.paths.length})</div>
-              <div className="flex flex-col gap-1">
-                {/* List unique paths */}
-                {Array.from(new Set(ingress.paths)).map((path, index) => (
-                  <div
-                    key={index}
-                    className="w-full justify-start h-8 text-xs px-3 truncate border border-input rounded-md bg-transparent flex items-center"
-                  >
-                    {path}
-                  </div>
-                ))}
+          {ingress.paths.length > 0 && (() => {
+            const uniquePaths = Array.from(new Set(ingress.paths));
+            return (
+              <div className="space-y-1">
+                <div className="text-xs font-medium">Paths ({uniquePaths.length})</div>
+                <div className="flex flex-col gap-1">
+                  {/* List unique paths */}
+                  {uniquePaths.map((path, index) => (
+                    <div
+                      key={index}
+                      className="w-full justify-start h-8 text-xs px-3 truncate border border-input rounded-md bg-transparent flex items-center"
+                    >
+                      {path}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
       </CardContent>
 

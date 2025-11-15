@@ -230,7 +230,7 @@ const MultiSelect = React.forwardRef<
               role="combobox"
               aria-expanded={isPopoverOpen}
               className={cn(
-                'w-full justify-between border-input bg-background text-sm font-normal px-3 py-2 h-auto min-h-10',
+                'w-full justify-between bg-background text-sm font-normal px-3 py-2 h-auto min-h-10',
                 'flex items-center gap-2'
               )}
             >
