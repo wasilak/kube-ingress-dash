@@ -1,6 +1,6 @@
 # Tasks: Helm Ingress Support
 
-- [ ] Add ingress and TLS configuration options to values.yaml
+- [x] Add ingress and TLS configuration options to values.yaml
   _Prompt: Implement the task for spec helm-ingress-support, first run spec-workflow-guide to get the workflow guide then implement the task:
   Role: Helm chart developer
   Task: Add ingress and TLS configuration options to values.yaml
@@ -9,7 +9,7 @@
   _Requirements: Helm chart supports ingress and HTTPS configuration
   Success: values.yaml supports all required ingress options
 
-- [ ] Create templates/ingress.yaml to generate ingress manifests
+- [x] Create templates/ingress.yaml to generate ingress manifests
   _Prompt: Implement the task for spec helm-ingress-support, first run spec-workflow-guide to get the workflow guide then implement the task:
   Role: Helm chart developer
   Task: Create templates/ingress.yaml to generate ingress manifests
@@ -18,7 +18,7 @@
   _Requirements: Chart generates valid ingress manifests
   Success: templates/ingress.yaml works for all documented cases
 
-- [ ] Update documentation with ingress usage examples
+- [x] Update documentation with ingress usage examples
   _Prompt: Implement the task for spec helm-ingress-support, first run spec-workflow-guide to get the workflow guide then implement the task:
   Role: Technical writer
   Task: Update documentation with ingress usage examples
