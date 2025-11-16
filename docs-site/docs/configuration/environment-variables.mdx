@@ -245,27 +245,140 @@ REDIS_URL=rediss://localhost:6380
 
 ## Security Configuration
 
-### CSP_SCRIPT_SRC
+### Content Security Policy (CSP)
+
+The application includes comprehensive Content Security Policy headers to enhance security. All CSP directives can be customized via environment variables.
+
+#### CSP_SCRIPT_SRC
 
 **Type:** `string`
-**Default:** `self,unsafe-inline`
+**Default:** `'self' 'unsafe-inline'` (production), `'self' 'unsafe-eval' 'unsafe-inline'` (development)
 
-Content Security Policy script-src directive.
+Controls which scripts can be executed.
 
 ```bash
-CSP_SCRIPT_SRC=self,unsafe-inline
+CSP_SCRIPT_SRC='self' 'unsafe-inline'
 ```
 
-### HSTS_MAX_AGE
+#### CSP_STYLE_SRC
+
+**Type:** `string`
+**Default:** `'self' 'unsafe-inline'`
+
+Controls which stylesheets can be loaded.
+
+```bash
+CSP_STYLE_SRC='self' 'unsafe-inline'
+```
+
+#### CSP_IMG_SRC
+
+**Type:** `string`
+**Default:** `'self' data: blob:`
+
+Controls which images can be loaded.
+
+```bash
+CSP_IMG_SRC='self' data: blob:
+```
+
+#### CSP_CONNECT_SRC
+
+**Type:** `string`
+**Default:** `'self' blob:`
+
+Controls which URLs can be loaded using script interfaces (fetch, XMLHttpRequest, WebSocket, EventSource).
+
+```bash
+CSP_CONNECT_SRC='self' blob:
+```
+
+:::info
+The `blob:` protocol is required for Next.js functionality. Removing it may cause hydration issues.
+:::
+
+#### CSP_FONT_SRC
+
+**Type:** `string`
+**Default:** `'self'`
+
+Controls which fonts can be loaded.
+
+```bash
+CSP_FONT_SRC='self'
+```
+
+#### CSP_OBJECT_SRC
+
+**Type:** `string`
+**Default:** `'none'`
+
+Controls which plugins can be loaded.
+
+```bash
+CSP_OBJECT_SRC='none'
+```
+
+#### CSP_MEDIA_SRC
+
+**Type:** `string`
+**Default:** `'self'`
+
+Controls which audio and video can be loaded.
+
+```bash
+CSP_MEDIA_SRC='self'
+```
+
+#### CSP_FRAME_SRC
+
+**Type:** `string`
+**Default:** `'none'`
+
+Controls which frames can be embedded.
+
+```bash
+CSP_FRAME_SRC='none'
+```
+
+#### CSP_UPGRADE_INSECURE_REQUESTS
+
+**Type:** `boolean`
+**Default:** `false`
+**Values:** `true`, `false`
+
+When set to `true`, forces all HTTP requests to be upgraded to HTTPS.
+
+```bash
+# Enable HTTPS upgrade (requires TLS setup)
+CSP_UPGRADE_INSECURE_REQUESTS=true
+
+# Disable HTTPS upgrade (allows HTTP, useful for local development)
+CSP_UPGRADE_INSECURE_REQUESTS=false
+```
+
+:::warning TLS Requirement
+Setting `CSP_UPGRADE_INSECURE_REQUESTS=true` requires a proper TLS/HTTPS setup. Without TLS, the application will fail to load resources and display only a skeleton screen.
+
+**For local development or non-TLS environments, keep this set to `false` (default).**
+:::
+
+### HSTS Configuration
+
+#### HSTS_MAX_AGE
 
 **Type:** `number` (seconds)
 **Default:** `31536000` (1 year)
 
-HTTP Strict Transport Security max-age.
+HTTP Strict Transport Security max-age. Only applied in production mode.
 
 ```bash
 HSTS_MAX_AGE=31536000
 ```
+
+:::info
+HSTS headers are automatically disabled in development mode to allow local HTTP testing.
+:::
 
 ## Example Configurations
 
