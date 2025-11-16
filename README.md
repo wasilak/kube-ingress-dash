@@ -3,6 +3,7 @@
 ![GitHub License](https://img.shields.io/github/license/wasilak/kube-ingress-dash)
 ![GitHub Release](https://img.shields.io/github/v/release/wasilak/kube-ingress-dash)
 ![GitHub Repo stars](https://img.shields.io/github/stars/wasilak/kube-ingress-dash)
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/kube-ingress-dash)](https://artifacthub.io/packages/search?repo=kube-ingress-dash)
 
 **Kubernetes Ingress Dashboard for monitoring and navigating services**
 
