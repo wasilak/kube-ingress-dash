@@ -10,10 +10,10 @@ keywords:
   - dashboard
   - monitoring
   - visualization
-home: https://github.com/kube-ingress-dash/kube-ingress-dash
+home: https://github.com/wasilak/kube-ingress-dash
 icon: https://github.com/wasilak/kube-ingress-dash/raw/main/docs-site/static/img/logo.svg
 sources:
-  - https://github.com/kube-ingress-dash/kube-ingress-dash
+  - https://github.com/wasilak/kube-ingress-dash
 maintainers:
   - name: Piotr Boruc
     email: piotr.m.boruc@gmail.com
