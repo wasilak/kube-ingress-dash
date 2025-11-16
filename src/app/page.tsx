@@ -29,7 +29,7 @@ export default function DashboardPage() {
   const [allAnnotations, setAllAnnotations] = useState<string[]>([]);
   const [allNamespaces, setAllNamespaces] = useState<string[]>([]);
   const [selectedNamespaces, setSelectedNamespaces] = useState<string[]>([]);
-  const [namespaceLoading, setNamespaceLoading] = useState(true);
+  const [_namespaceLoading, setNamespaceLoading] = useState(true);
 
   // Memoize options to prevent unnecessary re-renders with counts
   const labelOptions = React.useMemo(
@@ -123,13 +123,14 @@ export default function DashboardPage() {
 
         const data = await response.json();
         setAllNamespaces(data.namespaces || []);
-      } catch (err: any) {
-        ErrorHandler.handle(err, "fetchNamespaces");
+      } catch (err: unknown) {
+        const error = err as Error;
+        ErrorHandler.handle(error, "fetchNamespaces");
         console.error("Failed to fetch namespaces:", err);
 
         // Check if it's a permission or API error and set appropriate error state
-        if (err.message && (err.message.includes('Permission') || err.message.toLowerCase().includes('forbidden'))) {
-          setError(err.message || 'Permission error: Unable to access Kubernetes namespaces');
+        if (error.message && (error.message.includes('Permission') || error.message.toLowerCase().includes('forbidden'))) {
+          setError(error.message || 'Permission error: Unable to access Kubernetes namespaces');
         } else {
           // Still set loading to false so the app doesn't hang
           // Set an empty array as fallback
@@ -305,9 +306,10 @@ export default function DashboardPage() {
         // Apply advanced filtering with current selections
         const filtered = filterIngressesAdvanced(data.ingresses, searchQuery, selectedLabels, selectedAnnotations);
         setFilteredIngresses(filtered);
-      } catch (err: any) {
-        ErrorHandler.handle(err, "fetchIngresses");
-        setError(err.message || "An error occurred while fetching ingress data");
+      } catch (err: unknown) {
+        const error = err as Error;
+        ErrorHandler.handle(error, "fetchIngresses");
+        setError(error.message || "An error occurred while fetching ingress data");
       } finally {
         setLoading(false);
       }

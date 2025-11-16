@@ -7,14 +7,14 @@ export interface ErrorInfo {
   stack?: string;
   source?: string;
   timestamp: Date;
-  context?: any;
+  context?: Record<string, unknown>;
 }
 
 export class ErrorHandler {
   /**
    * Handles application errors and logs them appropriately
    */
-  static handle(error: Error, source?: string, context?: any): ErrorInfo {
+  static handle(error: Error, source?: string, context?: Record<string, unknown>): ErrorInfo {
     const errorInfo: ErrorInfo = {
       message: error.message,
       stack: error.stack,
@@ -39,19 +39,20 @@ export class ErrorHandler {
   /**
    * Handles Kubernetes API specific errors
    */
-  static handleKubernetesError(error: any, context?: string): ErrorInfo {
-    const message = error?.response?.body?.message || error?.message || 'Unknown Kubernetes API error';
-    const status = error?.response?.statusCode || 'Unknown';
+  static handleKubernetesError(error: unknown, context?: string): ErrorInfo {
+    const err = error as { response?: { body?: { message?: string }; statusCode?: number }; message?: string; stack?: string };
+    const message = err?.response?.body?.message || err?.message || 'Unknown Kubernetes API error';
+    const status = err?.response?.statusCode || 'Unknown';
     
     const errorInfo: ErrorInfo = {
       message: `Kubernetes API Error (${status}): ${message}`,
-      stack: error?.stack,
+      stack: err?.stack,
       source: 'Kubernetes API',
       timestamp: new Date(),
       context: {
-        ...(context ? { 0: context } : {}), // Handle possible single string context
+        ...(context ? { contextInfo: context } : {}),
         statusCode: status,
-        response: error?.response?.body,
+        response: err?.response?.body,
       },
     };
 
@@ -67,7 +68,7 @@ export class ErrorHandler {
   /**
    * Reports error to external service (placeholder)
    */
-  static async report(errorInfo: ErrorInfo): Promise<void> {
+  static async report(_errorInfo: ErrorInfo): Promise<void> {
     // In a real implementation, this would send errors to a service like Sentry
     // For now, we'll just log to console
     if (process.env.NODE_ENV !== 'development') {

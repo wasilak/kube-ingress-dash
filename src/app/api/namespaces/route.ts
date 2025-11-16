@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     try {
       const namespaceResponse = await kubeClient.getNamespaces();
       namespaces = namespaceResponse.items.map(ns => ns.metadata?.name || '').filter(name => name);
-    } catch (k8sError: any) {
+    } catch (k8sError: unknown) {
       const errorInfo = ErrorHandler.handleKubernetesError(
         k8sError,
         'GET /api/namespaces'
@@ -53,9 +53,10 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
       count: namespaces.length
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as Error;
     const errorInfo = ErrorHandler.handle(
-      error,
+      err,
       'GET /api/namespaces',
       { userAgent: request.headers.get('user-agent') }
     );
@@ -64,7 +65,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         error: 'Internal server error',
-        details: process.env.NODE_ENV === 'development' ? error.message : 'An unexpected error occurred',
+        details: process.env.NODE_ENV === 'development' ? err.message : 'An unexpected error occurred',
         errorInfo
       },
       { status: 500 }

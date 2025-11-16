@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
       }
 
       // Create a callback for watch events
-      const handleEvent = (type: string, ingress: any) => {
+      const handleEvent = (type: string, ingress: unknown) => {
         try {
           let eventType;
           switch (type) {
@@ -100,11 +100,11 @@ export async function GET(request: NextRequest) {
       };
 
       // Create error callback
-      const handleError = (error: any) => {
+      const handleError = (error: Error) => {
         console.error('Watch error:', error);
 
         const errorInfo = ErrorHandler.handle(
-          error as Error,
+          error,
           'Kubernetes watch error'
         );
 
@@ -112,8 +112,8 @@ export async function GET(request: NextRequest) {
           type: 'error',
           data: {
             error: 'Watch error',
-            message: process.env.NODE_ENV === 'development' ? (error as Error).message : 'An unexpected error occurred while watching resources',
-            details: process.env.NODE_ENV === 'development' ? (error as Error).message : 'An unexpected error occurred while watching resources',
+            message: process.env.NODE_ENV === 'development' ? error.message : 'An unexpected error occurred while watching resources',
+            details: process.env.NODE_ENV === 'development' ? error.message : 'An unexpected error occurred while watching resources',
             errorInfo
           }
         })}\n\n`));

@@ -57,7 +57,7 @@ const MultiSelect = React.forwardRef<
       modalPopover = false,
       searchable = true,
       disabled = false,
-      responsive = false,
+      responsive: _responsive = false,
       closeOnSelect = false,
       hideSelectAll = false,
       emptyIndicator,
