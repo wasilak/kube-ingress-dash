@@ -12,7 +12,7 @@ interface IngressCardProps {
   onClick?: () => void;
 }
 
-const IngressCard: React.FC<IngressCardProps> = ({ ingress, onClick }) => {
+const IngressCard: React.FC<IngressCardProps> = ({ ingress, onClick: _onClick }) => {
   const handleLinkClick = (url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer');
   };

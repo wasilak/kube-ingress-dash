@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
         // Fetch ingresses from all namespaces (default behavior)
         ingresses = await kubeClient.getIngresses();
       }
-    } catch (k8sError: any) {
+    } catch (k8sError: unknown) {
       const errorInfo = ErrorHandler.handleKubernetesError(
         k8sError,
         'GET /api/ingresses'
@@ -82,9 +82,10 @@ export async function GET(request: NextRequest) {
       namespaces: namespaces, // Include the list of namespaces if filtering by multiple
       count: ingresses.length
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as Error;
     const errorInfo = ErrorHandler.handle(
-      error,
+      err,
       'GET /api/ingresses',
       { userAgent: request.headers.get('user-agent') }
     );
@@ -93,7 +94,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         error: 'Internal server error',
-        details: process.env.NODE_ENV === 'development' ? error.message : 'An unexpected error occurred',
+        details: process.env.NODE_ENV === 'development' ? err.message : 'An unexpected error occurred',
         errorInfo
       },
       { status: 500 }
@@ -102,7 +103,7 @@ export async function GET(request: NextRequest) {
 }
 
 // Add POST method for any future functionality (might be needed for SSE/websocket setup)
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest): Promise<NextResponse> {
   // For now, just return an error since this endpoint is primarily for reading data
   return NextResponse.json(
     { error: 'POST method not supported for this endpoint' }, 

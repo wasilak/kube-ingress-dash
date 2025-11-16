@@ -1,7 +1,6 @@
-import { KubeConfig, NetworkingV1Api, V1Ingress } from '@kubernetes/client-node';
+import { KubeConfig, V1Ingress } from '@kubernetes/client-node';
 import { IngressData } from '@/types/ingress';
 import KubernetesClient from './client';
-import { Writable } from 'stream';
 import { transformIngress } from '@/lib/utils/ingress-transformer';
 
 export interface IngressEvent {
@@ -9,18 +8,20 @@ export interface IngressEvent {
   ingress: IngressData;
 }
 
+interface WatchInstance {
+  abort: () => void;
+}
+
 export class IngressStream {
   private kubeClient: KubernetesClient;
-  private networkingV1Api: NetworkingV1Api;
-  private watch: any; // We'll import Watch from kubernetes-client-node later
+  private watch: { new(config: KubeConfig): { watch: (path: string, params: Record<string, unknown>, callback: (type: string, obj: V1Ingress) => void, errorCallback: (err: Error) => void) => Promise<WatchInstance> } };
   private eventHandlers: ((event: IngressEvent) => void)[] = [];
   private errorHandlers: ((error: Error) => void)[] = [];
-  private activeWatch: any = null;
+  private activeWatch: WatchInstance | null = null;
   private watchStopper: (() => void) | null = null;
 
   constructor() {
     this.kubeClient = new KubernetesClient();
-    this.networkingV1Api = this.kubeClient.networkingV1Api;
     
     // Dynamically import the Watch class since it's not in the types
     this.watch = require('@kubernetes/client-node').Watch;
@@ -29,35 +30,35 @@ export class IngressStream {
   /**
    * Add an event handler for ingress events
    */
-  addEventHandler(handler: (event: IngressEvent) => void) {
+  addEventHandler(handler: (event: IngressEvent) => void): void {
     this.eventHandlers.push(handler);
   }
 
   /**
    * Remove an event handler
    */
-  removeEventHandler(handler: (event: IngressEvent) => void) {
+  removeEventHandler(handler: (event: IngressEvent) => void): void {
     this.eventHandlers = this.eventHandlers.filter(h => h !== handler);
   }
 
   /**
    * Add an error handler for stream errors
    */
-  addErrorHandler(handler: (error: Error) => void) {
+  addErrorHandler(handler: (error: Error) => void): void {
     this.errorHandlers.push(handler);
   }
 
   /**
    * Remove an error handler
    */
-  removeErrorHandler(handler: (error: Error) => void) {
+  removeErrorHandler(handler: (error: Error) => void): void {
     this.errorHandlers = this.errorHandlers.filter(h => h !== handler);
   }
 
   /**
    * Emit an ingress event to all registered handlers
    */
-  private emitEvent(event: IngressEvent) {
+  private emitEvent(event: IngressEvent): void {
     for (const handler of this.eventHandlers) {
       try {
         handler(event);
@@ -71,7 +72,7 @@ export class IngressStream {
   /**
    * Emit an error to all registered error handlers
    */
-  private emitError(error: Error) {
+  private emitError(error: Error): void {
     for (const handler of this.errorHandlers) {
       try {
         handler(error);
@@ -86,7 +87,7 @@ export class IngressStream {
   /**
    * Start watching ingress resources
    */
-  async startWatching(namespace?: string) {
+  async startWatching(namespace?: string): Promise<void> {
     if (this.watchStopper) {
       this.stopWatching();
     }
@@ -95,7 +96,7 @@ export class IngressStream {
       // Create a new watch instance
       const watchInstance = new this.watch(this.kubeClient.kubeConfig);
       
-      const queryParams: any = {};
+      const queryParams: Record<string, unknown> = {};
       if (namespace) {
         // Watch in a specific namespace
         this.activeWatch = await watchInstance.watch(
@@ -137,7 +138,7 @@ export class IngressStream {
   /**
    * Handle events from the Kubernetes watch
    */
-  private handleWatchEvent(type: string, obj: V1Ingress) {
+  private handleWatchEvent(type: string, obj: V1Ingress): void {
     try {
       const ingressData = transformIngress(obj);
       let eventType: 'ADDED' | 'MODIFIED' | 'DELETED';
@@ -170,7 +171,7 @@ export class IngressStream {
   /**
    * Handle errors from the Kubernetes watch
    */
-  private handleWatchError(error: Error) {
+  private handleWatchError(error: Error): void {
     console.error('Watch error:', error);
     this.emitError(error);
 
@@ -197,7 +198,7 @@ export class IngressStream {
   /**
    * Stop watching ingress resources
    */
-  stopWatching() {
+  stopWatching(): void {
     if (this.watchStopper) {
       this.watchStopper();
       this.watchStopper = null;

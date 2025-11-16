@@ -1,5 +1,5 @@
 import { KubeConfig, CoreV1Api, NetworkingV1Api, V1Ingress, V1NamespaceList } from '@kubernetes/client-node';
-import { IngressData, KubernetesIngress } from '@/types/ingress';
+import { IngressData } from '@/types/ingress';
 import { transformIngress, transformIngresses } from '@/lib/utils/ingress-transformer';
 
 class KubernetesClient {
@@ -31,7 +31,7 @@ class KubernetesClient {
     // Check for the presence of the service account token file
     try {
       // The service account token file path is typically mounted in-cluster
-      const tokenPath = '/var/run/secrets/kubernetes.io/serviceaccount/token';
+      // const tokenPath = '/var/run/secrets/kubernetes.io/serviceaccount/token';
       return typeof process.env.KUBERNETES_SERVICE_HOST !== 'undefined';
     } catch (error) {
       return false;
@@ -78,9 +78,10 @@ class KubernetesClient {
     try {
       const response = await this.networkingV1Api.readNamespacedIngress({name, namespace});
       return transformIngress(response);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as { response?: { statusCode?: number } };
       // Check if it's a "not found" error
-      if (error?.response?.statusCode === 404) {
+      if (err?.response?.statusCode === 404) {
         return null;
       }
       console.error(`Error fetching ingress ${name} in namespace ${namespace}:`, error);
@@ -132,15 +133,16 @@ class KubernetesClient {
       // Test by fetching a simple resource
       await this.getNamespaces();
       return { hasPermissions: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as { response?: { body?: { message?: string }; statusCode?: number }; message?: string };
       // Check if it's an RBAC-related error
-      const isRBACError = error?.response?.body?.message?.includes('forbidden') ||
-                         error?.response?.body?.message?.includes('denied') ||
-                         error?.response?.statusCode === 403;
+      const isRBACError = err?.response?.body?.message?.includes('forbidden') ||
+                         err?.response?.body?.message?.includes('denied') ||
+                         err?.response?.statusCode === 403;
 
       return {
         hasPermissions: false,
-        error: isRBACError ? 'Insufficient RBAC permissions' : error?.response?.body?.message || error.message,
+        error: isRBACError ? 'Insufficient RBAC permissions' : err?.response?.body?.message || err.message,
         isRBACError
       };
     }
@@ -150,10 +152,10 @@ class KubernetesClient {
    * Watch ingress resources for changes
    */
   async watchIngresses(
-    callback: (type: string, ingress: any) => void,
+    callback: (type: string, ingress: IngressData) => void,
     done: () => void,
-    errorCb: (err: any) => void
-  ) {
+    errorCb: (err: Error) => void
+  ): Promise<void> {
     const k8s = require('@kubernetes/client-node');
     const watch = new k8s.Watch(this.kubeConfig);
 
@@ -161,7 +163,7 @@ class KubernetesClient {
       await watch.watch(
         '/apis/networking.k8s.io/v1/ingresses',
         {},
-        (type: string, k8sObject: any) => {
+        (type: string, k8sObject: V1Ingress) => {
           try {
             // Transform the Kubernetes object to our format
             const ingressData = transformIngress(k8sObject);
@@ -171,10 +173,10 @@ class KubernetesClient {
             errorCb(error as Error);
           }
         },
-        (err: any) => {
+        (err: Error | null) => {
           if (err) {
             console.error('Error in ingress watch:', err);
-            errorCb(err as Error);
+            errorCb(err);
           } else {
             done();
           }
@@ -191,10 +193,10 @@ class KubernetesClient {
    */
   async watchIngressesByNamespace(
     namespace: string,
-    callback: (type: string, ingress: any) => void,
+    callback: (type: string, ingress: IngressData) => void,
     done: () => void,
-    errorCb: (err: any) => void
-  ) {
+    errorCb: (err: Error) => void
+  ): Promise<void> {
     const k8s = require('@kubernetes/client-node');
     const watch = new k8s.Watch(this.kubeConfig);
 
@@ -202,7 +204,7 @@ class KubernetesClient {
       await watch.watch(
         `/apis/networking.k8s.io/v1/namespaces/${namespace}/ingresses`,
         {},
-        (type: string, k8sObject: any) => {
+        (type: string, k8sObject: V1Ingress) => {
           try {
             // Transform the Kubernetes object to our format
             const ingressData = transformIngress(k8sObject);
@@ -212,10 +214,10 @@ class KubernetesClient {
             errorCb(error as Error);
           }
         },
-        (err: any) => {
+        (err: Error | null) => {
           if (err) {
             console.error('Error in ingress watch:', err);
-            errorCb(err as Error);
+            errorCb(err);
           } else {
             done();
           }

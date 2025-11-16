@@ -76,7 +76,7 @@ function getSecurityConfig(): SecurityConfig {
  * @param request - The incoming HTTP request
  * @returns Response with security headers added
  */
-export default function proxy(request: NextRequest): NextResponse {
+export default function proxy(_request: NextRequest): NextResponse {
   const response = NextResponse.next();
   const config = getSecurityConfig();
   
