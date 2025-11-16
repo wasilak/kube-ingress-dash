@@ -16,6 +16,7 @@ import { ErrorHandler } from '@/lib/error-handler';
 import ErrorScreen from '@/components/error-screen';
 import { Loader2, Tag, FileText } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { VirtualIngressGrid } from '@/components/virtual-ingress-grid';
 
 export default function DashboardPage() {
   const [ingresses, setIngresses] = useState<IngressData[]>([]);
@@ -523,7 +524,11 @@ export default function DashboardPage() {
                 </Button>
               )}
             </div>
+          ) : filteredIngresses.length > 100 ? (
+            // Use virtual scrolling for large datasets (> 100 items)
+            <VirtualIngressGrid ingresses={filteredIngresses} />
           ) : (
+            // Use regular grid for smaller datasets
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredIngresses.map((ingress) => (
                 <ErrorBoundary key={`${ingress.namespace}/${ingress.name}`} fallback={({ error }: { error: Error }) => (
