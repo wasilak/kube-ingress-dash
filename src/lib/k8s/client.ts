@@ -1,11 +1,13 @@
 import { KubeConfig, CoreV1Api, NetworkingV1Api, V1Ingress, V1NamespaceList } from '@kubernetes/client-node';
 import { IngressData } from '@/types/ingress';
 import { transformIngress, transformIngresses } from '@/lib/utils/ingress-transformer';
+import { RetryHandler } from '@/lib/error-handler';
 
 class KubernetesClient {
   public kubeConfig: KubeConfig;
   public networkingV1Api: NetworkingV1Api;
   public coreV1Api: CoreV1Api;
+  private retryHandler: RetryHandler;
 
   constructor() {
     this.kubeConfig = new KubeConfig();
@@ -22,6 +24,14 @@ class KubernetesClient {
     // Initialize the Kubernetes API clients
     this.networkingV1Api = this.kubeConfig.makeApiClient(NetworkingV1Api);
     this.coreV1Api = this.kubeConfig.makeApiClient(CoreV1Api);
+    
+    // Initialize retry handler with exponential backoff
+    this.retryHandler = new RetryHandler({
+      maxAttempts: 3,
+      initialDelayMs: 100,
+      maxDelayMs: 5000,
+      backoffMultiplier: 2,
+    });
   }
 
   /**
@@ -45,7 +55,9 @@ class KubernetesClient {
    */
   async getIngresses(): Promise<IngressData[]> {
     try {
-      const response = await this.networkingV1Api.listIngressForAllNamespaces();
+      const response = await this.retryHandler.execute(async () => {
+        return await this.networkingV1Api.listIngressForAllNamespaces();
+      });
       const k8sIngresses = response.items;
       
       // Transform Kubernetes ingress objects to our format
@@ -61,7 +73,9 @@ class KubernetesClient {
    */
   async getIngressesByNamespace(namespace: string): Promise<IngressData[]> {
     try {
-      const response = await this.networkingV1Api.listNamespacedIngress({namespace});
+      const response = await this.retryHandler.execute(async () => {
+        return await this.networkingV1Api.listNamespacedIngress({namespace});
+      });
       const k8sIngresses = response.items;
       
       return transformIngresses(k8sIngresses);
@@ -76,7 +90,9 @@ class KubernetesClient {
    */
   async getIngress(name: string, namespace: string): Promise<IngressData | null> {
     try {
-      const response = await this.networkingV1Api.readNamespacedIngress({name, namespace});
+      const response = await this.retryHandler.execute(async () => {
+        return await this.networkingV1Api.readNamespacedIngress({name, namespace});
+      });
       return transformIngress(response);
     } catch (error: unknown) {
       const err = error as { response?: { statusCode?: number } };
@@ -94,7 +110,9 @@ class KubernetesClient {
    */
   async getNamespaces(): Promise<V1NamespaceList> {
     try {
-      const response = await this.coreV1Api.listNamespace();
+      const response = await this.retryHandler.execute(async () => {
+        return await this.coreV1Api.listNamespace();
+      });
       return response;
     } catch (error) {
       console.error('Error fetching namespaces:', error);

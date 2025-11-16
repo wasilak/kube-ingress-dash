@@ -1,6 +1,10 @@
 import { ErrorClassifier } from './error-handler/classifier';
 import { ErrorCategory } from '@/types/errors';
 
+// Re-export for convenience
+export { RetryHandler } from './error-handler/retry';
+export type { RetryConfig } from './error-handler/retry';
+
 // Global error handling utility
 export class ErrorHandler {
   static handle(error: unknown, context?: string): void {
