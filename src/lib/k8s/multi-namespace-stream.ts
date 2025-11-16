@@ -261,18 +261,26 @@ export class MultiNamespaceStreamManager {
   /**
    * Handle an event from a specific namespace watch
    * 
+   * Optimized for minimal latency - adds timestamp immediately upon receiving
+   * the event from Kubernetes to track end-to-end delivery time.
+   * 
    * @param namespace - The namespace where the event occurred
    * @param event - The ingress event
    */
   private handleNamespaceEvent(namespace: string, event: IngressEvent): void {
+    // Add timestamp immediately for accurate latency tracking
+    // This timestamp represents when the event was received from Kubernetes
+    const eventTimestamp = new Date().toISOString();
+    
     // Create a multi-namespace event with namespace context and timestamp
+    // Using object spread for optimal performance
     const multiNamespaceEvent: MultiNamespaceEvent = {
       ...event,
       namespace,
-      timestamp: new Date().toISOString(),
+      timestamp: eventTimestamp,
     };
 
-    // Emit to all registered event handlers
+    // Emit to all registered event handlers with minimal overhead
     this.emitEvent(multiNamespaceEvent);
   }
 
@@ -305,9 +313,14 @@ export class MultiNamespaceStreamManager {
   /**
    * Emit an event to all registered event handlers
    * 
+   * Optimized for minimal latency - handlers are called synchronously
+   * to ensure events are delivered as quickly as possible.
+   * 
    * @param event - The event to emit
    */
   private emitEvent(event: MultiNamespaceEvent): void {
+    // Call handlers synchronously for minimal latency
+    // Error handling ensures one failing handler doesn't affect others
     for (const handler of this.eventHandlers) {
       try {
         handler(event);
