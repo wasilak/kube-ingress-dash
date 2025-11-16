@@ -19,43 +19,43 @@ describe('ErrorBoundary', () => {
         <WorkingComponent />
       </ErrorBoundary>
     );
-    
+
     expect(screen.getByText('Working component')).toBeInTheDocument();
   });
 
   it('catches error and displays error UI when child throws error', () => {
     console.error = jest.fn(); // Suppress error logging during test
-    
+
     render(
       <ErrorBoundary>
         <BrokenComponent />
       </ErrorBoundary>
     );
-    
+
     expect(screen.getByText('Something went wrong')).toBeInTheDocument();
     expect(screen.getByText('Test error')).toBeInTheDocument();
   });
 
   it('allows retrying after error', () => {
     console.error = jest.fn(); // Suppress error logging during test
-    
+
     const { unmount, rerender } = render(
       <ErrorBoundary>
         <BrokenComponent />
       </ErrorBoundary>
     );
-    
+
     expect(screen.getByText('Something went wrong')).toBeInTheDocument();
-    
+
     // Unmount and re-render with a working component
     unmount();
-    
+
     render(
       <ErrorBoundary>
         <WorkingComponent />
       </ErrorBoundary>
     );
-    
+
     expect(screen.getByText('Working component')).toBeInTheDocument();
   });
 });

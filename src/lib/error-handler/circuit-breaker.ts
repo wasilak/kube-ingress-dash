@@ -63,7 +63,7 @@ const DEFAULT_CIRCUIT_BREAKER_CONFIG: CircuitBreakerConfig = {
  * Error thrown when circuit breaker is in OPEN state.
  * Indicates that the protected service is experiencing failures and requests are being rejected
  * to prevent cascading failures and allow the service time to recover.
- * 
+ *
  * @example
  * ```typescript
  * try {
@@ -78,7 +78,7 @@ const DEFAULT_CIRCUIT_BREAKER_CONFIG: CircuitBreakerConfig = {
 export class CircuitBreakerOpenError extends Error {
   /**
    * Creates a new CircuitBreakerOpenError instance.
-   * 
+   *
    * @param message - Error message describing the circuit breaker state
    */
   constructor(message: string = 'Circuit breaker is open') {
@@ -91,12 +91,12 @@ export class CircuitBreakerOpenError extends Error {
  * Circuit breaker implementation that prevents cascading failures by stopping
  * requests to failing services. Tracks failure rate over a sliding window and
  * opens the circuit when the threshold is exceeded.
- * 
+ *
  * States:
  * - CLOSED: Normal operation, all requests pass through
  * - OPEN: Circuit is open, requests fail immediately
  * - HALF_OPEN: Testing if service has recovered
- * 
+ *
  * @example
  * ```typescript
  * const circuitBreaker = new CircuitBreaker({
@@ -105,7 +105,7 @@ export class CircuitBreakerOpenError extends Error {
  *   timeout: 60000,
  *   windowMs: 30000,
  * });
- * 
+ *
  * try {
  *   const result = await circuitBreaker.execute(async () => {
  *     return await fetchData();
@@ -126,7 +126,7 @@ export class CircuitBreaker {
 
   /**
    * Creates a new CircuitBreaker instance
-   * 
+   *
    * @param config - Circuit breaker configuration options (optional, uses defaults if not provided)
    */
   constructor(config?: Partial<CircuitBreakerConfig>) {
@@ -138,12 +138,12 @@ export class CircuitBreaker {
 
   /**
    * Executes an async function with circuit breaker protection.
-   * 
+   *
    * @param fn - The async function to execute
    * @returns Promise resolving to the function's return value
    * @throws {CircuitBreakerOpenError} When circuit is open
    * @throws The original error if the function fails
-   * 
+   *
    * @example
    * ```typescript
    * const data = await circuitBreaker.execute(async () => {
@@ -196,7 +196,7 @@ export class CircuitBreaker {
    * Records a successful request and updates circuit breaker state.
    * In HALF_OPEN state, increments success count and may close the circuit.
    * In CLOSED state, adds success to request history.
-   * 
+   *
    * @private
    */
   private recordSuccess(): void {
@@ -227,7 +227,7 @@ export class CircuitBreaker {
    * Records a failed request and updates circuit breaker state.
    * In HALF_OPEN state, any failure reopens the circuit.
    * In CLOSED state, adds failure to history and checks if threshold is exceeded.
-   * 
+   *
    * @private
    */
   private recordFailure(): void {
@@ -254,22 +254,20 @@ export class CircuitBreaker {
 
   /**
    * Removes entries outside the sliding window to maintain accurate failure rate calculation.
-   * 
+   *
    * @param now - Current timestamp in milliseconds
-   * 
+   *
    * @private
    */
   private cleanupHistory(now: number): void {
     const cutoff = now - this.config.windowMs;
-    this.requestHistory = this.requestHistory.filter(
-      (result) => result.timestamp > cutoff
-    );
+    this.requestHistory = this.requestHistory.filter((result) => result.timestamp > cutoff);
   }
 
   /**
    * Checks if failure threshold is exceeded and opens circuit if needed.
    * Calculates failure rate from request history and compares against configured threshold.
-   * 
+   *
    * @private
    */
   private checkFailureThreshold(): void {
@@ -294,7 +292,7 @@ export class CircuitBreaker {
   /**
    * Checks if circuit should transition from OPEN to HALF_OPEN.
    * Transitions when the configured timeout has elapsed since circuit opened.
-   * 
+   *
    * @private
    */
   private checkStateTransition(): void {
@@ -311,9 +309,9 @@ export class CircuitBreaker {
   /**
    * Transitions the circuit breaker to a new state and resets relevant counters.
    * Logs state transitions for observability.
-   * 
+   *
    * @param newState - The new circuit state to transition to
-   * 
+   *
    * @private
    */
   private transitionTo(newState: CircuitState): void {
@@ -346,7 +344,7 @@ export class CircuitBreaker {
 
   /**
    * Gets the current circuit breaker state
-   * 
+   *
    * @returns Current circuit state
    */
   getState(): CircuitState {
@@ -357,7 +355,7 @@ export class CircuitBreaker {
 
   /**
    * Gets the current failure rate in the sliding window
-   * 
+   *
    * @returns Failure rate (0-1)
    */
   getFailureRate(): number {
@@ -371,7 +369,7 @@ export class CircuitBreaker {
 
   /**
    * Gets the number of requests in the current sliding window
-   * 
+   *
    * @returns Number of requests
    */
   getRequestCount(): number {
@@ -380,7 +378,7 @@ export class CircuitBreaker {
 
   /**
    * Gets the remaining time until circuit transitions to HALF_OPEN
-   * 
+   *
    * @returns Remaining time in milliseconds, or 0 if not in OPEN state
    */
   getRemainingTimeout(): number {
@@ -395,7 +393,7 @@ export class CircuitBreaker {
 
   /**
    * Gets the current circuit breaker configuration
-   * 
+   *
    * @returns Current configuration
    */
   getConfig(): Readonly<CircuitBreakerConfig> {

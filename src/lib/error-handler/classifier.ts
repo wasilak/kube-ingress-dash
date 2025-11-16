@@ -7,10 +7,10 @@ import { ErrorCategory, ErrorClassification } from '@/types/errors';
 export class ErrorClassifier {
   /**
    * Classifies an error into a category with retry information.
-   * 
+   *
    * @param error - The error to classify (can be Error, Response, or unknown)
    * @returns ErrorClassification with category, retryable status, and optional status code
-   * 
+   *
    * @example
    * ```typescript
    * const classification = ErrorClassifier.classify(error);
@@ -36,7 +36,7 @@ export class ErrorClassifier {
     // Different HTTP libraries structure errors differently, so we check multiple patterns
     if (typeof error === 'object' && error !== null) {
       const errorObj = error as Record<string, unknown>;
-      
+
       // Check for direct status code properties (axios pattern)
       if ('statusCode' in errorObj || 'status' in errorObj) {
         const statusCode = (errorObj.statusCode || errorObj.status) as number;
@@ -62,10 +62,10 @@ export class ErrorClassifier {
 
   /**
    * Classifies HTTP Response objects based on status code.
-   * 
+   *
    * @param response - HTTP Response object to classify
    * @returns ErrorClassification with category and retry information
-   * 
+   *
    * @private
    */
   private static classifyHttpResponse(response: Response): ErrorClassification {
@@ -76,10 +76,10 @@ export class ErrorClassifier {
    * Classifies Error objects based on message content and properties.
    * Analyzes error messages for keywords indicating network issues, authentication,
    * authorization, rate limiting, and other error types.
-   * 
+   *
    * @param error - Error object to classify
    * @returns ErrorClassification with category and retry information
-   * 
+   *
    * @private
    */
   private static classifyErrorObject(error: Error): ErrorClassification {
@@ -177,10 +177,10 @@ export class ErrorClassifier {
    * - 429: Too Many Requests (rate limit)
    * - 4xx: Other client errors (permanent)
    * - 5xx: Server errors (transient)
-   * 
+   *
    * @param statusCode - HTTP status code to classify
    * @returns ErrorClassification with category and retry information
-   * 
+   *
    * @private
    */
   private static classifyByStatusCode(statusCode: number): ErrorClassification {
@@ -302,7 +302,7 @@ export class ErrorClassifier {
 
   /**
    * Gets a user-friendly error message based on error classification.
-   * 
+   *
    * @param classification - The error classification
    * @returns User-friendly error message
    */
@@ -310,22 +310,22 @@ export class ErrorClassifier {
     switch (classification.category) {
       case ErrorCategory.AUTHENTICATION:
         return 'Authentication failed. Please check your credentials and try again.';
-      
+
       case ErrorCategory.AUTHORIZATION:
-        return 'You don\'t have permission to access this resource. Please contact your administrator.';
-      
+        return "You don't have permission to access this resource. Please contact your administrator.";
+
       case ErrorCategory.RATE_LIMIT:
         return 'Too many requests. Please wait a moment and try again.';
-      
+
       case ErrorCategory.PERMANENT:
         if (classification.statusCode === 404) {
           return 'The requested resource was not found.';
         }
         return 'An error occurred while processing your request.';
-      
+
       case ErrorCategory.TRANSIENT:
         return 'A temporary error occurred. Please try again.';
-      
+
       default:
         return 'An unexpected error occurred.';
     }
@@ -333,21 +333,21 @@ export class ErrorClassifier {
 
   /**
    * Gets the appropriate documentation link based on error classification.
-   * 
+   *
    * @param classification - The error classification
    * @returns Documentation URL
    */
   static getDocumentationLink(classification: ErrorClassification): string {
     const baseUrl = 'https://wasilak.github.io/kube-ingress-dash';
-    
+
     switch (classification.category) {
       case ErrorCategory.AUTHENTICATION:
       case ErrorCategory.AUTHORIZATION:
         return `${baseUrl}/architecture/rbac-setup`;
-      
+
       case ErrorCategory.RATE_LIMIT:
         return `${baseUrl}/architecture/interaction-with-kubernetes`;
-      
+
       case ErrorCategory.PERMANENT:
       case ErrorCategory.TRANSIENT:
       default:
@@ -357,7 +357,7 @@ export class ErrorClassifier {
 
   /**
    * Gets user-friendly documentation link text based on error classification.
-   * 
+   *
    * @param classification - The error classification
    * @returns Documentation link text
    */
@@ -366,10 +366,10 @@ export class ErrorClassifier {
       case ErrorCategory.AUTHENTICATION:
       case ErrorCategory.AUTHORIZATION:
         return 'View RBAC Setup Guide';
-      
+
       case ErrorCategory.RATE_LIMIT:
         return 'View API Documentation';
-      
+
       case ErrorCategory.PERMANENT:
       case ErrorCategory.TRANSIENT:
       default:

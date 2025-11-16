@@ -32,22 +32,11 @@ export default function Error({ error, reset }: ErrorProps) {
             {error.message || 'An unexpected error occurred'}
           </p>
           <div className="flex flex-col sm:flex-row gap-2 justify-center">
-            <Button 
-              variant="outline" 
-              onClick={() => router.refresh()}
-            >
+            <Button variant="outline" onClick={() => router.refresh()}>
               Try Again
             </Button>
-            <Button 
-              onClick={() => router.push('/')}
-            >
-              Go Home
-            </Button>
-            <Button 
-              onClick={reset}
-            >
-              Reset
-            </Button>
+            <Button onClick={() => router.push('/')}>Go Home</Button>
+            <Button onClick={reset}>Reset</Button>
           </div>
         </CardContent>
       </Card>

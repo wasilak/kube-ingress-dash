@@ -1,7 +1,15 @@
 'use client';
 
 import * as React from 'react';
-import { Command, CommandGroup, CommandItem, CommandList, CommandInput, CommandEmpty, CommandSeparator } from '@/components/ui/command';
+import {
+  Command,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+  CommandInput,
+  CommandEmpty,
+  CommandSeparator,
+} from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -42,10 +50,7 @@ type MultiSelectProps = {
   emptyIndicator?: React.ReactNode;
 };
 
-const MultiSelectComponent = React.forwardRef<
-  HTMLButtonElement,
-  MultiSelectProps
->(
+const MultiSelectComponent = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
   (
     {
       options,
@@ -85,12 +90,12 @@ const MultiSelectComponent = React.forwardRef<
         prevDefaultValueRef.current = [...defaultValue];
         return;
       }
-      
+
       const arraysEqual = (a: string[], b: string[]) => {
         if (a.length !== b.length) return false;
         return a.every((val, idx) => val === b[idx]);
       };
-      
+
       // Only sync if defaultValue actually changed from the previous value
       if (!arraysEqual(defaultValue, prevDefaultValueRef.current)) {
         // Only update if the new defaultValue is actually different from current state
@@ -104,9 +109,9 @@ const MultiSelectComponent = React.forwardRef<
     // Get all options (flattened)
     const getAllOptions = React.useCallback((): MultiSelectOption[] => {
       const flatOptions: MultiSelectOption[] = [];
-      options.forEach(option => {
+      options.forEach((option) => {
         if ('options' in option) {
-          option.options.forEach(item => flatOptions.push(item));
+          option.options.forEach((item) => flatOptions.push(item));
         } else {
           flatOptions.push(option);
         }
@@ -187,14 +192,16 @@ const MultiSelectComponent = React.forwardRef<
       const isGrouped = options.length > 0 && 'heading' in options[0];
 
       if (isGrouped) {
-        return (options as MultiSelectGroup[]).map((group) => ({
-          ...group,
-          options: group.options.filter(
-            (option) =>
-              option.label.toLowerCase().includes(query.toLowerCase()) ||
-              option.value.toLowerCase().includes(query.toLowerCase())
-          ),
-        })).filter((group) => group.options.length > 0) as MultiSelectGroup[];
+        return (options as MultiSelectGroup[])
+          .map((group) => ({
+            ...group,
+            options: group.options.filter(
+              (option) =>
+                option.label.toLowerCase().includes(query.toLowerCase()) ||
+                option.value.toLowerCase().includes(query.toLowerCase())
+            ),
+          }))
+          .filter((group) => group.options.length > 0) as MultiSelectGroup[];
       }
 
       return (options as MultiSelectOption[]).filter(
@@ -216,7 +223,9 @@ const MultiSelectComponent = React.forwardRef<
       }
     }, [isPopoverOpen]);
 
-    const isGroupedOptions = (opts: (MultiSelectOption | MultiSelectGroup)[]): opts is MultiSelectGroup[] => {
+    const isGroupedOptions = (
+      opts: (MultiSelectOption | MultiSelectGroup)[]
+    ): opts is MultiSelectGroup[] => {
       return opts.length > 0 && 'heading' in opts[0];
     };
 
@@ -247,7 +256,9 @@ const MultiSelectComponent = React.forwardRef<
                           className={cn(
                             'data-[disabled]:bg-muted-foreground data-[disabled]:text-muted data-[disabled]:hover:bg-muted-foreground',
                             'data-[fixed]:bg-muted-foreground data-[fixed]:text-muted data-[fixed]:hover:bg-muted-foreground',
-                            option.style?.gradient ? `bg-gradient-to-r ${option.style.gradient}` : ''
+                            option.style?.gradient
+                              ? `bg-gradient-to-r ${option.style.gradient}`
+                              : ''
                           )}
                           style={{
                             backgroundColor: option.style?.badgeColor,
@@ -273,7 +284,10 @@ const MultiSelectComponent = React.forwardRef<
                       );
                     })}
                     {selectedValues.length > maxCount && (
-                      <Badge variant={variant} className="bg-transparent text-foreground border-foreground/10 hover:bg-transparent">
+                      <Badge
+                        variant={variant}
+                        className="bg-transparent text-foreground border-foreground/10 hover:bg-transparent"
+                      >
                         +{selectedValues.length - maxCount} more
                       </Badge>
                     )}
@@ -297,10 +311,7 @@ const MultiSelectComponent = React.forwardRef<
             </Button>
           </PopoverTrigger>
           <PopoverContent
-            className={cn(
-              'w-full p-0',
-              modalPopover ? 'mt-0 rounded-t-none border-t-0' : 'mt-0'
-            )}
+            className={cn('w-full p-0', modalPopover ? 'mt-0 rounded-t-none border-t-0' : 'mt-0')}
             align="start"
           >
             <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
@@ -313,16 +324,10 @@ const MultiSelectComponent = React.forwardRef<
                 />
               )}
               <CommandList>
-                <CommandEmpty>
-                  {emptyIndicator || 'No results found.'}
-                </CommandEmpty>
+                <CommandEmpty>{emptyIndicator || 'No results found.'}</CommandEmpty>
                 {!hideSelectAll && !query && (
                   <CommandGroup>
-                    <CommandItem
-                      key="all"
-                      onSelect={toggleAll}
-                      className="cursor-pointer"
-                    >
+                    <CommandItem key="all" onSelect={toggleAll} className="cursor-pointer">
                       <div
                         className={cn(
                           'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
@@ -334,7 +339,8 @@ const MultiSelectComponent = React.forwardRef<
                         <Check className="h-4 w-4" />
                       </div>
                       <span>
-                        (Select All{getAllOptions().length > 20 ? ` - ${getAllOptions().length} options` : ''})
+                        (Select All
+                        {getAllOptions().length > 20 ? ` - ${getAllOptions().length} options` : ''})
                       </span>
                     </CommandItem>
                   </CommandGroup>
@@ -364,9 +370,7 @@ const MultiSelectComponent = React.forwardRef<
                             >
                               <Check className="h-4 w-4" />
                             </div>
-                            {option.icon && (
-                              <option.icon className="mr-2 h-4 w-4" />
-                            )}
+                            {option.icon && <option.icon className="mr-2 h-4 w-4" />}
                             <span>{option.label}</span>
                           </CommandItem>
                         );
@@ -397,9 +401,7 @@ const MultiSelectComponent = React.forwardRef<
                           >
                             <Check className="h-4 w-4" />
                           </div>
-                          {option.icon && (
-                            <option.icon className="mr-2 h-4 w-4" />
-                          )}
+                          {option.icon && <option.icon className="mr-2 h-4 w-4" />}
                           <span>{option.label}</span>
                         </CommandItem>
                       );
@@ -417,10 +419,7 @@ const MultiSelectComponent = React.forwardRef<
                         >
                           Clear
                         </CommandItem>
-                        <Separator
-                          orientation="vertical"
-                          className="flex min-h-6 h-full"
-                        />
+                        <Separator orientation="vertical" className="flex min-h-6 h-full" />
                       </>
                     )}
                     <CommandItem
@@ -462,17 +461,17 @@ const MultiSelect = React.memo(MultiSelectComponent, (prevProps, nextProps) => {
   ) {
     return false; // Props changed, re-render
   }
-  
+
   // Compare callback references
   if (prevProps.onValueChange !== nextProps.onValueChange) {
     return false; // Callback changed, re-render
   }
-  
+
   // Compare defaultValue array
   if (prevProps.defaultValue?.length !== nextProps.defaultValue?.length) {
     return false; // Array length changed, re-render
   }
-  
+
   if (prevProps.defaultValue && nextProps.defaultValue) {
     for (let i = 0; i < prevProps.defaultValue.length; i++) {
       if (prevProps.defaultValue[i] !== nextProps.defaultValue[i]) {
@@ -480,41 +479,44 @@ const MultiSelect = React.memo(MultiSelectComponent, (prevProps, nextProps) => {
       }
     }
   }
-  
+
   // Compare options array (shallow comparison of length and references)
   if (prevProps.options.length !== nextProps.options.length) {
     return false; // Options length changed, re-render
   }
-  
+
   // For options, do a shallow comparison - if the array reference is the same, skip deep check
   if (prevProps.options === nextProps.options) {
     return true; // Same reference, skip re-render
   }
-  
+
   // Deep comparison of options structure
   for (let i = 0; i < prevProps.options.length; i++) {
     const prevOption = prevProps.options[i];
     const nextOption = nextProps.options[i];
-    
+
     // Check if it's a group or single option
     if ('heading' in prevOption && 'heading' in nextOption) {
       // Compare groups
-      if (prevOption.heading !== nextOption.heading ||
-          prevOption.options.length !== nextOption.options.length) {
+      if (
+        prevOption.heading !== nextOption.heading ||
+        prevOption.options.length !== nextOption.options.length
+      ) {
         return false;
       }
-      
+
       // Compare options within group
       for (let j = 0; j < prevOption.options.length; j++) {
-        if (prevOption.options[j].value !== nextOption.options[j].value ||
-            prevOption.options[j].label !== nextOption.options[j].label) {
+        if (
+          prevOption.options[j].value !== nextOption.options[j].value ||
+          prevOption.options[j].label !== nextOption.options[j].label
+        ) {
           return false;
         }
       }
     } else if ('value' in prevOption && 'value' in nextOption) {
       // Compare single options
-      if (prevOption.value !== nextOption.value ||
-          prevOption.label !== nextOption.label) {
+      if (prevOption.value !== nextOption.value || prevOption.label !== nextOption.label) {
         return false;
       }
     } else {
@@ -522,12 +524,12 @@ const MultiSelect = React.memo(MultiSelectComponent, (prevProps, nextProps) => {
       return false;
     }
   }
-  
+
   // Compare emptyIndicator (if it's a ReactNode, compare by reference)
   if (prevProps.emptyIndicator !== nextProps.emptyIndicator) {
     return false;
   }
-  
+
   // All props are equal, skip re-render
   return true;
 });

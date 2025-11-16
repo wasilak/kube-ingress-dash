@@ -1,4 +1,10 @@
-import { KubeConfig, CoreV1Api, NetworkingV1Api, V1Ingress, V1NamespaceList } from '@kubernetes/client-node';
+import {
+  KubeConfig,
+  CoreV1Api,
+  NetworkingV1Api,
+  V1Ingress,
+  V1NamespaceList,
+} from '@kubernetes/client-node';
 import { IngressData } from '@/types/ingress';
 import { transformIngress, transformIngresses } from '@/lib/utils/ingress-transformer';
 import { RetryHandler, CircuitBreaker, CircuitBreakerOpenError } from '@/lib/error-handler';
@@ -8,14 +14,14 @@ import { RetryHandler, CircuitBreaker, CircuitBreakerOpenError } from '@/lib/err
  * Provides methods for fetching and watching ingress resources and namespaces.
  * Includes built-in retry logic with exponential backoff and circuit breaker pattern
  * for resilience against transient failures.
- * 
+ *
  * @example
  * ```typescript
  * const client = new KubernetesClient();
- * 
+ *
  * // Fetch all ingresses
  * const ingresses = await client.getIngresses();
- * 
+ *
  * // Watch for changes
  * await client.watchIngresses(
  *   (type, ingress) => console.log(`${type}: ${ingress.name}`),
@@ -36,10 +42,10 @@ class KubernetesClient {
    * Automatically configures the client based on the environment:
    * - In production or when running in-cluster: loads in-cluster configuration
    * - In development: loads configuration from default kubeconfig file
-   * 
+   *
    * Initializes retry handler with exponential backoff (100ms, 200ms, 400ms) and
    * circuit breaker with 50% failure threshold over 30-second window.
-   * 
+   *
    * @example
    * ```typescript
    * const client = new KubernetesClient();
@@ -48,7 +54,7 @@ class KubernetesClient {
    */
   constructor() {
     this.kubeConfig = new KubeConfig();
-    
+
     // Load Kubernetes configuration based on deployment environment
     // In-cluster: Uses service account token mounted at /var/run/secrets/kubernetes.io/serviceaccount/
     // Out-of-cluster: Uses kubeconfig file from ~/.kube/config or KUBECONFIG env var
@@ -67,7 +73,7 @@ class KubernetesClient {
     // CoreV1Api: For namespaces and other core resources
     this.networkingV1Api = this.kubeConfig.makeApiClient(NetworkingV1Api);
     this.coreV1Api = this.kubeConfig.makeApiClient(CoreV1Api);
-    
+
     // Initialize retry handler with exponential backoff strategy
     // Retries: 3 attempts with delays of 100ms, 200ms, 400ms
     // This handles transient network issues and temporary API unavailability
@@ -93,9 +99,9 @@ class KubernetesClient {
   /**
    * Check if the application is running inside a Kubernetes cluster.
    * Determines the environment by checking for the presence of Kubernetes service host environment variable.
-   * 
+   *
    * @returns True if running inside a Kubernetes cluster, false otherwise
-   * 
+   *
    * @private
    */
   private isInCluster(): boolean {
@@ -104,21 +110,19 @@ class KubernetesClient {
       // The service account token file path is typically mounted in-cluster
       // const tokenPath = '/var/run/secrets/kubernetes.io/serviceaccount/token';
       return typeof process.env.KUBERNETES_SERVICE_HOST !== 'undefined';
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }
 
-
-
   /**
    * Get all ingresses from all namespaces and transform them to IngressData format.
    * Uses circuit breaker and retry logic for resilience.
-   * 
+   *
    * @returns Promise resolving to array of ingress data from all namespaces
    * @throws {CircuitBreakerOpenError} When circuit breaker is open due to repeated failures
    * @throws {Error} When Kubernetes API request fails after all retry attempts
-   * 
+   *
    * @example
    * ```typescript
    * const client = new KubernetesClient();
@@ -134,7 +138,7 @@ class KubernetesClient {
         });
       });
       const k8sIngresses = response.items;
-      
+
       // Transform Kubernetes ingress objects to our format
       return transformIngresses(k8sIngresses);
     } catch (error) {
@@ -150,12 +154,12 @@ class KubernetesClient {
   /**
    * Get ingresses from a specific namespace.
    * Uses circuit breaker and retry logic for resilience.
-   * 
+   *
    * @param namespace - The Kubernetes namespace to query
    * @returns Promise resolving to array of ingress data from the specified namespace
    * @throws {CircuitBreakerOpenError} When circuit breaker is open due to repeated failures
    * @throws {Error} When Kubernetes API request fails after all retry attempts
-   * 
+   *
    * @example
    * ```typescript
    * const client = new KubernetesClient();
@@ -167,15 +171,18 @@ class KubernetesClient {
     try {
       const response = await this.circuitBreaker.execute(async () => {
         return await this.retryHandler.execute(async () => {
-          return await this.networkingV1Api.listNamespacedIngress({namespace});
+          return await this.networkingV1Api.listNamespacedIngress({ namespace });
         });
       });
       const k8sIngresses = response.items;
-      
+
       return transformIngresses(k8sIngresses);
     } catch (error) {
       if (error instanceof CircuitBreakerOpenError) {
-        console.error(`Circuit breaker is open - cannot fetch ingresses from namespace ${namespace}:`, error.message);
+        console.error(
+          `Circuit breaker is open - cannot fetch ingresses from namespace ${namespace}:`,
+          error.message
+        );
       } else {
         console.error(`Error fetching ingresses from namespace ${namespace}:`, error);
       }
@@ -186,13 +193,13 @@ class KubernetesClient {
   /**
    * Get specific ingress by name and namespace.
    * Uses circuit breaker and retry logic for resilience.
-   * 
+   *
    * @param name - The name of the ingress resource
    * @param namespace - The Kubernetes namespace containing the ingress
    * @returns Promise resolving to ingress data, or null if not found
    * @throws {CircuitBreakerOpenError} When circuit breaker is open due to repeated failures
    * @throws {Error} When Kubernetes API request fails after all retry attempts (except 404)
-   * 
+   *
    * @example
    * ```typescript
    * const client = new KubernetesClient();
@@ -208,7 +215,7 @@ class KubernetesClient {
     try {
       const response = await this.circuitBreaker.execute(async () => {
         return await this.retryHandler.execute(async () => {
-          return await this.networkingV1Api.readNamespacedIngress({name, namespace});
+          return await this.networkingV1Api.readNamespacedIngress({ name, namespace });
         });
       });
       return transformIngress(response);
@@ -219,7 +226,10 @@ class KubernetesClient {
         return null;
       }
       if (error instanceof CircuitBreakerOpenError) {
-        console.error(`Circuit breaker is open - cannot fetch ingress ${name} in namespace ${namespace}:`, error);
+        console.error(
+          `Circuit breaker is open - cannot fetch ingress ${name} in namespace ${namespace}:`,
+          error
+        );
       } else {
         console.error(`Error fetching ingress ${name} in namespace ${namespace}:`, error);
       }
@@ -230,11 +240,11 @@ class KubernetesClient {
   /**
    * Get all namespaces in the cluster.
    * Uses circuit breaker and retry logic for resilience.
-   * 
+   *
    * @returns Promise resolving to Kubernetes namespace list
    * @throws {CircuitBreakerOpenError} When circuit breaker is open due to repeated failures
    * @throws {Error} When Kubernetes API request fails after all retry attempts
-   * 
+   *
    * @example
    * ```typescript
    * const client = new KubernetesClient();
@@ -264,11 +274,11 @@ class KubernetesClient {
   /**
    * Get ingresses from multiple specific namespaces in parallel.
    * Failures in individual namespaces are logged but don't prevent other namespaces from being queried.
-   * 
+   *
    * @param namespaces - Array of namespace names to query
    * @returns Promise resolving to flattened array of ingress data from all specified namespaces
    * @throws {Error} When all namespace queries fail
-   * 
+   *
    * @example
    * ```typescript
    * const client = new KubernetesClient();
@@ -280,8 +290,8 @@ class KubernetesClient {
     try {
       // Fetch ingresses from all specified namespaces in parallel for optimal performance
       // Each namespace query is independent and can run concurrently
-      const namespacePromises = namespaces.map(ns =>
-        this.getIngressesByNamespace(ns).catch(err => {
+      const namespacePromises = namespaces.map((ns) =>
+        this.getIngressesByNamespace(ns).catch((err) => {
           // Graceful degradation: Log error but don't fail the entire operation
           // This ensures that if one namespace fails (e.g., due to RBAC), others still work
           console.error(`Error fetching ingresses from namespace ${ns}:`, err);
@@ -305,12 +315,12 @@ class KubernetesClient {
   /**
    * Check if the client has proper RBAC permissions to access Kubernetes resources.
    * Tests permissions by attempting to list namespaces.
-   * 
+   *
    * @returns Promise resolving to object containing permission status and error details
    * @returns {boolean} hasPermissions - True if client has necessary permissions
    * @returns {string} [error] - Error message if permissions check failed
    * @returns {boolean} [isRBACError] - True if error is specifically RBAC-related (403 Forbidden)
-   * 
+   *
    * @example
    * ```typescript
    * const client = new KubernetesClient();
@@ -324,22 +334,32 @@ class KubernetesClient {
    * }
    * ```
    */
-  async checkPermissions(): Promise<{ hasPermissions: boolean; error?: string; isRBACError?: boolean }> {
+  async checkPermissions(): Promise<{
+    hasPermissions: boolean;
+    error?: string;
+    isRBACError?: boolean;
+  }> {
     try {
       // Test by fetching a simple resource
       await this.getNamespaces();
       return { hasPermissions: true };
     } catch (error: unknown) {
-      const err = error as { response?: { body?: { message?: string }; statusCode?: number }; message?: string };
+      const err = error as {
+        response?: { body?: { message?: string }; statusCode?: number };
+        message?: string;
+      };
       // Check if it's an RBAC-related error
-      const isRBACError = err?.response?.body?.message?.includes('forbidden') ||
-                         err?.response?.body?.message?.includes('denied') ||
-                         err?.response?.statusCode === 403;
+      const isRBACError =
+        err?.response?.body?.message?.includes('forbidden') ||
+        err?.response?.body?.message?.includes('denied') ||
+        err?.response?.statusCode === 403;
 
       return {
         hasPermissions: false,
-        error: isRBACError ? 'Insufficient RBAC permissions' : err?.response?.body?.message || err.message,
-        isRBACError
+        error: isRBACError
+          ? 'Insufficient RBAC permissions'
+          : err?.response?.body?.message || err.message,
+        isRBACError,
       };
     }
   }
@@ -347,13 +367,13 @@ class KubernetesClient {
   /**
    * Get circuit breaker status for monitoring and observability.
    * Provides insights into the health of Kubernetes API connectivity.
-   * 
+   *
    * @returns Object containing circuit breaker metrics
    * @returns {CircuitState} state - Current circuit state (CLOSED, OPEN, or HALF_OPEN)
    * @returns {number} failureRate - Current failure rate (0-1)
    * @returns {number} requestCount - Number of requests in the sliding window
    * @returns {number} remainingTimeout - Milliseconds until circuit transitions to HALF_OPEN (0 if not OPEN)
-   * 
+   *
    * @example
    * ```typescript
    * const client = new KubernetesClient();
@@ -373,12 +393,12 @@ class KubernetesClient {
   /**
    * Watch ingress resources for changes across all namespaces.
    * Establishes a watch connection to receive real-time updates for ADDED, MODIFIED, and DELETED events.
-   * 
+   *
    * @param callback - Function called for each ingress event with event type and ingress data
    * @param done - Function called when watch connection closes normally
    * @param errorCb - Function called when an error occurs during watching
    * @returns Promise that resolves when watch is established
-   * 
+   *
    * @example
    * ```typescript
    * const client = new KubernetesClient();
@@ -431,13 +451,13 @@ class KubernetesClient {
   /**
    * Watch ingresses in a specific namespace for changes.
    * Establishes a watch connection to receive real-time updates for ADDED, MODIFIED, and DELETED events.
-   * 
+   *
    * @param namespace - The Kubernetes namespace to watch
    * @param callback - Function called for each ingress event with event type and ingress data
    * @param done - Function called when watch connection closes normally
    * @param errorCb - Function called when an error occurs during watching
    * @returns Promise that resolves when watch is established
-   * 
+   *
    * @example
    * ```typescript
    * const client = new KubernetesClient();

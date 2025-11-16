@@ -22,22 +22,22 @@ interface HealthCheckResult {
 /**
  * Health check endpoint with Kubernetes API connectivity check
  * GET /api/health
- * 
+ *
  * Performs a lightweight connectivity check to the Kubernetes API by listing namespaces.
  * Returns HTTP 200 when healthy, HTTP 503 when unhealthy.
  * Includes latency metrics and has a 5-second timeout.
- * 
+ *
  * @returns {Promise<Response>} Health check response with status and metrics
  */
 export async function GET(): Promise<Response> {
   const startTime = Date.now();
   const timestamp = new Date().toISOString();
-  
+
   try {
     // Perform Kubernetes API connectivity check with 5-second timeout
     const connectivityCheck = await Promise.race([
       checkKubernetesConnectivity(),
-      timeoutPromise(5000)
+      timeoutPromise(5000),
     ]);
 
     const latency = Date.now() - startTime;
@@ -72,10 +72,10 @@ export async function GET(): Promise<Response> {
     }
   } catch (error) {
     const latency = Date.now() - startTime;
-    
+
     // Handle timeout or other errors
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    
+
     const result: HealthCheckResult = {
       status: 'unhealthy',
       timestamp,
@@ -95,7 +95,7 @@ export async function GET(): Promise<Response> {
 /**
  * Check Kubernetes API connectivity by listing namespaces
  * This is a lightweight operation suitable for health checks
- * 
+ *
  * @returns {Promise<{status: 'up' | 'down', error?: string}>} Connectivity status
  */
 async function checkKubernetesConnectivity(): Promise<{ status: 'up' | 'down'; error?: string }> {
@@ -104,17 +104,18 @@ async function checkKubernetesConnectivity(): Promise<{ status: 'up' | 'down'; e
     await kubeClient.getNamespaces();
     return { status: 'up' };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to connect to Kubernetes API';
-    return { 
-      status: 'down', 
-      error: errorMessage 
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to connect to Kubernetes API';
+    return {
+      status: 'down',
+      error: errorMessage,
     };
   }
 }
 
 /**
  * Create a promise that rejects after the specified timeout
- * 
+ *
  * @param {number} ms - Timeout in milliseconds
  * @returns {Promise<never>} Promise that rejects on timeout
  */

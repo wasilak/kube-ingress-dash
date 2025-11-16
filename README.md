@@ -1,4 +1,3 @@
-
 # kube-ingress-dash 🚀
 
 ![GitHub License](https://img.shields.io/github/license/wasilak/kube-ingress-dash)
@@ -33,7 +32,6 @@ We welcome contributions! Here's how you can help:
 5. Open a [Pull Request](https://github.com/wasilak/kube-ingress-dash/compare)
 
 Check out our [Contributing Guide](CONTRIBUTING.md) for more details!
-
 
 ## 📄 License
 

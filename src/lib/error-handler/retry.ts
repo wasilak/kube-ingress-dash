@@ -42,7 +42,7 @@ const DEFAULT_RETRY_CONFIG: RetryConfig = {
 /**
  * Retry handler that implements exponential backoff for transient errors.
  * Only retries errors classified as transient by the ErrorClassifier.
- * 
+ *
  * @example
  * ```typescript
  * const retryHandler = new RetryHandler({
@@ -51,7 +51,7 @@ const DEFAULT_RETRY_CONFIG: RetryConfig = {
  *   maxDelayMs: 5000,
  *   backoffMultiplier: 2,
  * });
- * 
+ *
  * const result = await retryHandler.execute(async () => {
  *   return await fetchData();
  * });
@@ -62,7 +62,7 @@ export class RetryHandler {
 
   /**
    * Creates a new RetryHandler instance
-   * 
+   *
    * @param config - Retry configuration options (optional, uses defaults if not provided)
    */
   constructor(config?: Partial<RetryConfig>) {
@@ -75,11 +75,11 @@ export class RetryHandler {
   /**
    * Executes an async function with retry logic and exponential backoff.
    * Only retries errors classified as transient.
-   * 
+   *
    * @param fn - The async function to execute
    * @returns Promise resolving to the function's return value
    * @throws The last error if all retry attempts fail
-   * 
+   *
    * @example
    * ```typescript
    * const data = await retryHandler.execute(async () => {
@@ -98,10 +98,10 @@ export class RetryHandler {
     while (attempt < this.config.maxAttempts) {
       try {
         attempt++;
-        
+
         // Execute the protected function
         const result = await fn();
-        
+
         // Success - return immediately without further retries
         return result;
       } catch (error) {
@@ -123,14 +123,11 @@ export class RetryHandler {
 
         // Log retry attempt for observability (in production, use structured logging)
         if (process.env.NODE_ENV !== 'test') {
-          console.warn(
-            `Retry attempt ${attempt}/${this.config.maxAttempts} after ${delay}ms`,
-            {
-              error: error instanceof Error ? error.message : String(error),
-              category: classification.category,
-              statusCode: classification.statusCode,
-            }
-          );
+          console.warn(`Retry attempt ${attempt}/${this.config.maxAttempts} after ${delay}ms`, {
+            error: error instanceof Error ? error.message : String(error),
+            category: classification.category,
+            statusCode: classification.statusCode,
+          });
         }
 
         // Wait before retrying to avoid overwhelming the failing service
@@ -145,10 +142,10 @@ export class RetryHandler {
 
   /**
    * Calculates the delay for a retry attempt using exponential backoff.
-   * 
+   *
    * @param attempt - The current attempt number (1-indexed)
    * @returns Delay in milliseconds
-   * 
+   *
    * @example
    * With initialDelayMs=100, backoffMultiplier=2:
    * - Attempt 1: 100ms
@@ -158,8 +155,7 @@ export class RetryHandler {
   private calculateDelay(attempt: number): number {
     // Calculate exponential backoff: initialDelay * (multiplier ^ (attempt - 1))
     const exponentialDelay =
-      this.config.initialDelayMs *
-      Math.pow(this.config.backoffMultiplier, attempt - 1);
+      this.config.initialDelayMs * Math.pow(this.config.backoffMultiplier, attempt - 1);
 
     // Cap at maxDelayMs
     return Math.min(exponentialDelay, this.config.maxDelayMs);
@@ -167,7 +163,7 @@ export class RetryHandler {
 
   /**
    * Delays execution for the specified number of milliseconds.
-   * 
+   *
    * @param ms - Milliseconds to delay
    * @returns Promise that resolves after the delay
    */
@@ -177,7 +173,7 @@ export class RetryHandler {
 
   /**
    * Gets the current retry configuration.
-   * 
+   *
    * @returns Current retry configuration
    */
   getConfig(): Readonly<RetryConfig> {

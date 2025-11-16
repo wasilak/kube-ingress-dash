@@ -43,17 +43,10 @@ class ClientErrorBoundary extends React.Component<
                 {this.state.error?.message || 'An unexpected error occurred'}
               </p>
               <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                <Button 
-                  variant="outline" 
-                  onClick={() => window.location.reload()}
-                >
+                <Button variant="outline" onClick={() => window.location.reload()}>
                   Refresh Page
                 </Button>
-                <Button 
-                  onClick={() => this.setState({ hasError: false })}
-                >
-                  Try Again
-                </Button>
+                <Button onClick={() => this.setState({ hasError: false })}>Try Again</Button>
               </div>
             </CardContent>
           </Card>

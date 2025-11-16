@@ -14,7 +14,16 @@ interface WatchInstance {
 
 export class IngressStream {
   private kubeClient: KubernetesClient;
-  private watch: { new(config: KubeConfig): { watch: (path: string, params: Record<string, unknown>, callback: (type: string, obj: V1Ingress) => void, errorCallback: (err: Error) => void) => Promise<WatchInstance> } };
+  private watch: {
+    new (config: KubeConfig): {
+      watch: (
+        path: string,
+        params: Record<string, unknown>,
+        callback: (type: string, obj: V1Ingress) => void,
+        errorCallback: (err: Error) => void
+      ) => Promise<WatchInstance>;
+    };
+  };
   private eventHandlers: ((event: IngressEvent) => void)[] = [];
   private errorHandlers: ((error: Error) => void)[] = [];
   private activeWatch: WatchInstance | null = null;
@@ -25,7 +34,7 @@ export class IngressStream {
   constructor(options?: { autoReconnect?: boolean }) {
     this.kubeClient = new KubernetesClient();
     this.autoReconnect = options?.autoReconnect ?? true;
-    
+
     // Dynamically import the Watch class since it's not in the types
     this.watch = require('@kubernetes/client-node').Watch;
   }
@@ -41,7 +50,7 @@ export class IngressStream {
    * Remove an event handler
    */
   removeEventHandler(handler: (event: IngressEvent) => void): void {
-    this.eventHandlers = this.eventHandlers.filter(h => h !== handler);
+    this.eventHandlers = this.eventHandlers.filter((h) => h !== handler);
   }
 
   /**
@@ -55,12 +64,12 @@ export class IngressStream {
    * Remove an error handler
    */
   removeErrorHandler(handler: (error: Error) => void): void {
-    this.errorHandlers = this.errorHandlers.filter(h => h !== handler);
+    this.errorHandlers = this.errorHandlers.filter((h) => h !== handler);
   }
 
   /**
    * Emit an ingress event to all registered handlers
-   * 
+   *
    * Optimized for minimal latency - handlers are called synchronously
    * to ensure events are delivered as quickly as possible.
    */
@@ -90,8 +99,6 @@ export class IngressStream {
     }
   }
 
-
-
   /**
    * Start watching ingress resources
    */
@@ -106,7 +113,7 @@ export class IngressStream {
     try {
       // Create a new watch instance
       const watchInstance = new this.watch(this.kubeClient.kubeConfig);
-      
+
       const queryParams: Record<string, unknown> = {};
       if (namespace) {
         // Watch in a specific namespace
@@ -149,7 +156,7 @@ export class IngressStream {
 
   /**
    * Handle events from the Kubernetes watch
-   * 
+   *
    * Optimized for minimal latency - processes events immediately
    * and uses efficient type mapping.
    */
@@ -157,21 +164,21 @@ export class IngressStream {
     try {
       // Transform ingress data efficiently
       const ingressData = transformIngress(obj);
-      
+
       // Use type mapping for optimal performance
       const eventTypeMap: Record<string, 'ADDED' | 'MODIFIED' | 'DELETED'> = {
-        'ADDED': 'ADDED',
-        'MODIFIED': 'MODIFIED',
-        'DELETED': 'DELETED'
+        ADDED: 'ADDED',
+        MODIFIED: 'MODIFIED',
+        DELETED: 'DELETED',
       };
-      
+
       const eventType = eventTypeMap[type];
-      
+
       if (!eventType) {
         console.warn(`Unknown event type: ${type}`);
         return;
       }
-      
+
       // Emit event immediately for minimal latency
       this.emitEvent({
         type: eventType,
@@ -195,7 +202,7 @@ export class IngressStream {
       // Implement reconnection logic with exponential backoff
       setTimeout(() => {
         console.log('Attempting to restart watch after error...');
-        this.startWatching(this.currentNamespace).catch(err => {
+        this.startWatching(this.currentNamespace).catch((err) => {
           console.error('Failed to restart watch:', err);
           this.emitError(err);
         });

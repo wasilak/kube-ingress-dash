@@ -16,18 +16,16 @@ const useSearch = (data: IngressData[]): UseSearchReturn => {
     }
 
     const query = searchQuery.toLowerCase().trim();
-    
-    return data.filter(ingress => {
+
+    return data.filter((ingress) => {
       // Search in name, namespace, hosts, paths, and annotations
       return (
         ingress.name.toLowerCase().includes(query) ||
         ingress.namespace.toLowerCase().includes(query) ||
-        ingress.hosts.some(host => host.toLowerCase().includes(query)) ||
-        ingress.paths.some(path => path.toLowerCase().includes(query)) ||
-        Object.values(ingress.annotations).some(annot => 
-          annot.toLowerCase().includes(query)
-        ) ||
-        ingress.urls.some(url => url.toLowerCase().includes(query))
+        ingress.hosts.some((host) => host.toLowerCase().includes(query)) ||
+        ingress.paths.some((path) => path.toLowerCase().includes(query)) ||
+        Object.values(ingress.annotations).some((annot) => annot.toLowerCase().includes(query)) ||
+        ingress.urls.some((url) => url.toLowerCase().includes(query))
       );
     });
   }, [data, searchQuery]);

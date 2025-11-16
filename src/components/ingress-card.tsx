@@ -1,7 +1,14 @@
 'use client';
 
 import React, { memo } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ExternalLink, Lock, Layers } from 'lucide-react';
@@ -23,12 +30,13 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({ ingress, onClick: _o
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
             <div className="flex items-start gap-2">
-              <CardTitle className="text-base leading-tight break-words hyphens-auto flex-1 min-w-0" style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1rem)' }}>
+              <CardTitle
+                className="text-base leading-tight break-words hyphens-auto flex-1 min-w-0"
+                style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1rem)' }}
+              >
                 {ingress.name}
               </CardTitle>
-              {ingress.tls && (
-                <Lock className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-              )}
+              {ingress.tls && <Lock className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />}
             </div>
             <CardDescription className="mt-1 text-xs leading-tight break-words flex items-center gap-1">
               <Layers className="h-3 w-3 flex-shrink-0" />
@@ -43,16 +51,17 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({ ingress, onClick: _o
           {/* Hosts - now as clickable buttons */}
           {ingress.hosts.length > 0 && (
             <div className="space-y-1">
-              <div className="text-xs font-medium">
-                Hosts ({ingress.hosts.length})
-              </div>
-              <div className="space-y-1 mt-1"> {/* Added spacing and vertical layout */}
+              <div className="text-xs font-medium">Hosts ({ingress.hosts.length})</div>
+              <div className="space-y-1 mt-1">
+                {' '}
+                {/* Added spacing and vertical layout */}
                 {ingress.hosts.map((host, index) => {
                   // Create URLs from hosts (if not already present in urls)
-                  const hostUrl = (ingress.urls && Array.isArray(ingress.urls) && ingress.urls.length > 0) 
-                                 ? ingress.urls.find(url => url.includes(host)) 
-                                 : null;
-                                 
+                  const hostUrl =
+                    ingress.urls && Array.isArray(ingress.urls) && ingress.urls.length > 0
+                      ? ingress.urls.find((url) => url.includes(host))
+                      : null;
+
                   const finalUrl = hostUrl || (host.startsWith('http') ? host : `https://${host}`);
 
                   return (
@@ -74,25 +83,26 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({ ingress, onClick: _o
           )}
 
           {/* Paths - updated to list format */}
-          {ingress.paths.length > 0 && (() => {
-            const uniquePaths = Array.from(new Set(ingress.paths));
-            return (
-              <div className="space-y-1">
-                <div className="text-xs font-medium">Paths ({uniquePaths.length})</div>
-                <div className="flex flex-col gap-1">
-                  {/* List unique paths */}
-                  {uniquePaths.map((path, index) => (
-                    <div
-                      key={index}
-                      className="w-full justify-start h-8 text-xs px-3 truncate border border-input rounded-md bg-transparent flex items-center"
-                    >
-                      {path}
-                    </div>
-                  ))}
+          {ingress.paths.length > 0 &&
+            (() => {
+              const uniquePaths = Array.from(new Set(ingress.paths));
+              return (
+                <div className="space-y-1">
+                  <div className="text-xs font-medium">Paths ({uniquePaths.length})</div>
+                  <div className="flex flex-col gap-1">
+                    {/* List unique paths */}
+                    {uniquePaths.map((path, index) => (
+                      <div
+                        key={index}
+                        className="w-full justify-start h-8 text-xs px-3 truncate border border-input rounded-md bg-transparent flex items-center"
+                      >
+                        {path}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            );
-          })()}
+              );
+            })()}
         </div>
       </CardContent>
 
@@ -117,15 +127,17 @@ const IngressCard = memo(IngressCardComponent, (prevProps, nextProps) => {
   // Compare ingress data efficiently using stable identifiers
   const prevIngress = prevProps.ingress;
   const nextIngress = nextProps.ingress;
-  
+
   // If the ingress ID or creation timestamp changed, re-render
-  if (prevIngress.id !== nextIngress.id || 
-      prevIngress.creationTimestamp !== nextIngress.creationTimestamp) {
+  if (
+    prevIngress.id !== nextIngress.id ||
+    prevIngress.creationTimestamp !== nextIngress.creationTimestamp
+  ) {
     return false; // Props changed, re-render
   }
-  
+
   // Check if any meaningful data changed
-  const dataChanged = 
+  const dataChanged =
     prevIngress.name !== nextIngress.name ||
     prevIngress.namespace !== nextIngress.namespace ||
     prevIngress.tls !== nextIngress.tls ||
@@ -136,10 +148,10 @@ const IngressCard = memo(IngressCardComponent, (prevProps, nextProps) => {
     JSON.stringify(prevIngress.hosts) !== JSON.stringify(nextIngress.hosts) ||
     JSON.stringify(prevIngress.paths) !== JSON.stringify(nextIngress.paths) ||
     JSON.stringify(prevIngress.annotations) !== JSON.stringify(nextIngress.annotations);
-  
+
   // Compare onClick function reference
   const onClickChanged = prevProps.onClick !== nextProps.onClick;
-  
+
   // Return true if nothing changed (skip re-render), false if something changed (re-render)
   return !dataChanged && !onClickChanged;
 });

@@ -24,10 +24,10 @@ export function IngressCardSkeleton() {
             <div className="h-3 bg-muted animate-pulse rounded w-5/6" />
           </div>
         </div>
-        
+
         {/* TLS badge skeleton */}
         <div className="h-5 bg-muted animate-pulse rounded w-16" />
-        
+
         {/* Metadata section skeleton */}
         <div className="space-y-1.5 pt-2">
           <div className="h-3 bg-muted animate-pulse rounded w-full" />

@@ -10,7 +10,11 @@ import { IngressData } from '@/types/ingress';
 import ErrorBoundary from '@/components/error-boundary';
 import { MultiSelect } from '@/components/multi-select';
 import { NamespaceFilter } from '@/components/ui/namespace-filter';
-import { getAllLabels, getAllAnnotations, filterIngressesAdvanced } from '@/lib/utils/ingress-transformer';
+import {
+  getAllLabels,
+  getAllAnnotations,
+  filterIngressesAdvanced,
+} from '@/lib/utils/ingress-transformer';
 import Image from 'next/image';
 import { ErrorHandler } from '@/lib/error-handler';
 import ErrorScreen from '@/components/error-screen';
@@ -35,42 +39,43 @@ export default function DashboardPage() {
 
   // Memoize options to prevent unnecessary re-renders with counts
   const labelOptions = React.useMemo(
-    () => allLabels.map(label => {
-      const count = ingresses.filter(ing => {
-        if (!ing.labels) return false;
-        return Object.keys(ing.labels).some(key => `${key}:${ing.labels![key]}` === label);
-      }).length;
-      return { value: label, label: `${label} (${count})` };
-    }),
+    () =>
+      allLabels.map((label) => {
+        const count = ingresses.filter((ing) => {
+          if (!ing.labels) return false;
+          return Object.keys(ing.labels).some((key) => `${key}:${ing.labels![key]}` === label);
+        }).length;
+        return { value: label, label: `${label} (${count})` };
+      }),
     [allLabels, ingresses]
   );
-  
+
   const annotationOptions = React.useMemo(
-    () => allAnnotations.map(annotation => {
-      const count = ingresses.filter(ing => {
-        if (!ing.annotations) return false;
-        return Object.keys(ing.annotations).some(key => `${key}:${ing.annotations![key]}` === annotation);
-      }).length;
-      return { value: annotation, label: `${annotation} (${count})` };
-    }),
+    () =>
+      allAnnotations.map((annotation) => {
+        const count = ingresses.filter((ing) => {
+          if (!ing.annotations) return false;
+          return Object.keys(ing.annotations).some(
+            (key) => `${key}:${ing.annotations![key]}` === annotation
+          );
+        }).length;
+        return { value: annotation, label: `${annotation} (${count})` };
+      }),
     [allAnnotations, ingresses]
   );
 
   // Calculate namespace counts
-  const namespaceCounts = React.useMemo(
-    () => {
-      const counts: Record<string, number> = {};
-      ingresses.forEach(ing => {
-        counts[ing.namespace] = (counts[ing.namespace] || 0) + 1;
-      });
-      return counts;
-    },
-    [ingresses]
-  );
+  const namespaceCounts = React.useMemo(() => {
+    const counts: Record<string, number> = {};
+    ingresses.forEach((ing) => {
+      counts[ing.namespace] = (counts[ing.namespace] || 0) + 1;
+    });
+    return counts;
+  }, [ingresses]);
 
   // Filter namespaces to only show ones with ingresses
   const namespacesWithIngresses = React.useMemo(
-    () => allNamespaces.filter(ns => namespaceCounts[ns] > 0),
+    () => allNamespaces.filter((ns) => namespaceCounts[ns] > 0),
     [allNamespaces, namespaceCounts]
   );
 
@@ -119,7 +124,7 @@ export default function DashboardPage() {
         if (!response.ok) {
           const errorData = await response.json();
           // Don't throw error if it's a permission issue - just set error state
-          setError(errorData.error || errorData.details || "Failed to fetch namespaces");
+          setError(errorData.error || errorData.details || 'Failed to fetch namespaces');
           return; // Exit early to avoid setting data
         }
 
@@ -127,11 +132,15 @@ export default function DashboardPage() {
         setAllNamespaces(data.namespaces || []);
       } catch (err: unknown) {
         const error = err as Error;
-        ErrorHandler.handle(error, "fetchNamespaces");
-        console.error("Failed to fetch namespaces:", err);
+        ErrorHandler.handle(error, 'fetchNamespaces');
+        console.error('Failed to fetch namespaces:', err);
 
         // Check if it's a permission or API error and set appropriate error state
-        if (error.message && (error.message.includes('Permission') || error.message.toLowerCase().includes('forbidden'))) {
+        if (
+          error.message &&
+          (error.message.includes('Permission') ||
+            error.message.toLowerCase().includes('forbidden'))
+        ) {
           setError(error.message || 'Permission error: Unable to access Kubernetes namespaces');
         } else {
           // Still set loading to false so the app doesn't hang
@@ -146,8 +155,6 @@ export default function DashboardPage() {
     fetchNamespaces();
   }, [isMounted, error]); // Added error to the dependency array
 
-
-
   // Set up real-time updates via Server-Sent Events
   useEffect(() => {
     if (!isMounted || error) return; // Don't start SSE if there's an error
@@ -157,16 +164,19 @@ export default function DashboardPage() {
     const setupEventSource = () => {
       // Build query parameters for the SSE endpoint
       const params = new URLSearchParams();
-      if (selectedNamespaces.length > 0 && !(selectedNamespaces.length === 1 && selectedNamespaces[0] === "All")) {
+      if (
+        selectedNamespaces.length > 0 &&
+        !(selectedNamespaces.length === 1 && selectedNamespaces[0] === 'All')
+      ) {
         // Add the selected namespaces as a parameter, filtering out "All" if present
-        const namespacesToUse = selectedNamespaces.filter(ns => ns !== "All");
+        const namespacesToUse = selectedNamespaces.filter((ns) => ns !== 'All');
         if (namespacesToUse.length > 0) {
           params.append('namespaces', namespacesToUse.join(','));
         }
       }
 
       const queryString = params.toString();
-      const streamUrl = `/api/ingresses/stream${queryString ? `?${queryString}` : ""}`;
+      const streamUrl = `/api/ingresses/stream${queryString ? `?${queryString}` : ''}`;
 
       try {
         eventSource = new EventSource(streamUrl);
@@ -177,24 +187,27 @@ export default function DashboardPage() {
             const { type, data: ingressData } = data;
 
             // Update ingresses based on the event type
-            setIngresses(prevIngresses => {
+            setIngresses((prevIngresses) => {
               let newIngresses = [...prevIngresses];
 
               switch (type) {
-                case 'ingressAdded':
+                case 'ingressAdded': {
                   // Add the new ingress if it's not already in the list
-                  const exists = newIngresses.some(ing =>
-                    ing.name === ingressData.name && ing.namespace === ingressData.namespace
+                  const exists = newIngresses.some(
+                    (ing) =>
+                      ing.name === ingressData.name && ing.namespace === ingressData.namespace
                   );
                   if (!exists) {
                     newIngresses.push(ingressData);
                   }
                   break;
+                }
 
-                case 'ingressModified':
+                case 'ingressModified': {
                   // Update the ingress if it exists, otherwise add it
-                  const index = newIngresses.findIndex(ing =>
-                    ing.name === ingressData.name && ing.namespace === ingressData.namespace
+                  const index = newIngresses.findIndex(
+                    (ing) =>
+                      ing.name === ingressData.name && ing.namespace === ingressData.namespace
                   );
                   if (index !== -1) {
                     newIngresses[index] = ingressData;
@@ -202,11 +215,13 @@ export default function DashboardPage() {
                     newIngresses.push(ingressData);
                   }
                   break;
+                }
 
                 case 'ingressDeleted':
                   // Remove the ingress from the list
-                  newIngresses = newIngresses.filter(ing =>
-                    !(ing.name === ingressData.name && ing.namespace === ingressData.namespace)
+                  newIngresses = newIngresses.filter(
+                    (ing) =>
+                      !(ing.name === ingressData.name && ing.namespace === ingressData.namespace)
                   );
                   break;
 
@@ -277,9 +292,12 @@ export default function DashboardPage() {
         }
 
         // Add namespace filter if present
-        if (selectedNamespaces.length > 0 && !(selectedNamespaces.length === 1 && selectedNamespaces[0] === "All")) {
+        if (
+          selectedNamespaces.length > 0 &&
+          !(selectedNamespaces.length === 1 && selectedNamespaces[0] === 'All')
+        ) {
           // Add the selected namespaces as a parameter, filtering out "All" if present
-          const namespacesToUse = selectedNamespaces.filter(ns => ns !== "All");
+          const namespacesToUse = selectedNamespaces.filter((ns) => ns !== 'All');
           if (namespacesToUse.length > 0) {
             params.append('namespaces', namespacesToUse.join(','));
           }
@@ -287,14 +305,14 @@ export default function DashboardPage() {
         // If no namespaces are selected or "All" is selected, no parameter is added, which means "all namespaces" by default
 
         const queryString = params.toString();
-        const apiUrl = `/api/ingresses${queryString ? `?${queryString}` : ""}`;
+        const apiUrl = `/api/ingresses${queryString ? `?${queryString}` : ''}`;
 
         const response = await fetch(apiUrl);
 
         if (!response.ok) {
           const errorData = await response.json();
           // Don't throw error if it's a permission issue - just set error state
-          setError(errorData.error || errorData.details || "Failed to fetch ingresses");
+          setError(errorData.error || errorData.details || 'Failed to fetch ingresses');
           return; // Exit early to avoid setting data
         }
 
@@ -306,35 +324,52 @@ export default function DashboardPage() {
         setAllAnnotations(getAllAnnotations(data.ingresses));
 
         // Apply advanced filtering with current selections
-        const filtered = filterIngressesAdvanced(data.ingresses, searchQuery, selectedLabels, selectedAnnotations);
+        const filtered = filterIngressesAdvanced(
+          data.ingresses,
+          searchQuery,
+          selectedLabels,
+          selectedAnnotations
+        );
         setFilteredIngresses(filtered);
       } catch (err: unknown) {
         const error = err as Error;
-        ErrorHandler.handle(error, "fetchIngresses");
-        setError(error.message || "An error occurred while fetching ingress data");
+        ErrorHandler.handle(error, 'fetchIngresses');
+        setError(error.message || 'An error occurred while fetching ingress data');
       } finally {
         setLoading(false);
       }
     };
 
     fetchIngresses();
-  }, [debouncedSearchQuery, isMounted, selectedLabels, selectedAnnotations, selectedNamespaces, error]); // Added error to the dependency array
+  }, [
+    debouncedSearchQuery,
+    isMounted,
+    selectedLabels,
+    selectedAnnotations,
+    selectedNamespaces,
+    error,
+  ]); // Added error to the dependency array
 
   // Apply advanced filtering when selectedLabels or selectedAnnotations change
   useEffect(() => {
     if (!isMounted || ingresses.length === 0) return; // Don't run until mounted and ingresses are loaded
-    
-    const filtered = filterIngressesAdvanced(ingresses, debouncedSearchQuery, selectedLabels, selectedAnnotations);
+
+    const filtered = filterIngressesAdvanced(
+      ingresses,
+      debouncedSearchQuery,
+      selectedLabels,
+      selectedAnnotations
+    );
     setFilteredIngresses(filtered);
   }, [selectedLabels, selectedAnnotations, ingresses, debouncedSearchQuery, isMounted]);
 
   // Update URL with search query using standard Web API
   useEffect(() => {
     if (!isMounted) return; // Don't run until mounted to avoid hydration issues
-    
+
     const url = new URL(window.location.href);
     const currentQuery = url.searchParams.get('q') || '';
-    
+
     // Only update URL if it's different from current search query
     if (searchQuery !== currentQuery) {
       if (searchQuery) {
@@ -361,11 +396,9 @@ export default function DashboardPage() {
     setSearchQuery(query);
   }, []);
 
-
-
   // Calculate stats
   const totalIngresses = ingresses.length;
-  const tlsIngresses = ingresses.filter(ingress => ingress.tls).length;
+  const tlsIngresses = ingresses.filter((ingress) => ingress.tls).length;
   const nonTlsIngresses = totalIngresses - tlsIngresses;
   const filteredCount = filteredIngresses.length;
 
@@ -396,11 +429,13 @@ export default function DashboardPage() {
     if (error.toLowerCase().includes('permission') || error.toLowerCase().includes('forbidden')) {
       errorType = 'permission';
       errorTitle = 'Permission Error';
-      errorMessage = 'You don\'t have sufficient permissions to access Kubernetes resources. Check your RBAC configuration.';
+      errorMessage =
+        "You don't have sufficient permissions to access Kubernetes resources. Check your RBAC configuration.";
     } else if (error.toLowerCase().includes('api') || error.toLowerCase().includes('kubernetes')) {
       errorType = 'api';
       errorTitle = 'API Error';
-      errorMessage = 'There was an issue connecting to the Kubernetes API. Please check your cluster configuration.';
+      errorMessage =
+        'There was an issue connecting to the Kubernetes API. Please check your cluster configuration.';
     }
 
     return (
@@ -431,7 +466,7 @@ export default function DashboardPage() {
               <Image src="/images/logo.svg" alt="kube-ingress-dash logo" width={40} height={40} />
               <h1 className="text-3xl font-bold">kube-ingress-dash</h1>
             </div>
-            
+
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <NamespaceFilter
                 namespaces={namespacesWithIngresses}
@@ -447,13 +482,13 @@ export default function DashboardPage() {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
-                <SearchBar 
-                  onSearch={handleSearch} 
+                <SearchBar
+                  onSearch={handleSearch}
                   value={searchQuery}
-                  placeholder="Search ingresses by name, namespace, host, or path..." 
+                  placeholder="Search ingresses by name, namespace, host, or path..."
                 />
               </div>
-              
+
               {/* Stats display */}
               <div className="flex items-center space-x-4 text-sm">
                 <div className="flex items-center gap-1">
@@ -473,7 +508,7 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
-            
+
             {/* Label and Annotation filters */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
               <div className="space-y-2">
@@ -489,7 +524,7 @@ export default function DashboardPage() {
                   maxCount={2}
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label className="text-sm font-medium flex items-center gap-2">
                   <FileText className="h-4 w-4" />
@@ -512,13 +547,12 @@ export default function DashboardPage() {
             <div className="text-center py-12">
               <h3 className="text-lg font-bold">No ingresses found</h3>
               <p className="text-muted-foreground mt-1">
-                {debouncedSearchQuery ? `No ingresses match your search for "${debouncedSearchQuery}"` : "There are no ingresses in your cluster"}
+                {debouncedSearchQuery
+                  ? `No ingresses match your search for "${debouncedSearchQuery}"`
+                  : 'There are no ingresses in your cluster'}
               </p>
               {debouncedSearchQuery && (
-                <Button 
-                  className="mt-4" 
-                  onClick={() => handleSearch("")}
-                >
+                <Button className="mt-4" onClick={() => handleSearch('')}>
                   Clear search
                 </Button>
               )}
@@ -530,18 +564,18 @@ export default function DashboardPage() {
             // Use regular grid for smaller datasets
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredIngresses.map((ingress) => (
-                <ErrorBoundary key={`${ingress.namespace}/${ingress.name}`} fallback={({ error }: { error: Error }) => (
-                  <div className="p-4 bg-destructive/20 border border-destructive rounded-md">
-                    <h3 className="font-medium text-destructive">Error rendering ingress card</h3>
-                    {process.env.NODE_ENV === 'development' && error && (
-                      <pre>{error.message}</pre>
-                    )}
-                  </div>
-                )}>
-                  <IngressCard 
-                    key={`${ingress.namespace}/${ingress.name}`} 
-                    ingress={ingress} 
-                  />
+                <ErrorBoundary
+                  key={`${ingress.namespace}/${ingress.name}`}
+                  fallback={({ error }: { error: Error }) => (
+                    <div className="p-4 bg-destructive/20 border border-destructive rounded-md">
+                      <h3 className="font-medium text-destructive">Error rendering ingress card</h3>
+                      {process.env.NODE_ENV === 'development' && error && (
+                        <pre>{error.message}</pre>
+                      )}
+                    </div>
+                  )}
+                >
+                  <IngressCard key={`${ingress.namespace}/${ingress.name}`} ingress={ingress} />
                 </ErrorBoundary>
               ))}
             </div>

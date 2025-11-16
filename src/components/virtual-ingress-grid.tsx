@@ -70,7 +70,7 @@ export function VirtualIngressGrid({
 
   const CellComponent = ({ columnIndex, rowIndex, style }: CellProps) => {
     const index = rowIndex * columnCount + columnIndex;
-    
+
     if (index >= ingresses.length) {
       return null;
     }
@@ -79,8 +79,8 @@ export function VirtualIngressGrid({
 
     const adjustedStyle = {
       ...style,
-      left: typeof style.left === 'number' ? style.left + (columnIndex * gap) : style.left,
-      top: typeof style.top === 'number' ? style.top + (rowIndex * gap) : style.top,
+      left: typeof style.left === 'number' ? style.left + columnIndex * gap : style.left,
+      top: typeof style.top === 'number' ? style.top + rowIndex * gap : style.top,
       width: typeof style.width === 'number' ? style.width - gap : style.width,
       height: typeof style.height === 'number' ? style.height - gap : style.height,
     };
@@ -105,7 +105,11 @@ export function VirtualIngressGrid({
   };
 
   return (
-    <div ref={containerRef} className="w-full" style={{ height: dimensions.height > 0 ? `${dimensions.height}px` : '600px' }}>
+    <div
+      ref={containerRef}
+      className="w-full"
+      style={{ height: dimensions.height > 0 ? `${dimensions.height}px` : '600px' }}
+    >
       {dimensions.width > 0 && (
         <Grid
           columnCount={columnCount}

@@ -64,6 +64,7 @@ npm run analyze
 ```
 
 This will:
+
 1. Build the application with webpack (required for bundle analyzer)
 2. Generate HTML reports in `.next/analyze/` directory:
    - `client.html` - Client-side bundle analysis
