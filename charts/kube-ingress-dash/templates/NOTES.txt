@@ -1,92 +1,104 @@
-{{- if .Values.ingress.enabled }}
-###############################################################################
-###                        Accessing the Dashboard via Ingress               ###
-###############################################################################
-{{- range $host := .Values.ingress.hosts }}
-{{- range .paths }}
-  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
-{{- end }}
-{{- end }}
-{{- else if contains "NodePort" .Values.service.type }}
-###############################################################################
-###                         Accessing the Dashboard via NodePort            ###
-###############################################################################
-  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "kube-ingress-dash.fullname" . }})
-  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
-  echo http://$NODE_IP:$NODE_PORT
-{{- else if contains "LoadBalancer" .Values.service.type }}
-###############################################################################
-###                       Accessing the Dashboard via LoadBalancer          ###
-###############################################################################
-   NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-         You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "kube-ingress-dash.fullname" . }}'
-  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "kube-ingress-dash.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
-  echo http://$SERVICE_IP:{{ .Values.service.port }}
-{{- else if contains "ClusterIP" .Values.service.type }}
-###############################################################################
-###                        Accessing the Dashboard via Port Forward         ###
-###############################################################################
-  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "kube-ingress-dash.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
-  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
-  echo "Visit http://127.0.0.1:8080 to use your application"
-  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
-{{- end }}
+🎉 kube-ingress-dash has been installed!
+
+📊 Release: {{ .Release.Name }}
+📦 Namespace: {{ .Release.Namespace }}
+🏷️  Version: {{ .Chart.Version }}
 
 {{- if .Values.rbac.create }}
-###############################################################################
-###                               RBAC Configuration                        ###
-###############################################################################
-The dashboard has RBAC permissions set up to access Kubernetes resources:
-- Services, Pods, Endpoints, Namespaces: get, list, watch
-- Ingresses: get, list, watch
 
-Ensure your cluster configuration allows these permissions.
+✅ RBAC Configuration
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+The dashboard has been configured with the following permissions:
+  • ClusterRole: {{ .Values.rbac.clusterRoleName }}
+  • Resources: ingresses, namespaces, services, pods, endpoints
+  • Verbs: get, list, watch
 
-{{- if eq .Values.rbac.clusterRoleName "kube-ingress-dash-viewer" }}
-A default ClusterRole named "{{ .Values.rbac.clusterRoleName }}" has been created.
+{{- if not .Values.rbac.clusterRoleBinding }}
+⚠️  ClusterRoleBinding is disabled. You'll need to create it manually.
+{{- end }}
+{{- end }}
+
+🚀 Accessing the Dashboard
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{{- if .Values.ingress.enabled }}
+
+Via Ingress:
+{{- range $host := .Values.ingress.hosts }}
+  {{- range .paths }}
+  🌐 http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+  {{- end }}
+{{- end }}
+
+{{- else if contains "LoadBalancer" .Values.service.type }}
+
+Via LoadBalancer:
+  1. Wait for external IP (may take a few minutes):
+     kubectl get svc {{ include "kube-ingress-dash.fullname" . }} -n {{ .Release.Namespace }} -w
+
+  2. Get the external IP:
+     export SERVICE_IP=$(kubectl get svc {{ include "kube-ingress-dash.fullname" . }} -n {{ .Release.Namespace }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+     echo "🌐 http://$SERVICE_IP:{{ .Values.service.port }}"
+
+{{- else if contains "NodePort" .Values.service.type }}
+
+Via NodePort:
+  export NODE_PORT=$(kubectl get svc {{ include "kube-ingress-dash.fullname" . }} -n {{ .Release.Namespace }} -o jsonpath='{.spec.ports[0].nodePort}')
+  export NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[0].address}')
+  echo "🌐 http://$NODE_IP:$NODE_PORT"
+
 {{- else }}
-Custom ClusterRole "{{ .Values.rbac.clusterRoleName }}" is being used.
-{{- end }}
+
+Via Port Forward:
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "kube-ingress-dash.fullname" . }} 8080:{{ .Values.service.port }}
+
+  Then open: 🌐 http://localhost:8080
+
 {{- end }}
 
-###############################################################################
-###                               Configuration                             ###
-###############################################################################
+📋 Useful Commands
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Check deployment status:
+  kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "kube-ingress-dash.name" . }}
+
+View logs:
+  kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "kube-ingress-dash.name" . }} -f
+
+Check service:
+  kubectl get svc {{ include "kube-ingress-dash.fullname" . }} -n {{ .Release.Namespace }}
+
 {{- if .Values.autoscaling.enabled }}
-Autoscaling is enabled:
-  - Min replicas: {{ .Values.autoscaling.minReplicas }}
-  - Max replicas: {{ .Values.autoscaling.maxReplicas }}
+
+📈 Autoscaling Configuration
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  • Min replicas: {{ .Values.autoscaling.minReplicas }}
+  • Max replicas: {{ .Values.autoscaling.maxReplicas }}
 {{- if .Values.autoscaling.targetCPUUtilizationPercentage }}
-  - CPU target: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}%
+  • CPU target: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}%
 {{- end }}
 {{- if .Values.autoscaling.targetMemoryUtilizationPercentage }}
-  - Memory target: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}%
-{{- end }}
-{{- else }}
-Autoscaling is disabled. Fixed replica count: {{ .Values.replicaCount }}
+  • Memory target: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}%
 {{- end }}
 
-###############################################################################
-###                              Dashboard Access                           ###
-###############################################################################
-1. Verify the deployment:
-   kubectl get pods -n {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "kube-ingress-dash.name" . }}"
-
-2. Check the service:
-   kubectl get service {{ include "kube-ingress-dash.fullname" . }} -n {{ .Release.Namespace }}
-
-{{- if .Values.ingress.enabled }}
-3. The dashboard should be accessible at the ingress host(s) configured.
-{{- else }}
-3. Access the dashboard using port forwarding:
-   kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "kube-ingress-dash.fullname" . }} 8080:{{ .Values.service.port }}
-   Then open http://localhost:8080 in your browser
+Check HPA status:
+  kubectl get hpa {{ include "kube-ingress-dash.fullname" . }} -n {{ .Release.Namespace }}
 {{- end }}
 
-###############################################################################
-###                              Troubleshooting                           ###
-###############################################################################
+🔧 Troubleshooting
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 If you encounter issues:
-- Check the pod logs: kubectl logs -n {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "kube-ingress-dash.name" . }}"
-- Verify RBAC permissions are properly configured
-- Ensure your Kubernetes cluster allows the configured permissions
+
+1. Check pod status and events:
+   kubectl describe pod -n {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "kube-ingress-dash.name" . }}
+
+2. Verify RBAC permissions:
+   kubectl auth can-i list ingresses --as=system:serviceaccount:{{ .Release.Namespace }}:{{ include "kube-ingress-dash.serviceAccountName" . }}
+
+3. Check health endpoint:
+   kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "kube-ingress-dash.fullname" . }} 8080:{{ .Values.service.port }}
+   curl http://localhost:8080/api/health
+
+📚 Documentation: https://wasilak.github.io/kube-ingress-dash
+🐛 Issues: https://github.com/wasilak/kube-ingress-dash/issues
+⭐ Star us: https://github.com/wasilak/kube-ingress-dash
+
+Happy monitoring! 🚀
