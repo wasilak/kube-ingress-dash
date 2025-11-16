@@ -40,10 +40,14 @@ export class ErrorHandler {
    * Handles Kubernetes API specific errors
    */
   static handleKubernetesError(error: unknown, context?: string): ErrorInfo {
-    const err = error as { response?: { body?: { message?: string }; statusCode?: number }; message?: string; stack?: string };
+    const err = error as {
+      response?: { body?: { message?: string }; statusCode?: number };
+      message?: string;
+      stack?: string;
+    };
     const message = err?.response?.body?.message || err?.message || 'Unknown Kubernetes API error';
     const status = err?.response?.statusCode || 'Unknown';
-    
+
     const errorInfo: ErrorInfo = {
       message: `Kubernetes API Error (${status}): ${message}`,
       stack: err?.stack,

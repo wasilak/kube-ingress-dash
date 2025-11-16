@@ -5,7 +5,8 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 const config: Config = {
   title: 'kube-ingress-dash',
-  tagline: 'Kubernetes Ingress Dashboard for monitoring and navigating services running in Kubernetes clusters. Real-time visibility into ingress resources, making it easy to discover, access, and monitor services.',
+  tagline:
+    'Kubernetes Ingress Dashboard for monitoring and navigating services running in Kubernetes clusters. Real-time visibility into ingress resources, making it easy to discover, access, and monitor services.',
   favicon: 'img/logo.svg',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -49,10 +50,7 @@ const config: Config = {
     ],
   ],
 
-
-
-  plugins: [
-  ],
+  plugins: [],
   themes: ['@docusaurus/theme-mermaid'],
   markdown: {
     mermaid: true,

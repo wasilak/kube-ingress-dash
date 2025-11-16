@@ -45,7 +45,6 @@ The design follows a modular approach where each improvement can be implemented 
                   └──────────────────┘
 ```
 
-
 ## Components and Interfaces
 
 ### 1. Security Headers Middleware
@@ -55,6 +54,7 @@ The design follows a modular approach where each improvement can be implemented 
 **Purpose:** Intercept all HTTP requests and inject security headers into responses.
 
 **Interface:**
+
 ```typescript
 interface SecurityConfig {
   contentSecurityPolicy: string;
@@ -66,6 +66,7 @@ export function middleware(request: NextRequest): NextResponse;
 ```
 
 **Implementation Details:**
+
 - Uses Next.js middleware to run on all routes
 - Configurable CSP directives via environment variables
 - Supports both development and production modes with different policies
@@ -83,6 +84,7 @@ export function middleware(request: NextRequest): NextResponse;
 **Purpose:** Manage parallel watch connections for multiple namespaces and aggregate events.
 
 **Interface:**
+
 ```typescript
 interface NamespaceWatch {
   namespace: string;
@@ -99,9 +101,9 @@ interface StreamEvent {
 
 class MultiNamespaceStreamManager {
   private watches: Map<string, NamespaceWatch>;
-  
+
   constructor(kubeClient: KubernetesClient);
-  
+
   startWatching(namespaces: string[]): void;
   stopWatching(namespaces: string[]): void;
   updateNamespaces(namespaces: string[]): void;
@@ -111,13 +113,13 @@ class MultiNamespaceStreamManager {
 ```
 
 **Implementation Details:**
+
 - Maintains a Map of active namespace watchers
 - Creates separate watch connections for each namespace
 - Aggregates events from all watchers into a single stream
 - Handles individual namespace failures without affecting others
 - Supports dynamic namespace addition/removal
 - Implements cleanup on connection close
-
 
 ### 3. Environment Configuration
 
@@ -126,6 +128,7 @@ class MultiNamespaceStreamManager {
 **Purpose:** Centralize configuration management with documented environment variables.
 
 **Interface:**
+
 ```typescript
 interface AppConfig {
   kubernetes: {
@@ -163,6 +166,7 @@ export function getConfig(): AppConfig;
 ```
 
 **Environment Variables:**
+
 ```bash
 # Kubernetes Configuration
 KUBERNETES_IN_CLUSTER=false
@@ -201,6 +205,7 @@ HSTS_MAX_AGE=31536000
 **Purpose:** Protect API endpoints and Kubernetes API from abuse.
 
 **Interface:**
+
 ```typescript
 interface RateLimitConfig {
   windowMs: number;
@@ -216,26 +221,26 @@ interface RateLimitResult {
 
 class RateLimiter {
   constructor(config: RateLimitConfig);
-  
+
   check(key: string): RateLimitResult;
   reset(key: string): void;
 }
 
 class KubernetesThrottler {
   constructor(minDelayMs: number);
-  
+
   async throttle<T>(fn: () => Promise<T>): Promise<T>;
 }
 ```
 
 **Implementation Details:**
+
 - Token bucket algorithm for rate limiting
 - Per-client tracking using IP address or auth token
 - Separate rate limits for different API endpoints
 - Kubernetes API throttling with queue management
 - Returns 429 status with Retry-After header
 - Configurable via environment variables
-
 
 ### 5. Health Check Endpoint
 
@@ -244,6 +249,7 @@ class KubernetesThrottler {
 **Purpose:** Provide health status for orchestration systems.
 
 **Interface:**
+
 ```typescript
 interface HealthCheckResult {
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -265,6 +271,7 @@ export async function GET(): Promise<Response>;
 ```
 
 **Implementation Details:**
+
 - Lightweight Kubernetes API connectivity check (list namespaces)
 - 5-second timeout for health checks
 - Returns 200 for healthy, 503 for unhealthy
@@ -279,6 +286,7 @@ export async function GET(): Promise<Response>;
 **Purpose:** Reduce latency and Kubernetes API load through intelligent caching.
 
 **Interface:**
+
 ```typescript
 interface CacheEntry<T> {
   data: T;
@@ -305,18 +313,18 @@ class RedisCache implements Cache {
 
 class RequestDeduplicator {
   private pending: Map<string, Promise<any>>;
-  
+
   async deduplicate<T>(key: string, fn: () => Promise<T>): Promise<T>;
 }
 ```
 
 **Caching Strategy:**
+
 - Namespace list: 5-minute TTL (changes infrequently)
 - Ingress list: No caching (use SSE for updates)
 - Request deduplication for concurrent identical requests
 - Cache invalidation on write operations
 - Configurable cache backend (memory or Redis)
-
 
 ### 7. Enhanced Error Handling
 
@@ -325,6 +333,7 @@ class RequestDeduplicator {
 **Purpose:** Improve resilience through retry logic and circuit breakers.
 
 **Interface:**
+
 ```typescript
 enum ErrorCategory {
   TRANSIENT = 'transient',
@@ -352,7 +361,7 @@ interface RetryConfig {
 
 class RetryHandler {
   constructor(config: RetryConfig);
-  
+
   async execute<T>(fn: () => Promise<T>): Promise<T>;
 }
 
@@ -371,22 +380,22 @@ interface CircuitBreakerConfig {
 
 class CircuitBreaker {
   private state: CircuitState;
-  
+
   constructor(config: CircuitBreakerConfig);
-  
+
   async execute<T>(fn: () => Promise<T>): Promise<T>;
   getState(): CircuitState;
 }
 ```
 
 **Error Handling Strategy:**
+
 - Classify errors as transient (network issues, timeouts) or permanent (404, 403)
 - Retry transient errors with exponential backoff: 100ms, 200ms, 400ms
 - Circuit breaker opens after 50% failure rate in 30-second window
 - Half-open state allows test requests after 60 seconds
 - Return cached data when circuit is open
 - Detailed error logging with context
-
 
 ### 8. Type Safety Enhancement
 
@@ -395,6 +404,7 @@ class CircuitBreaker {
 **Purpose:** Eliminate runtime type errors through strict TypeScript.
 
 **TypeScript Configuration:**
+
 ```json
 {
   "compilerOptions": {
@@ -415,9 +425,10 @@ class CircuitBreaker {
 ```
 
 **Type Definitions:**
+
 ```typescript
 // Error types using discriminated unions
-type ApiError = 
+type ApiError =
   | { type: 'network'; message: string; retryable: true }
   | { type: 'authentication'; message: string; retryable: false; statusCode: 401 }
   | { type: 'authorization'; message: string; retryable: false; statusCode: 403 }
@@ -440,6 +451,7 @@ export function getConfig(): AppConfig;
 ```
 
 **Implementation Strategy:**
+
 - Audit codebase for `any` types and replace with specific types
 - Add explicit return types to all exported functions
 - Use discriminated unions for error handling
@@ -455,6 +467,7 @@ export function getConfig(): AppConfig;
 **Optimization Techniques:**
 
 **React.memo for Components:**
+
 ```typescript
 import { memo } from 'react';
 
@@ -463,16 +476,22 @@ interface IngressCardProps {
   onSelect: (id: string) => void;
 }
 
-export const IngressCard = memo<IngressCardProps>(({ ingress, onSelect }) => {
-  // Component implementation
-}, (prevProps, nextProps) => {
-  // Custom comparison function
-  return prevProps.ingress.id === nextProps.ingress.id &&
-         prevProps.ingress.metadata.resourceVersion === nextProps.ingress.metadata.resourceVersion;
-});
+export const IngressCard = memo<IngressCardProps>(
+  ({ ingress, onSelect }) => {
+    // Component implementation
+  },
+  (prevProps, nextProps) => {
+    // Custom comparison function
+    return (
+      prevProps.ingress.id === nextProps.ingress.id &&
+      prevProps.ingress.metadata.resourceVersion === nextProps.ingress.metadata.resourceVersion
+    );
+  }
+);
 ```
 
 **Virtual Scrolling:**
+
 ```typescript
 interface VirtualScrollProps<T> {
   items: T[];
@@ -481,12 +500,18 @@ interface VirtualScrollProps<T> {
   renderItem: (item: T, index: number) => React.ReactNode;
 }
 
-export function VirtualScroll<T>({ items, itemHeight, containerHeight, renderItem }: VirtualScrollProps<T>) {
+export function VirtualScroll<T>({
+  items,
+  itemHeight,
+  containerHeight,
+  renderItem,
+}: VirtualScrollProps<T>) {
   // Implementation using react-window or custom solution
 }
 ```
 
 **Loading Skeletons:**
+
 ```typescript
 export function IngressCardSkeleton() {
   return (
@@ -499,12 +524,12 @@ export function IngressCardSkeleton() {
 ```
 
 **Bundle Optimization:**
+
 - Analyze bundle with `@next/bundle-analyzer`
 - Remove unused dependencies
 - Use dynamic imports for large components
 - Optimize images and assets
 - Enable tree-shaking
-
 
 ### 10. Documentation Standards
 
@@ -513,15 +538,16 @@ export function IngressCardSkeleton() {
 **Purpose:** Provide comprehensive documentation for developers and users.
 
 **JSDoc Standards:**
-```typescript
+
+````typescript
 /**
  * Fetches ingresses from multiple Kubernetes namespaces in parallel.
- * 
+ *
  * @param namespaces - Array of namespace names to query
  * @returns Promise resolving to array of ingress data
  * @throws {KubernetesApiError} When API request fails
  * @throws {AuthenticationError} When credentials are invalid
- * 
+ *
  * @example
  * ```typescript
  * const ingresses = await getIngressesByNamespaces(['default', 'production']);
@@ -531,9 +557,10 @@ export function IngressCardSkeleton() {
 export async function getIngressesByNamespaces(namespaces: string[]): Promise<IngressData[]> {
   // Implementation
 }
-```
+````
 
 **OpenAPI Specification:**
+
 ```yaml
 openapi: 3.0.0
 info:
@@ -567,6 +594,7 @@ paths:
 ```
 
 **Architecture Diagrams:**
+
 - Update existing diagrams in docs-site
 - Add sequence diagrams for SSE streaming
 - Add component interaction diagrams
@@ -581,6 +609,7 @@ paths:
 **Note:** The project already uses pre-commit framework. We will enhance the existing configuration.
 
 **Enhanced Pre-commit Configuration:**
+
 ```yaml
 # .pre-commit-config.yaml (enhanced)
 repos:
@@ -622,6 +651,7 @@ repos:
 ```
 
 **Package.json Scripts:**
+
 ```json
 {
   "scripts": {
@@ -634,7 +664,6 @@ repos:
 }
 ```
 
-
 ### 12. Code Quality Improvements
 
 **Location:** `src/constants/*`, throughout codebase
@@ -642,6 +671,7 @@ repos:
 **Purpose:** Improve maintainability through consistent patterns and reduced complexity.
 
 **Constants Extraction:**
+
 ```typescript
 // src/constants/kubernetes.ts
 export const KUBERNETES_CONSTANTS = {
@@ -671,11 +701,12 @@ export const CACHE_KEYS = {
 
 export const CACHE_TTL = {
   NAMESPACES: 300, // 5 minutes
-  INGRESSES: 60,   // 1 minute
+  INGRESSES: 60, // 1 minute
 } as const;
 ```
 
 **Component Refactoring Strategy:**
+
 ```typescript
 // Before: Large component (200+ lines)
 export function IngressDashboard() {
@@ -698,6 +729,7 @@ export function IngressDashboard() {
 ```
 
 **Error Boundaries:**
+
 ```typescript
 // src/components/error-boundaries/DashboardErrorBoundary.tsx
 interface Props {
@@ -729,6 +761,7 @@ export class DashboardErrorBoundary extends React.Component<Props, { hasError: b
 ```
 
 **Prop Validation with Zod:**
+
 ```typescript
 import { z } from 'zod';
 
@@ -756,11 +789,10 @@ export function IngressCard(props: IngressCardProps) {
       console.warn('Invalid props for IngressCard:', result.error);
     }
   }
-  
+
   // Component implementation
 }
 ```
-
 
 ## Data Models
 
@@ -829,7 +861,7 @@ export enum ErrorCategory {
   AUTHORIZATION = 'authorization',
 }
 
-export type ApiError = 
+export type ApiError =
   | NetworkError
   | AuthenticationError
   | AuthorizationError
@@ -927,7 +959,6 @@ export interface RateLimitEntry {
 }
 ```
 
-
 ## Error Handling
 
 ### Error Classification Strategy
@@ -1010,10 +1041,12 @@ interface ErrorResponse {
 ### Unit Tests
 
 **Coverage Requirements:**
+
 - Minimum 80% code coverage
 - 100% coverage for critical paths (error handling, security)
 
 **Test Categories:**
+
 1. **Utility Functions**
    - Error classification
    - Data transformation
@@ -1033,23 +1066,25 @@ interface ErrorResponse {
    - Authentication/authorization
 
 **Example Test:**
+
 ```typescript
 describe('RetryHandler', () => {
   it('should retry transient errors with exponential backoff', async () => {
-    const mockFn = jest.fn()
+    const mockFn = jest
+      .fn()
       .mockRejectedValueOnce(new NetworkError('timeout'))
       .mockRejectedValueOnce(new NetworkError('timeout'))
       .mockResolvedValueOnce({ data: 'success' });
-    
+
     const retryHandler = new RetryHandler({
       maxAttempts: 3,
       initialDelayMs: 100,
       maxDelayMs: 5000,
       backoffMultiplier: 2,
     });
-    
+
     const result = await retryHandler.execute(mockFn);
-    
+
     expect(mockFn).toHaveBeenCalledTimes(3);
     expect(result).toEqual({ data: 'success' });
   });
@@ -1059,6 +1094,7 @@ describe('RetryHandler', () => {
 ### Integration Tests
 
 **Test Scenarios:**
+
 1. **Multi-Namespace SSE Streaming**
    - Start watching multiple namespaces
    - Verify events from all namespaces
@@ -1086,21 +1122,23 @@ describe('RetryHandler', () => {
 ### End-to-End Tests
 
 **Critical User Flows:**
+
 1. View ingresses across multiple namespaces
 2. Receive real-time updates via SSE
 3. Handle Kubernetes API failures gracefully
 4. Recover from transient errors
 
 **Tools:**
+
 - Jest for unit tests
 - React Testing Library for component tests
 - Supertest for API route tests
 - Mock Kubernetes API for integration tests
 
-
 ## Implementation Phases
 
 ### Phase 1: Foundation (Security & Configuration)
+
 **Priority:** High
 **Dependencies:** None
 
@@ -1111,6 +1149,7 @@ describe('RetryHandler', () => {
 **Rationale:** These provide the foundation for all other improvements and have no dependencies.
 
 ### Phase 2: Reliability (Error Handling & Health)
+
 **Priority:** High
 **Dependencies:** Phase 1 (Configuration)
 
@@ -1121,6 +1160,7 @@ describe('RetryHandler', () => {
 **Rationale:** Improves system reliability before adding more complex features.
 
 ### Phase 3: Performance (Caching & Rate Limiting)
+
 **Priority:** Medium
 **Dependencies:** Phase 1 (Configuration), Phase 2 (Error Handling)
 
@@ -1131,6 +1171,7 @@ describe('RetryHandler', () => {
 **Rationale:** Requires configuration and error handling to be in place.
 
 ### Phase 4: Features (Multi-Namespace SSE)
+
 **Priority:** Medium
 **Dependencies:** Phase 2 (Error Handling), Phase 3 (Rate Limiting)
 
@@ -1141,6 +1182,7 @@ describe('RetryHandler', () => {
 **Rationale:** Complex feature that benefits from all previous improvements.
 
 ### Phase 5: Optimization (Performance & UX)
+
 **Priority:** Low
 **Dependencies:** Phase 4 (All core features complete)
 
@@ -1152,6 +1194,7 @@ describe('RetryHandler', () => {
 **Rationale:** Polish and optimization after core functionality is stable.
 
 ### Phase 6: Quality (Documentation & DX)
+
 **Priority:** Low
 **Dependencies:** All previous phases
 
@@ -1164,6 +1207,7 @@ describe('RetryHandler', () => {
 **Rationale:** Final polish and developer experience improvements.
 
 ### Phase 7: Documentation Review
+
 **Priority:** Low
 **Dependencies:** All previous phases (must document only implemented features)
 
@@ -1179,6 +1223,7 @@ describe('RetryHandler', () => {
 ### Environment Variables
 
 All new environment variables must be:
+
 - Documented in `.env.example`
 - Validated at startup
 - Have sensible defaults
@@ -1194,6 +1239,7 @@ All new environment variables must be:
 ### Monitoring & Observability
 
 **Metrics to Track:**
+
 - API response times
 - Cache hit/miss rates
 - Rate limit triggers
@@ -1203,6 +1249,7 @@ All new environment variables must be:
 - Kubernetes API latency
 
 **Logging:**
+
 - Structured JSON logging in production
 - Log levels: debug, info, warn, error
 - Include request IDs for tracing
@@ -1282,7 +1329,6 @@ The phased implementation approach ensures that foundational improvements (secur
 
 By following this design, the application will be well-positioned for production use with robust security, reliability, performance, and developer experience.
 
-
 ### 13. Documentation Review and Improvement
 
 **Location:** `docs-site/docs/*`
@@ -1305,6 +1351,7 @@ By following this design, the application will be well-positioned for production
    - Link to auto-generated README for detailed values
 
 **Documentation Structure:**
+
 ```
 docs-site/docs/
 ├── index.mdx                    # Overview (verify accuracy)
@@ -1319,13 +1366,16 @@ docs-site/docs/
 ```
 
 **Helm Documentation Approach:**
+
 ```markdown
 # Helm Deployment
 
 ## Overview
+
 Deploy Kube Ingress Dashboard using Helm charts for production environments.
 
 ## Quick Start
+
 \`\`\`bash
 helm install kube-ingress-dash ./charts/kube-ingress-dash
 \`\`\`
@@ -1337,27 +1387,30 @@ For a complete list of configuration values, see the [auto-generated Helm chart 
 ### Common Configuration Examples
 
 #### Custom Image
+
 \`\`\`yaml
 image:
-  repository: your-registry/kube-ingress-dash
-  tag: "1.0.0"
+repository: your-registry/kube-ingress-dash
+tag: "1.0.0"
 \`\`\`
 
 #### Resource Limits
+
 \`\`\`yaml
 resources:
-  limits:
-    cpu: 500m
-    memory: 512Mi
-  requests:
-    cpu: 250m
-    memory: 256Mi
+limits:
+cpu: 500m
+memory: 512Mi
+requests:
+cpu: 250m
+memory: 256Mi
 \`\`\`
 
 [See full configuration reference →](../../charts/kube-ingress-dash/README.md)
 ```
 
 **Verification Checklist:**
+
 - [ ] All mentioned features are implemented
 - [ ] Code examples are accurate and tested
 - [ ] API endpoints match actual implementation
@@ -1368,6 +1421,7 @@ resources:
 - [ ] Helm chart README is referenced, not duplicated
 
 **Documentation Standards:**
+
 - Use present tense for implemented features
 - Use future tense or "planned" for unimplemented features (or remove them)
 - Include version information for feature availability

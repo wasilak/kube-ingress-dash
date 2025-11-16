@@ -37,20 +37,21 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
   documentationText,
   onRetry,
   error,
-  classification
+  classification,
 }) => {
   // Classify the error if provided
   const errorClassification = classification || (error ? ErrorClassifier.classify(error) : null);
-  
+
   // Get smart defaults from classification
-  const smartDocLink = errorClassification 
+  const smartDocLink = errorClassification
     ? ErrorClassifier.getDocumentationLink(errorClassification)
-    : documentationLink || 'https://wasilak.github.io/kube-ingress-dash/docs/architecture/rbac-setup';
-  
+    : documentationLink ||
+      'https://wasilak.github.io/kube-ingress-dash/docs/architecture/rbac-setup';
+
   const smartDocText = errorClassification
     ? ErrorClassifier.getDocumentationText(errorClassification)
     : documentationText || 'RBAC Setup Documentation';
-  
+
   const smartMessage = errorClassification
     ? ErrorClassifier.getUserMessage(errorClassification)
     : message;
@@ -66,15 +67,15 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
             title: title || 'Authentication Error',
             description: 'Authentication is required to access this resource',
             border: 'border-red-500',
-            text: 'text-red-500'
+            text: 'text-red-500',
           };
         case 'authorization':
           return {
             iconColor: 'text-orange-500',
             title: title || 'Permission Error',
-            description: 'You don\'t have sufficient permissions to access Kubernetes resources',
+            description: "You don't have sufficient permissions to access Kubernetes resources",
             border: 'border-orange-500',
-            text: 'text-orange-500'
+            text: 'text-orange-500',
           };
         case 'rate_limit':
           return {
@@ -82,7 +83,7 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
             title: title || 'Rate Limit Exceeded',
             description: 'Too many requests have been made',
             border: 'border-yellow-500',
-            text: 'text-yellow-500'
+            text: 'text-yellow-500',
           };
         case 'transient':
           return {
@@ -90,7 +91,7 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
             title: title || 'Temporary Error',
             description: 'A temporary issue occurred, please try again',
             border: 'border-amber-500',
-            text: 'text-amber-500'
+            text: 'text-amber-500',
           };
         case 'permanent':
           return {
@@ -98,20 +99,20 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
             title: title || 'Error',
             description: 'An error occurred while processing your request',
             border: 'border-red-600',
-            text: 'text-red-600'
+            text: 'text-red-600',
           };
       }
     }
-    
+
     // Fallback to errorType prop
     switch (errorType) {
       case 'permission':
         return {
           iconColor: 'text-orange-500',
           title: title || 'Permission Error',
-          description: 'You don\'t have sufficient permissions to access Kubernetes resources',
+          description: "You don't have sufficient permissions to access Kubernetes resources",
           border: 'border-orange-500',
-          text: 'text-orange-500'
+          text: 'text-orange-500',
         };
       case 'api':
         return {
@@ -119,7 +120,7 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
           title: title || 'API Error',
           description: 'There was an issue connecting to the Kubernetes API',
           border: 'border-amber-500',
-          text: 'text-amber-500'
+          text: 'text-amber-500',
         };
       default:
         return {
@@ -127,7 +128,7 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
           title: title || 'Error',
           description: 'An error occurred',
           border: 'border-input',
-          text: 'text-muted-foreground'
+          text: 'text-muted-foreground',
         };
     }
   };
@@ -136,7 +137,7 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
   const { theme, setTheme } = useTheme();
 
   const handleThemeChange = (newTheme: string) => {
-    setTheme(newTheme as "light" | "dark" | "system");
+    setTheme(newTheme as 'light' | 'dark' | 'system');
   };
 
   return (
@@ -185,17 +186,13 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
               />
             </div>
             <CardTitle className="text-2xl">{config.title}</CardTitle>
-            <CardDescription>
-              {config.description}
-            </CardDescription>
+            <CardDescription>{config.description}</CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <p className={`mb-6 ${config.text}`}>
-              {smartMessage}
-            </p>
+            <p className={`mb-6 ${config.text}`}>{smartMessage}</p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              {(onRetry || (errorClassification?.retryable)) && (
+              {(onRetry || errorClassification?.retryable) && (
                 <Button onClick={onRetry} variant="default">
                   Retry Connection
                 </Button>

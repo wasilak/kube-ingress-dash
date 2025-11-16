@@ -4,21 +4,25 @@ import { ErrorCategory } from '@/types/errors';
 // Re-export for convenience
 export { RetryHandler } from './error-handler/retry';
 export type { RetryConfig } from './error-handler/retry';
-export { CircuitBreaker, CircuitBreakerOpenError, CircuitState } from './error-handler/circuit-breaker';
+export {
+  CircuitBreaker,
+  CircuitBreakerOpenError,
+  CircuitState,
+} from './error-handler/circuit-breaker';
 export type { CircuitBreakerConfig } from './error-handler/circuit-breaker';
 
 // Global error handling utility
 export class ErrorHandler {
   static handle(error: unknown, context?: string): void {
     const classification = ErrorClassifier.classify(error);
-    
+
     console.error(`Error in ${context || 'unknown context'}:`, {
       error,
       category: classification.category,
       retryable: classification.retryable,
       statusCode: classification.statusCode,
     });
-    
+
     // Log to external service if configured (e.g., Sentry, LogRocket)
     // In a real application, you would send this to an error tracking service
     if (typeof window !== 'undefined') {
@@ -33,7 +37,7 @@ export class ErrorHandler {
   static formatError(error: unknown): string {
     const classification = ErrorClassifier.classify(error);
     const userMessage = ErrorClassifier.getUserMessage(classification);
-    
+
     if (error instanceof Error) {
       return `${userMessage} (${error.message})`;
     } else if (typeof error === 'string') {
@@ -44,12 +48,7 @@ export class ErrorHandler {
 
   static isKubernetesError(error: unknown): boolean {
     // Check if the error is related to Kubernetes API
-    return (
-      typeof error === 'object' &&
-      error !== null &&
-      'response' in error &&
-      'body' in error
-    );
+    return typeof error === 'object' && error !== null && 'response' in error && 'body' in error;
   }
 
   static isRetryable(error: unknown): boolean {
@@ -64,7 +63,7 @@ export class ErrorHandler {
 }
 
 // Error boundary for API calls
-export const withErrorHandling = async <T,>(
+export const withErrorHandling = async <T>(
   apiCall: () => Promise<T>,
   context?: string
 ): Promise<T | null> => {

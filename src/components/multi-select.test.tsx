@@ -93,10 +93,10 @@ describe('MultiSelect', () => {
 
     // Find the X icon within the badge for the selected option
     // The X is an SVG element inside the badge
-    const badges = screen.getAllByText(/Option/).filter(el => el.closest('.inline-flex'));
+    const badges = screen.getAllByText(/Option/).filter((el) => el.closest('.inline-flex'));
     const badgeContainer = badges[0].closest('.inline-flex');
     const xIcon = badgeContainer.querySelector('svg');
-    
+
     fireEvent.click(xIcon);
 
     await waitFor(() => {

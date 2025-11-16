@@ -17,12 +17,12 @@ export async function GET(request: NextRequest) {
         'Kubernetes API - Permissions Check',
         { hasPermissions: permissions.hasPermissions }
       );
-      
+
       return NextResponse.json(
         {
           error: 'Permission denied',
           details: permissions.error || 'Insufficient permissions to access Kubernetes resources',
-          errorInfo
+          errorInfo,
         },
         { status: 403 }
       );
@@ -35,7 +35,10 @@ export async function GET(request: NextRequest) {
     const namespacesParam = request.nextUrl.searchParams.get('namespaces');
     let namespaces: string[] | undefined;
     if (namespacesParam) {
-      namespaces = namespacesParam.split(',').map(ns => ns.trim()).filter(ns => ns);
+      namespaces = namespacesParam
+        .split(',')
+        .map((ns) => ns.trim())
+        .filter((ns) => ns);
     }
 
     // Get search term from query parameters if provided
@@ -55,16 +58,13 @@ export async function GET(request: NextRequest) {
         ingresses = await kubeClient.getIngresses();
       }
     } catch (k8sError: unknown) {
-      const errorInfo = ErrorHandler.handleKubernetesError(
-        k8sError,
-        'GET /api/ingresses'
-      );
+      const errorInfo = ErrorHandler.handleKubernetesError(k8sError, 'GET /api/ingresses');
 
       return NextResponse.json(
         {
           error: 'Failed to fetch ingresses from Kubernetes API',
           details: errorInfo.message,
-          errorInfo
+          errorInfo,
         },
         { status: 500 }
       );
@@ -80,22 +80,21 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
       namespace: namespace || 'all',
       namespaces: namespaces, // Include the list of namespaces if filtering by multiple
-      count: ingresses.length
+      count: ingresses.length,
     });
   } catch (error: unknown) {
     const err = error as Error;
-    const errorInfo = ErrorHandler.handle(
-      err,
-      'GET /api/ingresses',
-      { userAgent: request.headers.get('user-agent') }
-    );
+    const errorInfo = ErrorHandler.handle(err, 'GET /api/ingresses', {
+      userAgent: request.headers.get('user-agent'),
+    });
 
     // For unknown errors, return a generic message to the client
     return NextResponse.json(
       {
         error: 'Internal server error',
-        details: process.env.NODE_ENV === 'development' ? err.message : 'An unexpected error occurred',
-        errorInfo
+        details:
+          process.env.NODE_ENV === 'development' ? err.message : 'An unexpected error occurred',
+        errorInfo,
       },
       { status: 500 }
     );
@@ -106,7 +105,7 @@ export async function GET(request: NextRequest) {
 export async function POST(_request: NextRequest): Promise<NextResponse> {
   // For now, just return an error since this endpoint is primarily for reading data
   return NextResponse.json(
-    { error: 'POST method not supported for this endpoint' }, 
+    { error: 'POST method not supported for this endpoint' },
     { status: 405 }
   );
 }

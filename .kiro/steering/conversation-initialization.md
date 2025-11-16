@@ -5,6 +5,7 @@
 At the start of EVERY conversation where you need to use Serena MCP tools for code analysis, symbol finding, or codebase navigation, you MUST:
 
 1. **Call the `initial_instructions` tool first:**
+
    ```
    Use mcp_serena_initial_instructions to bootstrap Serena usage
    ```

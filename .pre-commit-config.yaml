@@ -1,7 +1,55 @@
 repos:
+  # Standard pre-commit hooks for file quality
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim Trailing Whitespace
+      - id: end-of-file-fixer
+        name: Fix End of Files
+      - id: check-yaml
+        name: Check YAML Syntax
+        exclude: ^charts/.*/(templates|crds)/.*\.yaml$
+      - id: check-json
+        name: Check JSON Syntax
+      - id: check-merge-conflict
+        name: Check for Merge Conflicts
+      - id: detect-private-key
+        name: Detect Private Keys
+
+  # Helm documentation generation
   - repo: https://github.com/norwoodj/helm-docs
     rev: v1.14.2
     hooks:
       - id: helm-docs
+        name: Generate Helm Documentation
         args:
           - --chart-search-root=charts
+
+  # Local hooks for TypeScript, ESLint, and testing
+  - repo: local
+    hooks:
+      - id: typescript-check
+        name: TypeScript Type Check
+        entry: npm run type-check
+        language: system
+        files: \.(ts|tsx)$
+        exclude: \.(test|spec)\.(ts|tsx)$
+        pass_filenames: false
+        stages: [commit]
+
+      - id: eslint
+        name: ESLint with Auto-fix
+        entry: npm run lint:fix
+        language: system
+        files: \.(ts|tsx|js|jsx)$
+        pass_filenames: false
+        stages: [commit]
+
+      - id: prettier
+        name: Prettier Format Check
+        entry: npm run format:check
+        language: system
+        files: \.(ts|tsx|js|jsx|json|md)$
+        pass_filenames: false
+        stages: [commit]

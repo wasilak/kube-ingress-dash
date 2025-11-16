@@ -20,21 +20,21 @@ const mockIngress: IngressData = {
 describe('IngressCard', () => {
   it('renders ingress name and namespace', () => {
     render(<IngressCard ingress={mockIngress} />);
-    
+
     expect(screen.getByText('test-ingress')).toBeInTheDocument();
     expect(screen.getByText('test-namespace')).toBeInTheDocument();
   });
 
   it('renders hosts as clickable buttons', () => {
     render(<IngressCard ingress={mockIngress} />);
-    
+
     expect(screen.getByText('https://example.com')).toBeInTheDocument();
     expect(screen.getByText('https://api.example.com')).toBeInTheDocument();
   });
 
   it('renders TLS icon when TLS is enabled', () => {
     render(<IngressCard ingress={mockIngress} />);
-    
+
     // The lock icon is rendered as an SVG element with the class "lucide lucide-lock"
     const lockElement = document.querySelector('.lucide-lock');
     expect(lockElement).toBeInTheDocument();
@@ -42,14 +42,14 @@ describe('IngressCard', () => {
 
   it('renders paths information', () => {
     render(<IngressCard ingress={mockIngress} />);
-    
+
     expect(screen.getByText('/api')).toBeInTheDocument();
     expect(screen.getByText('/')).toBeInTheDocument();
   });
 
   it('renders ingress class annotation', () => {
     render(<IngressCard ingress={mockIngress} />);
-    
+
     expect(screen.getByText('nginx')).toBeInTheDocument();
   });
 });

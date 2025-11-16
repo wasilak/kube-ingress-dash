@@ -1,23 +1,15 @@
 const sidebars = {
   sidebar: [
-  'index',
+    'index',
     {
       type: 'category',
       label: 'Architecture',
-      items: [
-        'architecture/interaction-with-kubernetes',
-        'architecture/rbac-setup',
-      ],
+      items: ['architecture/interaction-with-kubernetes', 'architecture/rbac-setup'],
     },
     {
       type: 'category',
       label: 'Deployment',
-      items: [
-        'deployment/index',
-        'deployment/docker',
-        'deployment/from-source',
-        'deployment/helm',
-      ],
+      items: ['deployment/index', 'deployment/docker', 'deployment/from-source', 'deployment/helm'],
     },
   ],
 };

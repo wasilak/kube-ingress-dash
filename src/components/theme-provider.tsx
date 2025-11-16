@@ -29,7 +29,7 @@ export function ThemeProvider({
   ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = React.useState<Theme>(defaultTheme);
-  
+
   React.useEffect(() => {
     // Load theme from localStorage after component mounts
     const storedTheme = localStorage.getItem(storageKey) as Theme | null;
@@ -81,7 +81,9 @@ export function ThemeProvider({
 
     return () => {
       if (theme === 'system') {
-        window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', updateTheme);
+        window
+          .matchMedia('(prefers-color-scheme: dark)')
+          .removeEventListener('change', updateTheme);
       }
     };
   }, [theme]);
@@ -109,8 +111,7 @@ export function ThemeProvider({
 export const useTheme = () => {
   const context = React.useContext(ThemeProviderContext);
 
-  if (context === undefined)
-    throw new Error('useTheme must be used within a ThemeProvider');
+  if (context === undefined) throw new Error('useTheme must be used within a ThemeProvider');
 
   return context;
 };

@@ -3,7 +3,5 @@
  * Displays an animated placeholder while namespace data is being fetched
  */
 export function NamespaceFilterSkeleton() {
-  return (
-    <div className="h-10 bg-muted animate-pulse rounded-md w-48" />
-  );
+  return <div className="h-10 bg-muted animate-pulse rounded-md w-48" />;
 }

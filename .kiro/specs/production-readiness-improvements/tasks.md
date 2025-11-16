@@ -20,7 +20,6 @@ This implementation plan breaks down the production readiness improvements into 
   - Add explicit return types to all exported functions
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-
 ## Phase 2: Reliability (Error Handling & Health)
 
 - [x] 3. Implement Error Classification System
@@ -57,10 +56,9 @@ This implementation plan breaks down the production readiness improvements into 
   - Add 5-second timeout for health checks
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-
 ## Phase 3: Performance (Caching & Rate Limiting)
 
-- [ ]* 7. Implement Cache Interface and Memory Cache
+- [ ]\* 7. Implement Cache Interface and Memory Cache
   - Create `src/lib/cache/index.ts` with `Cache` interface definition
   - Create `src/lib/cache/memory-cache.ts` implementing in-memory cache with Map
   - Implement `get()`, `set()`, `delete()`, and `clear()` methods
@@ -68,7 +66,7 @@ This implementation plan breaks down the production readiness improvements into 
   - Track cache statistics (hits, misses, size, evictions)
   - _Requirements: 6.1, 6.3_
 
-- [ ]* 8. Implement Redis Cache (Optional)
+- [ ]\* 8. Implement Redis Cache (Optional)
   - Create `src/lib/cache/redis-cache.ts` implementing Redis-based cache
   - Use Redis client library for connection management
   - Implement same `Cache` interface as memory cache
@@ -76,47 +74,46 @@ This implementation plan breaks down the production readiness improvements into 
   - Make Redis cache available when `CACHE_TYPE=redis` is configured
   - _Requirements: 6.4_
 
-- [ ]* 9. Implement Request Deduplication
+- [ ]\* 9. Implement Request Deduplication
   - Create `src/lib/cache/deduplicator.ts` with request deduplication logic
   - Implement `RequestDeduplicator` class that tracks pending requests
   - Add `deduplicate()` method that returns existing promise for duplicate requests
   - Clean up completed requests from tracking map
   - _Requirements: 6.2_
 
-- [ ]* 10. Integrate Caching into API Routes
+- [ ]\* 10. Integrate Caching into API Routes
   - Update `src/app/api/namespaces/route.ts` to use cache for namespace list
   - Set 5-minute TTL for namespace cache
   - Add cache status header to responses (HIT/MISS)
   - Integrate request deduplication for concurrent requests
   - _Requirements: 6.1, 6.2, 6.5_
 
-- [ ]* 11. Implement Rate Limiting System
+- [ ]\* 11. Implement Rate Limiting System
   - Create `src/lib/rate-limiter/index.ts` with token bucket algorithm
   - Implement `RateLimiter` class with configurable window and max requests
   - Add per-client tracking using IP address from request headers
   - Implement `check()` method returning allowed status, remaining count, and reset time
   - _Requirements: 4.1, 4.2, 4.4_
 
-- [ ]* 12. Implement Kubernetes API Throttling
+- [ ]\* 12. Implement Kubernetes API Throttling
   - Create `src/lib/rate-limiter/k8s-throttler.ts` for Kubernetes API request throttling
   - Implement `KubernetesThrottler` class with queue-based throttling
   - Add configurable minimum delay between requests (default 100ms)
   - Implement `throttle()` method that wraps Kubernetes API calls
   - _Requirements: 4.3_
 
-- [ ]* 13. Integrate Rate Limiting into API Routes
+- [ ]\* 13. Integrate Rate Limiting into API Routes
   - Update all API routes to use rate limiter before processing requests
   - Return HTTP 429 with Retry-After header when rate limit exceeded
   - Log rate limit events with client identifier
   - Apply different rate limits to different endpoints if needed
   - _Requirements: 4.1, 4.5_
 
-- [ ]* 14. Update Kubernetes Client with Throttling
+- [ ]\* 14. Update Kubernetes Client with Throttling
   - Modify `src/lib/k8s/client.ts` to integrate Kubernetes API throttling
   - Wrap all Kubernetes API calls with throttler
   - Ensure throttling applies to both read and watch operations
   - _Requirements: 4.3_
-
 
 ## Phase 4: Features (Multi-Namespace SSE)
 
@@ -150,7 +147,6 @@ This implementation plan breaks down the production readiness improvements into 
   - Add timestamp to all events for latency tracking
   - _Requirements: 2.2_
 
-
 ## Phase 5: Optimization (Performance & UX)
 
 - [x] 19. Optimize Components with React.memo
@@ -182,13 +178,12 @@ This implementation plan breaks down the production readiness improvements into 
   - Verify production bundle size is under 500KB gzipped
   - _Requirements: 9.3_
 
-- [ ]* 23. Performance Testing and Optimization
+- [ ]\* 23. Performance Testing and Optimization
   - Measure First Contentful Paint with Lighthouse
   - Optimize critical rendering path to achieve < 1.5s FCP
   - Test with 1000+ ingress items to verify virtual scrolling performance
   - Profile component render times and optimize bottlenecks
   - _Requirements: 9.5_
-
 
 ## Phase 6: Quality (Documentation & DX)
 
@@ -199,7 +194,7 @@ This implementation plan breaks down the production readiness improvements into 
   - Include parameter descriptions, return types, throws declarations, and examples
   - _Requirements: 10.1_
 
-- [ ]* 25. Create OpenAPI Documentation for API Endpoints
+- [ ]\* 25. Create OpenAPI Documentation for API Endpoints
   - Create `docs-site/docs/api/openapi.yaml` with OpenAPI 3.0 specification
   - Document all API endpoints: `/api/ingresses`, `/api/ingresses/stream`, `/api/namespaces`, `/api/health`
   - Include request parameters, response schemas, and error responses
@@ -213,7 +208,7 @@ This implementation plan breaks down the production readiness improvements into 
   - Explain circuit breaker state transitions
   - _Requirements: 10.3_
 
-- [ ] 27. Enhance Pre-commit Configuration
+- [x] 27. Enhance Pre-commit Configuration
   - Update `.pre-commit-config.yaml` with additional hooks
   - Add TypeScript type checking hook
   - Add ESLint with auto-fix
@@ -243,14 +238,13 @@ This implementation plan breaks down the production readiness improvements into 
   - Add error logging and user-friendly error messages
   - _Requirements: 12.3_
 
-- [ ]* 31. Add Zod Schema Validation for Component Props
+- [ ]\* 31. Add Zod Schema Validation for Component Props
   - Install Zod library as dependency
   - Create Zod schemas for component props in `src/schemas/`
   - Add runtime prop validation in development mode
   - Log validation warnings when props don't match schema
   - Provide default values for optional props
   - _Requirements: 12.4, 12.5_
-
 
 ## Phase 7: Documentation Review
 
@@ -298,35 +292,35 @@ This implementation plan breaks down the production readiness improvements into 
 
 ## Testing Tasks (Optional)
 
-- [ ]* 37. Write Unit Tests for Error Handling
+- [ ]\* 37. Write Unit Tests for Error Handling
   - Write tests for error classification logic
   - Write tests for retry handler with various error scenarios
   - Write tests for circuit breaker state transitions
   - Achieve 80%+ coverage for error handling modules
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-- [ ]* 38. Write Unit Tests for Caching
+- [ ]\* 38. Write Unit Tests for Caching
   - Write tests for memory cache operations (get, set, delete, TTL expiration)
   - Write tests for request deduplication
   - Write tests for cache statistics tracking
   - Mock Redis client for Redis cache tests
   - _Requirements: 6.1, 6.2, 6.3, 6.4_
 
-- [ ]* 39. Write Unit Tests for Rate Limiting
+- [ ]\* 39. Write Unit Tests for Rate Limiting
   - Write tests for rate limiter token bucket algorithm
   - Write tests for rate limit exceeded scenarios
   - Write tests for Kubernetes API throttling
   - Verify correct HTTP 429 responses with Retry-After headers
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ]* 40. Write Integration Tests for Multi-Namespace SSE
+- [ ]\* 40. Write Integration Tests for Multi-Namespace SSE
   - Write tests for parallel namespace watching
   - Write tests for namespace switching
   - Write tests for individual namespace failure isolation
   - Mock Kubernetes watch API for testing
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ]* 41. Write Tests for Component Optimizations
+- [ ]\* 41. Write Tests for Component Optimizations
   - Write tests verifying React.memo prevents unnecessary re-renders
   - Write tests for virtual scrolling with large datasets
   - Write tests for loading skeleton components

@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
         {
           error: 'Permission denied',
           details: permissions.error || 'Insufficient permissions to access Kubernetes resources',
-          errorInfo
+          errorInfo,
         },
         { status: 403 }
       );
@@ -31,18 +31,17 @@ export async function GET(request: NextRequest) {
     let namespaces;
     try {
       const namespaceResponse = await kubeClient.getNamespaces();
-      namespaces = namespaceResponse.items.map(ns => ns.metadata?.name || '').filter(name => name);
+      namespaces = namespaceResponse.items
+        .map((ns) => ns.metadata?.name || '')
+        .filter((name) => name);
     } catch (k8sError: unknown) {
-      const errorInfo = ErrorHandler.handleKubernetesError(
-        k8sError,
-        'GET /api/namespaces'
-      );
+      const errorInfo = ErrorHandler.handleKubernetesError(k8sError, 'GET /api/namespaces');
 
       return NextResponse.json(
         {
           error: 'Failed to fetch namespaces from Kubernetes API',
           details: errorInfo.message,
-          errorInfo
+          errorInfo,
         },
         { status: 500 }
       );
@@ -51,22 +50,21 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       namespaces,
       timestamp: new Date().toISOString(),
-      count: namespaces.length
+      count: namespaces.length,
     });
   } catch (error: unknown) {
     const err = error as Error;
-    const errorInfo = ErrorHandler.handle(
-      err,
-      'GET /api/namespaces',
-      { userAgent: request.headers.get('user-agent') }
-    );
+    const errorInfo = ErrorHandler.handle(err, 'GET /api/namespaces', {
+      userAgent: request.headers.get('user-agent'),
+    });
 
     // For unknown errors, return a generic message to the client
     return NextResponse.json(
       {
         error: 'Internal server error',
-        details: process.env.NODE_ENV === 'development' ? err.message : 'An unexpected error occurred',
-        errorInfo
+        details:
+          process.env.NODE_ENV === 'development' ? err.message : 'An unexpected error occurred',
+        errorInfo,
       },
       { status: 500 }
     );

@@ -80,7 +80,7 @@ export interface ServerError extends BaseError {
 /**
  * Discriminated union of all possible API error types
  */
-export type ApiError = 
+export type ApiError =
   | NetworkError
   | AuthenticationError
   | AuthorizationError

@@ -1,11 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ],
-  "labels": [
-    "dependencies"
-  ],
+  "extends": ["config:recommended"],
+  "labels": ["dependencies"],
   "pinDigests": false,
   "enabled": true,
   "separateMajorMinor": true,
@@ -30,7 +26,11 @@
       "separateMajorMinor": true
     },
     {
-      "matchPackageNames": ["@docusaurus/core", "@docusaurus/preset-classic", "@docusaurus/theme-mermaid"],
+      "matchPackageNames": [
+        "@docusaurus/core",
+        "@docusaurus/preset-classic",
+        "@docusaurus/theme-mermaid"
+      ],
       "groupName": "Docusaurus dependencies",
       "matchPaths": ["docs-site/**"],
       "separateMajorMinor": true

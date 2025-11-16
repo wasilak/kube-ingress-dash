@@ -44,13 +44,7 @@ export function ThemeToggle() {
   };
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={cycleTheme}
-      title={getLabel()}
-      className="h-9 w-9"
-    >
+    <Button variant="ghost" size="icon" onClick={cycleTheme} title={getLabel()} className="h-9 w-9">
       {getIcon()}
       <span className="sr-only">{getLabel()}</span>
     </Button>

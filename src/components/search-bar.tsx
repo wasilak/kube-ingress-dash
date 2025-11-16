@@ -12,11 +12,11 @@ interface SearchBarProps {
   value?: string;
 }
 
-const SearchBarComponent: React.FC<SearchBarProps> = ({ 
-  onSearch, 
-  placeholder = 'Search ingresses...', 
+const SearchBarComponent: React.FC<SearchBarProps> = ({
+  onSearch,
+  placeholder = 'Search ingresses...',
   className = '',
-  value = ''
+  value = '',
 }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

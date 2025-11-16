@@ -30,11 +30,7 @@
     },
     "spec-workflow": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@pimzino/spec-workflow-mcp@latest",
-        "/Users/piotrek/git/kube-ingress-dash"
-      ],
+      "args": ["-y", "@pimzino/spec-workflow-mcp@latest", "/Users/piotrek/git/kube-ingress-dash"],
       "timeout": 5000,
       "trust": true
     },

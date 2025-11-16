@@ -1,0 +1,39 @@
+# Dependencies
+node_modules
+package-lock.json
+
+# Build outputs
+.next
+out
+dist
+build
+coverage
+
+# Cache
+.cache
+.turbo
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Generated files
+next-env.d.ts
+
+# Documentation site build
+docs-site/build
+docs-site/.docusaurus
+docs-site/node_modules
+
+# Spec workflow
+.spec-workflow
+
+# Serena cache
+.serena/cache
+
+# Git
+.git
