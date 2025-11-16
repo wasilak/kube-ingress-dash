@@ -172,30 +172,6 @@ Implements exponential backoff for transient errors:
 
 ## Performance Optimizations
 
-### Caching Layer
-
-The application implements a caching layer to reduce load on the Kubernetes API:
-
-- **Memory Cache**: Default, fast in-memory storage
-- **Redis Cache**: Optional, for distributed deployments
-- **TTL**: Configurable time-to-live (default: 5 minutes)
-
-### Request Deduplication
-
-Prevents duplicate concurrent requests to the same resource:
-
-- Tracks in-flight requests
-- Returns same promise for duplicate requests
-- Reduces API load during high traffic
-
-### Rate Limiting
-
-Protects both the application and Kubernetes API:
-
-- **Application Rate Limiting**: Limits requests per client
-- **Kubernetes API Throttling**: Prevents API overload
-- **Configurable Limits**: Adjust based on cluster size
-
 ### Virtual Scrolling
 
 Efficiently renders large lists of ingresses:
@@ -204,6 +180,14 @@ Efficiently renders large lists of ingresses:
 - Reduces DOM nodes and memory usage
 - Smooth scrolling with thousands of ingresses
 
+### Planned Optimizations
+
+The following performance optimizations are planned for future releases:
+
+- **Caching Layer**: Memory and Redis-based caching to reduce Kubernetes API load
+- **Request Deduplication**: Prevent duplicate concurrent requests
+- **Rate Limiting**: Protect application and Kubernetes API from overload
+
 ## Health Checks
 
 The application exposes a health check endpoint at `/api/health`:
@@ -211,11 +195,30 @@ The application exposes a health check endpoint at `/api/health`:
 ```typescript
 GET /api/health
 
-Response:
+Response (Healthy):
 {
   "status": "healthy",
-  "timestamp": "2024-01-15T10:30:00Z"
+  "timestamp": "2024-01-15T10:30:00Z",
+  "checks": {
+    "kubernetes": {
+      "status": "up",
+      "latency": 45
+    }
+  }
+}
+
+Response (Unhealthy):
+{
+  "status": "unhealthy",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "checks": {
+    "kubernetes": {
+      "status": "down",
+      "latency": 5000,
+      "error": "Failed to connect to Kubernetes API"
+    }
+  }
 }
 ```
 
-Used by Kubernetes liveness and readiness probes to ensure application health.
+The health check verifies Kubernetes API connectivity and is used by Kubernetes liveness and readiness probes.

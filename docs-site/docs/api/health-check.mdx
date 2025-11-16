@@ -24,16 +24,45 @@ GET /api/health
 ```json
 {
   "status": "healthy",
-  "timestamp": "2024-01-15T10:30:00.000Z"
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "checks": {
+    "kubernetes": {
+      "status": "up",
+      "latency": 45
+    }
+  }
+}
+```
+
+### Unhealthy Response
+
+**Status Code:** `503 Service Unavailable`
+
+**Response Body:**
+
+```json
+{
+  "status": "unhealthy",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "checks": {
+    "kubernetes": {
+      "status": "down",
+      "latency": 5000,
+      "error": "Failed to connect to Kubernetes API"
+    }
+  }
 }
 ```
 
 ### Response Fields
 
-| Field       | Type   | Description                                    |
-| ----------- | ------ | ---------------------------------------------- |
-| `status`    | string | Health status, always "healthy" if responding  |
-| `timestamp` | string | ISO 8601 timestamp of the health check        |
+| Field                      | Type   | Description                                           |
+| -------------------------- | ------ | ----------------------------------------------------- |
+| `status`                   | string | Overall health status: "healthy" or "unhealthy"       |
+| `timestamp`                | string | ISO 8601 timestamp of the health check               |
+| `checks.kubernetes.status` | string | Kubernetes API status: "up" or "down"                 |
+| `checks.kubernetes.latency`| number | Response time in milliseconds                         |
+| `checks.kubernetes.error`  | string | Error message (only present when status is "down")    |
 
 ## Usage
 
@@ -86,10 +115,12 @@ curl http://localhost:3000/api/health
 
 ## Behavior
 
-- The endpoint responds immediately without checking external dependencies
-- It verifies that the Next.js application is running and can handle requests
-- Does not check Kubernetes API connectivity (use ingress listing for that)
-- Lightweight and fast, suitable for frequent polling
+- The endpoint checks Kubernetes API connectivity by listing namespaces
+- Returns HTTP 200 when the Kubernetes API is reachable
+- Returns HTTP 503 when the Kubernetes API is unreachable
+- Includes latency metrics in the response
+- Has a 5-second timeout for health checks
+- Suitable for Kubernetes liveness and readiness probes
 
 ## Troubleshooting
 

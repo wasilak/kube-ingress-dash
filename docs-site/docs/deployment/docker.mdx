@@ -156,7 +156,7 @@ For production deployments, we recommend the following resource allocation:
 | Resource | Minimum | Recommended | Notes |
 |----------|---------|-------------|-------|
 | CPU | 100m | 250m | Scales with number of ingresses |
-| Memory | 128Mi | 256Mi | Increases with cache size |
+| Memory | 128Mi | 256Mi | Scales with number of ingresses |
 | Replicas | 1 | 2+ | For high availability |
 
 Adjust based on your cluster size and ingress count. Monitor resource usage and scale accordingly.

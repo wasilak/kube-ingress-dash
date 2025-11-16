@@ -88,13 +88,18 @@ KUBERNETES_REQUEST_TIMEOUT=30000
 
 ## Feature Flags
 
+:::info Planned Features
+The following feature flags are defined for future functionality but are not yet implemented. They are included in the configuration for forward compatibility.
+:::
+
 ### FEATURE_CACHING
 
 **Type:** `boolean`
 **Default:** `true`
 **Values:** `true`, `false`
+**Status:** 🚧 Planned
 
-Enable or disable caching layer.
+Enable or disable caching layer (planned feature).
 
 ```bash
 FEATURE_CACHING=true
@@ -105,8 +110,9 @@ FEATURE_CACHING=true
 **Type:** `boolean`
 **Default:** `true`
 **Values:** `true`, `false`
+**Status:** 🚧 Planned
 
-Enable or disable rate limiting.
+Enable or disable rate limiting (planned feature).
 
 ```bash
 FEATURE_RATE_LIMITING=true
@@ -144,12 +150,17 @@ LOG_FORMAT=pretty
 
 ## Rate Limiting Configuration
 
+:::info Planned Features
+Rate limiting functionality is planned but not yet implemented. These configuration options are reserved for future use.
+:::
+
 ### RATE_LIMIT_WINDOW_MS
 
 **Type:** `number` (milliseconds)
 **Default:** `60000` (1 minute)
+**Status:** 🚧 Planned
 
-Time window for rate limiting.
+Time window for rate limiting (planned feature).
 
 ```bash
 RATE_LIMIT_WINDOW_MS=60000
@@ -159,8 +170,9 @@ RATE_LIMIT_WINDOW_MS=60000
 
 **Type:** `number`
 **Default:** `100`
+**Status:** 🚧 Planned
 
-Maximum requests per window per client.
+Maximum requests per window per client (planned feature).
 
 ```bash
 RATE_LIMIT_MAX_REQUESTS=100
@@ -170,8 +182,9 @@ RATE_LIMIT_MAX_REQUESTS=100
 
 **Type:** `number` (milliseconds)
 **Default:** `100`
+**Status:** 🚧 Planned
 
-Minimum time between Kubernetes API requests.
+Minimum time between Kubernetes API requests (planned feature).
 
 ```bash
 K8S_THROTTLE_MS=100
@@ -179,13 +192,18 @@ K8S_THROTTLE_MS=100
 
 ## Caching Configuration
 
+:::info Planned Features
+Caching functionality is planned but not yet implemented. These configuration options are reserved for future use.
+:::
+
 ### CACHE_TYPE
 
 **Type:** `string`
 **Default:** `memory`
 **Values:** `memory`, `redis`
+**Status:** 🚧 Planned
 
-Type of cache to use.
+Type of cache to use (planned feature).
 
 ```bash
 # In-memory cache (default)
@@ -199,8 +217,9 @@ CACHE_TYPE=redis
 
 **Type:** `number` (seconds)
 **Default:** `300` (5 minutes)
+**Status:** 🚧 Planned
 
-Time-to-live for cached data.
+Time-to-live for cached data (planned feature).
 
 ```bash
 CACHE_TTL=300
@@ -210,8 +229,9 @@ CACHE_TTL=300
 
 **Type:** `string`
 **Default:** `redis://localhost:6379`
+**Status:** 🚧 Planned
 
-Redis connection URL (only used when `CACHE_TYPE=redis`).
+Redis connection URL (planned feature, only used when `CACHE_TYPE=redis`).
 
 ```bash
 REDIS_URL=redis://localhost:6379
@@ -268,42 +288,6 @@ PORT=3000
 LOG_LEVEL=info
 LOG_FORMAT=json
 KUBERNETES_IN_CLUSTER=true
-FEATURE_CACHING=true
-FEATURE_RATE_LIMITING=true
-CACHE_TYPE=memory
-CACHE_TTL=300
-```
-
-### Production (Redis Cache)
-
-```bash
-NODE_ENV=production
-PORT=3000
-LOG_LEVEL=info
-LOG_FORMAT=json
-KUBERNETES_IN_CLUSTER=true
-FEATURE_CACHING=true
-CACHE_TYPE=redis
-REDIS_URL=redis://redis-service:6379
-CACHE_TTL=300
-```
-
-### High-Traffic Production
-
-```bash
-NODE_ENV=production
-PORT=3000
-LOG_LEVEL=warn
-LOG_FORMAT=json
-KUBERNETES_IN_CLUSTER=true
-FEATURE_CACHING=true
-FEATURE_RATE_LIMITING=true
-CACHE_TYPE=redis
-REDIS_URL=redis://redis-service:6379
-CACHE_TTL=600
-RATE_LIMIT_WINDOW_MS=60000
-RATE_LIMIT_MAX_REQUESTS=200
-K8S_THROTTLE_MS=50
 ```
 
 ## Kubernetes ConfigMap
@@ -320,10 +304,6 @@ data:
   PORT: '3000'
   LOG_LEVEL: 'info'
   LOG_FORMAT: 'json'
-  FEATURE_CACHING: 'true'
-  FEATURE_RATE_LIMITING: 'true'
-  CACHE_TYPE: 'memory'
-  CACHE_TTL: '300'
 ```
 
 Reference in deployment:
@@ -339,7 +319,7 @@ spec:
 
 ## Kubernetes Secrets
 
-For sensitive values like Redis passwords:
+For sensitive configuration values, use Kubernetes Secrets:
 
 ```yaml
 apiVersion: v1
@@ -348,7 +328,8 @@ metadata:
   name: kube-ingress-dash-secrets
 type: Opaque
 stringData:
-  REDIS_URL: 'redis://:password@redis-service:6379'
+  # Add sensitive configuration here
+  # Example: API_KEY: 'your-secret-key'
 ```
 
 Reference in deployment:

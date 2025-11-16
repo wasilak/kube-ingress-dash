@@ -12,10 +12,14 @@ kube-ingress-dash implements comprehensive error handling to provide a reliable 
 The error handling system consists of multiple layers:
 
 1. **Error Classification** - Categorizes errors as transient or permanent
-2. **Retry Logic** - Automatically retries transient errors with exponential backoff
-3. **Circuit Breaker** - Prevents cascading failures during outages
+2. **Retry Logic** - Automatically retries transient errors with exponential backoff (implemented)
+3. **Circuit Breaker** - Prevents cascading failures during outages (implemented)
 4. **Error Boundaries** - Catches and displays UI errors gracefully
 5. **User Feedback** - Provides clear, actionable error messages
+
+:::info Implementation Status
+The core error handling infrastructure (classification, retry logic, and circuit breaker) has been implemented. Integration with all API routes is ongoing.
+:::
 
 ## Error Classification
 
@@ -293,21 +297,18 @@ Errors are logged with context for debugging:
 
 ## Configuration
 
-Error handling behavior can be configured via environment variables:
+:::info
+Error handling configuration is currently hardcoded in the implementation. Environment variable configuration is planned for a future release.
+:::
 
-```bash
-# Retry configuration
-RETRY_MAX_ATTEMPTS=3
-RETRY_INITIAL_DELAY=1000
-RETRY_MAX_DELAY=30000
+Current default configuration:
 
-# Circuit breaker configuration
-CIRCUIT_BREAKER_FAILURE_THRESHOLD=0.5
-CIRCUIT_BREAKER_WINDOW_SIZE=30000
-CIRCUIT_BREAKER_OPEN_TIMEOUT=60000
-```
-
-See [Environment Variables](../configuration/environment-variables.mdx) for details.
+- **Retry attempts:** 3
+- **Initial delay:** 1000ms
+- **Max delay:** 30000ms
+- **Circuit breaker failure threshold:** 50%
+- **Circuit breaker window:** 30 seconds
+- **Circuit breaker timeout:** 60 seconds
 
 ## Related Documentation
 
