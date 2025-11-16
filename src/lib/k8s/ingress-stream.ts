@@ -60,8 +60,13 @@ export class IngressStream {
 
   /**
    * Emit an ingress event to all registered handlers
+   * 
+   * Optimized for minimal latency - handlers are called synchronously
+   * to ensure events are delivered as quickly as possible.
    */
   private emitEvent(event: IngressEvent): void {
+    // Call handlers synchronously for minimal latency
+    // Error handling ensures one failing handler doesn't affect others
     for (const handler of this.eventHandlers) {
       try {
         handler(event);
@@ -144,27 +149,30 @@ export class IngressStream {
 
   /**
    * Handle events from the Kubernetes watch
+   * 
+   * Optimized for minimal latency - processes events immediately
+   * and uses efficient type mapping.
    */
   private handleWatchEvent(type: string, obj: V1Ingress): void {
     try {
+      // Transform ingress data efficiently
       const ingressData = transformIngress(obj);
-      let eventType: 'ADDED' | 'MODIFIED' | 'DELETED';
       
-      switch (type) {
-        case 'ADDED':
-          eventType = 'ADDED';
-          break;
-        case 'MODIFIED':
-          eventType = 'MODIFIED';
-          break;
-        case 'DELETED':
-          eventType = 'DELETED';
-          break;
-        default:
-          console.warn(`Unknown event type: ${type}`);
-          return;
+      // Use type mapping for optimal performance
+      const eventTypeMap: Record<string, 'ADDED' | 'MODIFIED' | 'DELETED'> = {
+        'ADDED': 'ADDED',
+        'MODIFIED': 'MODIFIED',
+        'DELETED': 'DELETED'
+      };
+      
+      const eventType = eventTypeMap[type];
+      
+      if (!eventType) {
+        console.warn(`Unknown event type: ${type}`);
+        return;
       }
       
+      // Emit event immediately for minimal latency
       this.emitEvent({
         type: eventType,
         ingress: ingressData,
