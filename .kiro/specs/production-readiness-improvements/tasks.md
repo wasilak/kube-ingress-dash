@@ -60,7 +60,7 @@ This implementation plan breaks down the production readiness improvements into 
 
 ## Phase 3: Performance (Caching & Rate Limiting)
 
-- [ ] 7. Implement Cache Interface and Memory Cache
+- [ ]* 7. Implement Cache Interface and Memory Cache
   - Create `src/lib/cache/index.ts` with `Cache` interface definition
   - Create `src/lib/cache/memory-cache.ts` implementing in-memory cache with Map
   - Implement `get()`, `set()`, `delete()`, and `clear()` methods
@@ -68,7 +68,7 @@ This implementation plan breaks down the production readiness improvements into 
   - Track cache statistics (hits, misses, size, evictions)
   - _Requirements: 6.1, 6.3_
 
-- [ ] 8. Implement Redis Cache (Optional)
+- [ ]* 8. Implement Redis Cache (Optional)
   - Create `src/lib/cache/redis-cache.ts` implementing Redis-based cache
   - Use Redis client library for connection management
   - Implement same `Cache` interface as memory cache
@@ -76,42 +76,42 @@ This implementation plan breaks down the production readiness improvements into 
   - Make Redis cache available when `CACHE_TYPE=redis` is configured
   - _Requirements: 6.4_
 
-- [ ] 9. Implement Request Deduplication
+- [ ]* 9. Implement Request Deduplication
   - Create `src/lib/cache/deduplicator.ts` with request deduplication logic
   - Implement `RequestDeduplicator` class that tracks pending requests
   - Add `deduplicate()` method that returns existing promise for duplicate requests
   - Clean up completed requests from tracking map
   - _Requirements: 6.2_
 
-- [ ] 10. Integrate Caching into API Routes
+- [ ]* 10. Integrate Caching into API Routes
   - Update `src/app/api/namespaces/route.ts` to use cache for namespace list
   - Set 5-minute TTL for namespace cache
   - Add cache status header to responses (HIT/MISS)
   - Integrate request deduplication for concurrent requests
   - _Requirements: 6.1, 6.2, 6.5_
 
-- [ ] 11. Implement Rate Limiting System
+- [ ]* 11. Implement Rate Limiting System
   - Create `src/lib/rate-limiter/index.ts` with token bucket algorithm
   - Implement `RateLimiter` class with configurable window and max requests
   - Add per-client tracking using IP address from request headers
   - Implement `check()` method returning allowed status, remaining count, and reset time
   - _Requirements: 4.1, 4.2, 4.4_
 
-- [ ] 12. Implement Kubernetes API Throttling
+- [ ]* 12. Implement Kubernetes API Throttling
   - Create `src/lib/rate-limiter/k8s-throttler.ts` for Kubernetes API request throttling
   - Implement `KubernetesThrottler` class with queue-based throttling
   - Add configurable minimum delay between requests (default 100ms)
   - Implement `throttle()` method that wraps Kubernetes API calls
   - _Requirements: 4.3_
 
-- [ ] 13. Integrate Rate Limiting into API Routes
+- [ ]* 13. Integrate Rate Limiting into API Routes
   - Update all API routes to use rate limiter before processing requests
   - Return HTTP 429 with Retry-After header when rate limit exceeded
   - Log rate limit events with client identifier
   - Apply different rate limits to different endpoints if needed
   - _Requirements: 4.1, 4.5_
 
-- [ ] 14. Update Kubernetes Client with Throttling
+- [ ]* 14. Update Kubernetes Client with Throttling
   - Modify `src/lib/k8s/client.ts` to integrate Kubernetes API throttling
   - Wrap all Kubernetes API calls with throttler
   - Ensure throttling applies to both read and watch operations
@@ -120,7 +120,7 @@ This implementation plan breaks down the production readiness improvements into 
 
 ## Phase 4: Features (Multi-Namespace SSE)
 
-- [ ] 15. Implement Multi-Namespace Stream Manager
+- [x] 15. Implement Multi-Namespace Stream Manager
   - Create `src/lib/k8s/multi-namespace-stream.ts` with stream manager class
   - Implement `MultiNamespaceStreamManager` class with Map to track namespace watchers
   - Add `startWatching()` method to create parallel watch connections for multiple namespaces
@@ -199,7 +199,7 @@ This implementation plan breaks down the production readiness improvements into 
   - Include parameter descriptions, return types, throws declarations, and examples
   - _Requirements: 10.1_
 
-- [ ] 25. Create OpenAPI Documentation for API Endpoints
+- [ ]* 25. Create OpenAPI Documentation for API Endpoints
   - Create `docs-site/docs/api/openapi.yaml` with OpenAPI 3.0 specification
   - Document all API endpoints: `/api/ingresses`, `/api/ingresses/stream`, `/api/namespaces`, `/api/health`
   - Include request parameters, response schemas, and error responses
@@ -243,7 +243,7 @@ This implementation plan breaks down the production readiness improvements into 
   - Add error logging and user-friendly error messages
   - _Requirements: 12.3_
 
-- [ ] 31. Add Zod Schema Validation for Component Props
+- [ ]* 31. Add Zod Schema Validation for Component Props
   - Install Zod library as dependency
   - Create Zod schemas for component props in `src/schemas/`
   - Add runtime prop validation in development mode
