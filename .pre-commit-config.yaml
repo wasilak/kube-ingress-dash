@@ -36,7 +36,7 @@ repos:
         files: \.(ts|tsx)$
         exclude: \.(test|spec)\.(ts|tsx)$
         pass_filenames: false
-        stages: [commit]
+        stages: [pre-commit]
 
       - id: eslint
         name: ESLint with Auto-fix
@@ -44,7 +44,7 @@ repos:
         language: system
         files: \.(ts|tsx|js|jsx)$
         pass_filenames: false
-        stages: [commit]
+        stages: [pre-commit]
 
       - id: prettier
         name: Prettier Format Check
@@ -52,4 +52,4 @@ repos:
         language: system
         files: \.(ts|tsx|js|jsx|json|md)$
         pass_filenames: false
-        stages: [commit]
+        stages: [pre-commit]
