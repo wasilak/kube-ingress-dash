@@ -34,8 +34,6 @@ jobs:
 
       - name: Setup ORAS
         uses: oras-project/setup-oras@v1
-        with:
-          version: "latest"
 
       - name: Log into Helm registry
         run: |
