@@ -4,7 +4,11 @@ const sidebars = {
     {
       type: 'category',
       label: 'Architecture',
-      items: ['architecture/interaction-with-kubernetes', 'architecture/rbac-setup'],
+      items: [
+        'architecture/interaction-with-kubernetes',
+        'architecture/rbac-setup',
+        'architecture/production-features',
+      ],
     },
     {
       type: 'category',

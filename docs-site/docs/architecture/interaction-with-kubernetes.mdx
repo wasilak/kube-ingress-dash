@@ -62,7 +62,9 @@ sequenceDiagram
 
 ## Multi-Namespace Streaming
 
-The application supports real-time streaming of ingress resources across multiple namespaces using Server-Sent Events (SSE):
+The application supports real-time streaming of ingress resources across multiple namespaces using Server-Sent Events (SSE).
+
+For comprehensive architecture diagrams including detailed sequence flows, error isolation patterns, and event aggregation, see the [Production Features Architecture](./production-features.mdx#multi-namespace-sse-streaming) documentation.
 
 ```mermaid
 graph LR
@@ -100,7 +102,9 @@ graph LR
 
 ## Error Handling Architecture
 
-The application implements comprehensive error handling with multiple layers:
+The application implements comprehensive error handling with multiple layers.
+
+For detailed architecture diagrams including complete error handling flow, circuit breaker state machine, error classification decision tree, and retry timing diagrams, see the [Production Features Architecture](./production-features.mdx#error-handling-with-retry-and-circuit-breaker) documentation.
 
 ```mermaid
 sequenceDiagram
@@ -180,13 +184,18 @@ Efficiently renders large lists of ingresses:
 - Reduces DOM nodes and memory usage
 - Smooth scrolling with thousands of ingresses
 
-### Planned Optimizations
+### Caching and Rate Limiting
 
-The following performance optimizations are planned for future releases:
+The application implements caching and rate limiting to optimize performance and protect resources.
 
+For detailed architecture diagrams including caching layer architecture, request deduplication flow, rate limiting with token bucket algorithm, and Kubernetes API throttling, see the [Production Features Architecture](./production-features.mdx#caching-and-rate-limiting-architecture) documentation.
+
+Key features:
 - **Caching Layer**: Memory and Redis-based caching to reduce Kubernetes API load
 - **Request Deduplication**: Prevent duplicate concurrent requests
 - **Rate Limiting**: Protect application and Kubernetes API from overload
+- **Token Bucket Algorithm**: Fair rate limiting per client
+- **Kubernetes API Throttling**: Prevent cluster overload
 
 ## Health Checks
 
