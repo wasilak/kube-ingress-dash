@@ -1,0 +1,776 @@
+---
+sidebar_position: 1
+title: 'Error Code Reference'
+---
+
+# Error Code Reference
+
+This reference guide documents all error types, categories, and HTTP status codes used in kube-ingress-dash. Understanding these error codes helps with troubleshooting and debugging issues.
+
+## Error Categories
+
+All errors in kube-ingress-dash are classified into one of five categories. Each category determines how the error is handled and whether it should be retried.
+
+### Transient Errors
+
+**Category:** `transient`
+**Retryable:** Yes
+**Description:** Temporary failures that may succeed on retry.
+
+Transient errors are automatically retried with exponential backoff (100ms, 200ms, 400ms). These errors typically indicate temporary network issues or service unavailability.
+
+**Common Causes:**
+- Network timeouts
+- Connection refused
+- DNS resolution failures
+- Temporary service unavailability
+- Server overload
+
+**User Action:** Wait and retry. The application will automatically retry these errors.
+
+---
+
+### Permanent Errors
+
+**Category:** `permanent`
+**Retryable:** No
+**Description:** Failures that won't succeed on retry without changes.
+
+Permanent errors indicate issues that require intervention to resolve. These errors are returned immediately to the user without retry attempts.
+
+**Common Causes:**
+- Invalid request format
+- Resource not found
+- Bad request parameters
+- Configuration errors
+
+**User Action:** Review the error message and correct the issue before retrying.
+
+---
+
+### Rate Limit Errors
+
+**Category:** `rate_limit`
+**Retryable:** Yes (after delay)
+**Description:** Too many requests sent in a given time period.
+
+Rate limit errors occur when the request rate exceeds configured limits. The application will retry after the specified delay period.
+
+**Common Causes:**
+- Exceeding API rate limits
+- Too many concurrent requests
+- Kubernetes API throttling
+
+**User Action:** Wait for the specified retry period. The application will automatically retry.
+
+---
+
+### Authentication Errors
+
+**Category:** `authentication`
+**Retryable:** No
+**Description:** Invalid or missing credentials.
+
+Authentication errors indicate that the provided credentials are invalid, expired, or missing. These require re-authentication or credential updates.
+
+**Common Causes:**
+- Invalid service account token
+- Expired credentials
+- Missing authentication headers
+- Invalid kubeconfig
+
+**User Action:** Verify credentials and re-authenticate. See [RBAC Setup Guide](../architecture/rbac-setup.mdx).
+
+---
+
+### Authorization Errors
+
+**Category:** `authorization`
+**Retryable:** No
+**Description:** Insufficient permissions to access the resource.
+
+Authorization errors indicate that the authenticated user lacks the necessary permissions. These require RBAC configuration changes.
+
+**Common Causes:**
+- Missing ClusterRole permissions
+- Incorrect ClusterRoleBinding
+- Namespace access restrictions
+- Resource-level permission issues
+
+**User Action:** Review and update RBAC configuration. See [RBAC Setup Guide](../architecture/rbac-setup.mdx).
+
+## HTTP Status Codes
+
+### 2xx Success Codes
+
+#### 200 OK
+
+**Category:** N/A (Success)
+**Retryable:** N/A
+**Description:** Request succeeded.
+
+**Example Response:**
+```json
+{
+  "ingresses": [
+    {
+      "name": "example-ingress",
+      "namespace": "default",
+      "hosts": ["example.com"]
+    }
+  ]
+}
+```
+
+---
+
+### 4xx Client Error Codes
+
+#### 400 Bad Request
+
+**Category:** `permanent`
+**Retryable:** No
+**Description:** The request was malformed or contains invalid parameters.
+
+**Common Causes:**
+- Invalid JSON in request body
+- Missing required parameters
+- Invalid parameter values
+- Malformed query strings
+
+**Example Response:**
+```json
+{
+  "error": "Bad Request",
+  "message": "Invalid namespace parameter",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "retryable": false
+}
+```
+
+**Troubleshooting:**
+1. Verify request parameters are correct
+2. Check JSON syntax if sending request body
+3. Review API documentation for required parameters
+4. Validate parameter types and formats
+
+---
+
+#### 401 Unauthorized
+
+**Category:** `authentication`
+**Retryable:** No
+**Description:** Authentication credentials are missing or invalid.
+
+**Common Causes:**
+- Missing service account token
+- Expired authentication token
+- Invalid kubeconfig
+- Missing authentication headers
+
+**Example Response:**
+```json
+{
+  "error": "Unauthorized",
+  "message": "Authentication failed. Please check your credentials and try again.",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "retryable": false
+}
+```
+
+**Troubleshooting:**
+1. Verify service account exists and is mounted
+2. Check token expiration
+3. Validate kubeconfig configuration
+4. Ensure authentication headers are present
+5. Review [RBAC Setup Guide](../architecture/rbac-setup.mdx)
+
+**Documentation:** [RBAC Setup Guide](../architecture/rbac-setup.mdx)
+
+---
+
+#### 403 Forbidden
+
+**Category:** `authorization`
+**Retryable:** No
+**Description:** The authenticated user lacks permission to access the resource.
+
+**Common Causes:**
+- Missing ClusterRole permissions
+- Incorrect ClusterRoleBinding
+- ServiceAccount not bound to ClusterRole
+- Namespace-level access restrictions
+
+**Example Response:**
+```json
+{
+  "error": "Forbidden",
+  "message": "You don't have permission to access this resource. Please contact your administrator.",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "retryable": false
+}
+```
+
+**Troubleshooting:**
+1. Verify ClusterRole includes required permissions:
+   - `ingresses` (get, list, watch)
+   - `namespaces` (get, list)
+2. Check ClusterRoleBinding references correct ServiceAccount
+3. Ensure ServiceAccount is mounted in pod
+4. Review namespace access restrictions
+5. Check for resource-level RBAC policies
+
+**Required Permissions:**
+```yaml
+rules:
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list"]
+```
+
+**Documentation:** [RBAC Setup Guide](../architecture/rbac-setup.mdx)
+
+---
+
+#### 404 Not Found
+
+**Category:** `permanent`
+**Retryable:** No
+**Description:** The requested resource does not exist.
+
+**Common Causes:**
+- Invalid namespace name
+- Ingress resource deleted
+- Incorrect API endpoint
+- Resource not yet created
+
+**Example Response:**
+```json
+{
+  "error": "Not Found",
+  "message": "The requested resource was not found.",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "retryable": false
+}
+```
+
+**Troubleshooting:**
+1. Verify resource name is correct
+2. Check namespace exists
+3. Confirm resource was created successfully
+4. Validate API endpoint path
+5. Check for typos in resource names
+
+---
+
+#### 429 Too Many Requests
+
+**Category:** `rate_limit`
+**Retryable:** Yes
+**Description:** Request rate limit exceeded.
+
+**Common Causes:**
+- Too many requests in short time period
+- Kubernetes API rate limiting
+- Application rate limiter triggered
+- Concurrent request limit exceeded
+
+**Example Response:**
+```json
+{
+  "error": "Too Many Requests",
+  "message": "Too many requests. Please wait a moment and try again.",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "retryable": true,
+  "retryAfter": 60
+}
+```
+
+**Response Headers:**
+```
+Retry-After: 60
+```
+
+**Troubleshooting:**
+1. Wait for the specified retry period
+2. Reduce request frequency
+3. Implement client-side rate limiting
+4. Check for request loops
+5. Review rate limit configuration
+
+**Configuration:**
+```bash
+# Environment variables
+RATE_LIMIT_WINDOW_MS=60000      # 60 seconds
+RATE_LIMIT_MAX_REQUESTS=100     # 100 requests per window
+K8S_THROTTLE_MS=100             # 100ms between K8s API calls
+```
+
+**Documentation:** [Kubernetes API Interaction](../architecture/interaction-with-kubernetes.mdx)
+
+---
+
+### 5xx Server Error Codes
+
+#### 500 Internal Server Error
+
+**Category:** `transient`
+**Retryable:** Yes
+**Description:** An unexpected error occurred on the server.
+
+**Common Causes:**
+- Unhandled exceptions
+- Database errors
+- Configuration errors
+- Resource exhaustion
+
+**Example Response:**
+```json
+{
+  "error": "Internal Server Error",
+  "message": "A temporary error occurred. Please try again.",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "retryable": true
+}
+```
+
+**Troubleshooting:**
+1. Check application logs for stack traces
+2. Verify configuration is correct
+3. Check resource limits (CPU, memory)
+4. Review recent deployments
+5. Monitor error frequency
+
+---
+
+#### 502 Bad Gateway
+
+**Category:** `transient`
+**Retryable:** Yes
+**Description:** Invalid response from upstream server.
+
+**Common Causes:**
+- Kubernetes API unavailable
+- Network connectivity issues
+- Proxy configuration errors
+- Upstream service timeout
+
+**Example Response:**
+```json
+{
+  "error": "Bad Gateway",
+  "message": "A temporary error occurred. Please try again.",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "retryable": true
+}
+```
+
+**Troubleshooting:**
+1. Check Kubernetes API health
+2. Verify network connectivity
+3. Review proxy configuration
+4. Check upstream service status
+5. Monitor network latency
+
+---
+
+#### 503 Service Unavailable
+
+**Category:** `transient`
+**Retryable:** Yes
+**Description:** Service is temporarily unavailable.
+
+**Common Causes:**
+- Kubernetes API maintenance
+- Service overload
+- Circuit breaker open
+- Resource limits reached
+
+**Example Response:**
+```json
+{
+  "error": "Service Unavailable",
+  "message": "A temporary error occurred. Please try again.",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "retryable": true
+}
+```
+
+**Troubleshooting:**
+1. Check Kubernetes API status
+2. Verify service health
+3. Review circuit breaker state
+4. Check resource utilization
+5. Monitor service logs
+
+**Related:** [Circuit Breaker Documentation](../features/error-handling.mdx#circuit-breaker)
+
+---
+
+#### 504 Gateway Timeout
+
+**Category:** `transient`
+**Retryable:** Yes
+**Description:** Upstream server did not respond in time.
+
+**Common Causes:**
+- Kubernetes API slow response
+- Network latency
+- Timeout configuration too low
+- Resource contention
+
+**Example Response:**
+```json
+{
+  "error": "Gateway Timeout",
+  "message": "A temporary error occurred. Please try again.",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "retryable": true
+}
+```
+
+**Troubleshooting:**
+1. Check Kubernetes API response times
+2. Increase timeout configuration
+3. Review network latency
+4. Check for resource contention
+5. Monitor API performance
+
+**Configuration:**
+```bash
+KUBERNETES_REQUEST_TIMEOUT=30000  # 30 seconds
+```
+
+---
+
+## Network Error Codes
+
+### ETIMEDOUT
+
+**Category:** `transient`
+**Retryable:** Yes
+**Description:** Request timed out.
+
+**Common Causes:**
+- Network latency
+- Slow Kubernetes API response
+- Firewall blocking requests
+- DNS resolution delays
+
+**Example Error:**
+```
+Error: Request timeout
+Code: ETIMEDOUT
+```
+
+**Troubleshooting:**
+1. Check network connectivity
+2. Verify firewall rules
+3. Test DNS resolution
+4. Increase timeout values
+5. Monitor network latency
+
+---
+
+### ECONNREFUSED
+
+**Category:** `transient`
+**Retryable:** Yes
+**Description:** Connection refused by server.
+
+**Common Causes:**
+- Kubernetes API not running
+- Incorrect API server address
+- Port not accessible
+- Service not listening
+
+**Example Error:**
+```
+Error: Connection refused
+Code: ECONNREFUSED
+```
+
+**Troubleshooting:**
+1. Verify Kubernetes API is running
+2. Check API server address
+3. Verify port is correct
+4. Check firewall rules
+5. Test connectivity with curl/telnet
+
+---
+
+### ENOTFOUND
+
+**Category:** `transient`
+**Retryable:** Yes
+**Description:** DNS lookup failed.
+
+**Common Causes:**
+- Invalid hostname
+- DNS server unavailable
+- Network connectivity issues
+- DNS configuration errors
+
+**Example Error:**
+```
+Error: DNS lookup failed
+Code: ENOTFOUND
+```
+
+**Troubleshooting:**
+1. Verify hostname is correct
+2. Check DNS server configuration
+3. Test DNS resolution with nslookup/dig
+4. Verify network connectivity
+5. Check /etc/resolv.conf
+
+---
+
+### ECONNRESET
+
+**Category:** `transient`
+**Retryable:** Yes
+**Description:** Connection reset by peer.
+
+**Common Causes:**
+- Network interruption
+- Server restart
+- Firewall dropping connections
+- Load balancer issues
+
+**Example Error:**
+```
+Error: Connection reset by peer
+Code: ECONNRESET
+```
+
+**Troubleshooting:**
+1. Check network stability
+2. Verify server is running
+3. Review firewall logs
+4. Check load balancer health
+5. Monitor connection patterns
+
+---
+
+## Error Response Format
+
+All API errors follow a consistent response format:
+
+```typescript
+interface ErrorResponse {
+  error: string;           // Error type/name
+  message: string;         // User-friendly message
+  details?: string;        // Additional details
+  timestamp: string;       // ISO 8601 timestamp
+  requestId?: string;      // Request tracking ID
+  retryable: boolean;      // Whether error can be retried
+  retryAfter?: number;     // Seconds to wait before retry
+}
+```
+
+### Example Error Response
+
+```json
+{
+  "error": "Forbidden",
+  "message": "You don't have permission to access this resource. Please contact your administrator.",
+  "details": "Missing required permission: ingresses.list",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "requestId": "req_abc123",
+  "retryable": false
+}
+```
+
+## Retry Behavior
+
+### Automatic Retry
+
+Transient errors are automatically retried with exponential backoff:
+
+| Attempt | Delay | Total Time |
+|---------|-------|------------|
+| 1       | 0ms   | 0ms        |
+| 2       | 100ms | 100ms      |
+| 3       | 200ms | 300ms      |
+| 4       | 400ms | 700ms      |
+
+**Maximum Attempts:** 3 retries (4 total attempts)
+**Maximum Delay:** 5000ms
+
+### Non-Retryable Errors
+
+The following errors are never retried:
+- Authentication errors (401)
+- Authorization errors (403)
+- Not found errors (404)
+- Bad request errors (400)
+- Other permanent errors
+
+## Circuit Breaker
+
+When error rates exceed thresholds, the circuit breaker opens to prevent cascading failures.
+
+### States
+
+- **Closed:** Normal operation, all requests pass through
+- **Open:** Failing fast, requests rejected immediately
+- **Half-Open:** Testing recovery with limited requests
+
+### Configuration
+
+```typescript
+{
+  failureThreshold: 0.5,    // Open at 50% failure rate
+  windowSize: 30000,        // 30-second window
+  openTimeout: 60000        // Wait 60s before testing recovery
+}
+```
+
+### Circuit Breaker Errors
+
+When the circuit breaker is open, requests fail immediately with:
+
+```json
+{
+  "error": "Service Unavailable",
+  "message": "Service is temporarily unavailable due to high error rate",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "retryable": true
+}
+```
+
+**Documentation:** [Circuit Breaker Details](../features/error-handling.mdx#circuit-breaker)
+
+## Monitoring and Debugging
+
+### Error Logging
+
+All errors are logged with context:
+
+```json
+{
+  "level": "error",
+  "message": "Kubernetes API request failed",
+  "error": {
+    "code": "ETIMEDOUT",
+    "message": "Request timeout",
+    "statusCode": null,
+    "category": "transient",
+    "retryable": true
+  },
+  "context": {
+    "operation": "listIngresses",
+    "namespace": "default",
+    "attempt": 2,
+    "timestamp": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+
+### Health Check
+
+Use the health check endpoint to verify system status:
+
+```bash
+curl http://localhost:3000/api/health
+```
+
+**Documentation:** [Health Check API](../api/health-check.mdx)
+
+### Metrics
+
+Monitor these error-related metrics:
+
+- **Error rate:** Percentage of failed requests
+- **Error distribution:** Count by error category
+- **Retry attempts:** Number of retries per request
+- **Circuit breaker state:** Current state and transitions
+
+## Common Error Scenarios
+
+### Scenario 1: Permission Denied
+
+**Error:** 403 Forbidden
+**Category:** Authorization
+**Cause:** Missing RBAC permissions
+
+**Solution:**
+1. Review [RBAC Setup Guide](../architecture/rbac-setup.mdx)
+2. Verify ClusterRole includes required permissions
+3. Check ClusterRoleBinding configuration
+4. Ensure ServiceAccount is correctly mounted
+
+---
+
+### Scenario 2: Connection Timeout
+
+**Error:** ETIMEDOUT
+**Category:** Transient
+**Cause:** Network latency or slow API response
+
+**Solution:**
+1. Check network connectivity
+2. Verify Kubernetes API health
+3. Increase timeout configuration
+4. Monitor network latency
+5. Review resource utilization
+
+---
+
+### Scenario 3: Rate Limit Exceeded
+
+**Error:** 429 Too Many Requests
+**Category:** Rate Limit
+**Cause:** Too many requests in short period
+
+**Solution:**
+1. Wait for retry period
+2. Implement client-side rate limiting
+3. Reduce request frequency
+4. Check for request loops
+5. Review rate limit configuration
+
+---
+
+### Scenario 4: Service Unavailable
+
+**Error:** 503 Service Unavailable
+**Category:** Transient
+**Cause:** Circuit breaker open or service overload
+
+**Solution:**
+1. Wait for automatic recovery
+2. Check Kubernetes API health
+3. Review circuit breaker state
+4. Monitor resource utilization
+5. Check application logs
+
+## Related Documentation
+
+- [Error Handling Architecture](../features/error-handling.mdx)
+- [RBAC Setup Guide](../architecture/rbac-setup.mdx)
+- [Kubernetes API Interaction](../architecture/interaction-with-kubernetes.mdx)
+- [Health Check API](../api/health-check.mdx)
+- [Production Features](../architecture/production-features.mdx)
+
+## Quick Reference
+
+| Status Code | Category | Retryable | Common Cause |
+|-------------|----------|-----------|--------------|
+| 400 | Permanent | No | Invalid request |
+| 401 | Authentication | No | Invalid credentials |
+| 403 | Authorization | No | Missing permissions |
+| 404 | Permanent | No | Resource not found |
+| 429 | Rate Limit | Yes | Too many requests |
+| 500 | Transient | Yes | Server error |
+| 502 | Transient | Yes | Bad gateway |
+| 503 | Transient | Yes | Service unavailable |
+| 504 | Transient | Yes | Gateway timeout |
+| ETIMEDOUT | Transient | Yes | Request timeout |
+| ECONNREFUSED | Transient | Yes | Connection refused |
+| ENOTFOUND | Transient | Yes | DNS lookup failed |
+| ECONNRESET | Transient | Yes | Connection reset |
