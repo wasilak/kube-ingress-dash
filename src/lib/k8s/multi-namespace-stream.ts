@@ -1,4 +1,5 @@
 import { IngressStream, IngressEvent } from './ingress-stream';
+import { KUBERNETES_TIMEOUTS } from '@/constants/kubernetes';
 
 /**
  * Event emitted by the multi-namespace stream manager
@@ -47,7 +48,7 @@ export class MultiNamespaceStreamManager {
   private eventHandlers: ((event: MultiNamespaceEvent) => void)[] = [];
   private errorHandlers: ((error: Error, namespace: string) => void)[] = [];
   private readonly maxReconnectAttempts: number = 5;
-  private readonly reconnectDelayMs: number = 5000;
+  private readonly reconnectDelayMs: number = KUBERNETES_TIMEOUTS.RECONNECT_DELAY;
   private readonly reconnectBackoffMultiplier: number = 2;
 
   constructor() {

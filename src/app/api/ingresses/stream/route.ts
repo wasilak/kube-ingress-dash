@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import KubernetesClient from '@/lib/k8s/client';
 import { MultiNamespaceStreamManager } from '@/lib/k8s/multi-namespace-stream';
 import { ErrorHandler } from '@/lib/utils/error-handler';
+import { KUBERNETES_EVENT_MAP } from '@/constants/kubernetes';
 
 // Create a single instance of the Kubernetes client to reuse
 const kubeClient = new KubernetesClient();
@@ -102,13 +103,9 @@ export async function GET(request: NextRequest) {
         streamManager.onEvent((event) => {
           try {
             // Map event types efficiently using a lookup object
-            const eventTypeMap: Record<string, string> = {
-              ADDED: 'ingressAdded',
-              MODIFIED: 'ingressModified',
-              DELETED: 'ingressDeleted',
-            };
-
-            const eventType = eventTypeMap[event.type] || 'ingressUnknown';
+            const eventType =
+              KUBERNETES_EVENT_MAP[event.type as keyof typeof KUBERNETES_EVENT_MAP] ||
+              'ingressUnknown';
 
             // Pre-serialize the event structure for optimal performance
             // This reduces the overhead of JSON.stringify by preparing the structure
@@ -215,13 +212,8 @@ export async function GET(request: NextRequest) {
         const handleEvent = (type: string, ingress: unknown) => {
           try {
             // Map event types efficiently using a lookup object
-            const eventTypeMap: Record<string, string> = {
-              ADDED: 'ingressAdded',
-              MODIFIED: 'ingressModified',
-              DELETED: 'ingressDeleted',
-            };
-
-            const eventType = eventTypeMap[type] || 'ingressUnknown';
+            const eventType =
+              KUBERNETES_EVENT_MAP[type as keyof typeof KUBERNETES_EVENT_MAP] || 'ingressUnknown';
 
             // Pre-serialize the event structure for optimal performance
             const event = {

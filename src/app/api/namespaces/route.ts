@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import KubernetesClient from '@/lib/k8s/client';
+import { HTTP_STATUS } from '@/constants/http';
 import { ErrorHandler } from '@/lib/utils/error-handler';
 
 // Create a single instance of the Kubernetes client to reuse
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
           details: permissions.error || 'Insufficient permissions to access Kubernetes resources',
           errorInfo,
         },
-        { status: 403 }
+        { status: HTTP_STATUS.FORBIDDEN }
       );
     }
 
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest) {
           details: errorInfo.message,
           errorInfo,
         },
-        { status: 500 }
+        { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
       );
     }
 
@@ -66,7 +67,7 @@ export async function GET(request: NextRequest) {
           process.env.NODE_ENV === 'development' ? err.message : 'An unexpected error occurred',
         errorInfo,
       },
-      { status: 500 }
+      { status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
     );
   }
 }

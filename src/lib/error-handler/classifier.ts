@@ -1,4 +1,5 @@
 import { ErrorCategory, ErrorClassification } from '@/types/errors';
+import { HTTP_STATUS, HTTP_STATUS_RANGES } from '@/constants/http';
 
 /**
  * Error classifier that categorizes errors based on HTTP status codes,
@@ -115,7 +116,7 @@ export class ErrorClassifier {
       return {
         category: ErrorCategory.AUTHENTICATION,
         retryable: false,
-        statusCode: 401,
+        statusCode: HTTP_STATUS.UNAUTHORIZED,
       };
     }
 
@@ -130,7 +131,7 @@ export class ErrorClassifier {
       return {
         category: ErrorCategory.AUTHORIZATION,
         retryable: false,
-        statusCode: 403,
+        statusCode: HTTP_STATUS.FORBIDDEN,
       };
     }
 
@@ -144,7 +145,7 @@ export class ErrorClassifier {
       return {
         category: ErrorCategory.RATE_LIMIT,
         retryable: true,
-        statusCode: 429,
+        statusCode: HTTP_STATUS.TOO_MANY_REQUESTS,
       };
     }
 
@@ -154,7 +155,7 @@ export class ErrorClassifier {
       return {
         category: ErrorCategory.PERMANENT,
         retryable: false,
-        statusCode: 404,
+        statusCode: HTTP_STATUS.NOT_FOUND,
       };
     }
 
@@ -185,7 +186,10 @@ export class ErrorClassifier {
    */
   private static classifyByStatusCode(statusCode: number): ErrorClassification {
     // 2xx - Success (shouldn't be classified as error, but handle gracefully)
-    if (statusCode >= 200 && statusCode < 300) {
+    if (
+      statusCode >= HTTP_STATUS_RANGES.SUCCESS_MIN &&
+      statusCode < HTTP_STATUS_RANGES.SUCCESS_MAX
+    ) {
       return {
         category: ErrorCategory.PERMANENT,
         retryable: false,
@@ -194,7 +198,7 @@ export class ErrorClassifier {
     }
 
     // 400 - Bad Request (permanent)
-    if (statusCode === 400) {
+    if (statusCode === HTTP_STATUS.BAD_REQUEST) {
       return {
         category: ErrorCategory.PERMANENT,
         retryable: false,
@@ -203,7 +207,7 @@ export class ErrorClassifier {
     }
 
     // 401 - Unauthorized (authentication)
-    if (statusCode === 401) {
+    if (statusCode === HTTP_STATUS.UNAUTHORIZED) {
       return {
         category: ErrorCategory.AUTHENTICATION,
         retryable: false,
@@ -212,7 +216,7 @@ export class ErrorClassifier {
     }
 
     // 403 - Forbidden (authorization)
-    if (statusCode === 403) {
+    if (statusCode === HTTP_STATUS.FORBIDDEN) {
       return {
         category: ErrorCategory.AUTHORIZATION,
         retryable: false,
@@ -221,7 +225,7 @@ export class ErrorClassifier {
     }
 
     // 404 - Not Found (permanent)
-    if (statusCode === 404) {
+    if (statusCode === HTTP_STATUS.NOT_FOUND) {
       return {
         category: ErrorCategory.PERMANENT,
         retryable: false,
@@ -230,7 +234,7 @@ export class ErrorClassifier {
     }
 
     // 429 - Too Many Requests (rate limit)
-    if (statusCode === 429) {
+    if (statusCode === HTTP_STATUS.TOO_MANY_REQUESTS) {
       return {
         category: ErrorCategory.RATE_LIMIT,
         retryable: true,
@@ -239,7 +243,10 @@ export class ErrorClassifier {
     }
 
     // 4xx - Other client errors (permanent)
-    if (statusCode >= 400 && statusCode < 500) {
+    if (
+      statusCode >= HTTP_STATUS_RANGES.CLIENT_ERROR_MIN &&
+      statusCode < HTTP_STATUS_RANGES.CLIENT_ERROR_MAX
+    ) {
       return {
         category: ErrorCategory.PERMANENT,
         retryable: false,
@@ -248,7 +255,7 @@ export class ErrorClassifier {
     }
 
     // 500 - Internal Server Error (transient)
-    if (statusCode === 500) {
+    if (statusCode === HTTP_STATUS.INTERNAL_SERVER_ERROR) {
       return {
         category: ErrorCategory.TRANSIENT,
         retryable: true,
@@ -266,7 +273,7 @@ export class ErrorClassifier {
     }
 
     // 503 - Service Unavailable (transient)
-    if (statusCode === 503) {
+    if (statusCode === HTTP_STATUS.SERVICE_UNAVAILABLE) {
       return {
         category: ErrorCategory.TRANSIENT,
         retryable: true,
@@ -284,7 +291,10 @@ export class ErrorClassifier {
     }
 
     // 5xx - Other server errors (transient)
-    if (statusCode >= 500 && statusCode < 600) {
+    if (
+      statusCode >= HTTP_STATUS_RANGES.SERVER_ERROR_MIN &&
+      statusCode < HTTP_STATUS_RANGES.SERVER_ERROR_MAX
+    ) {
       return {
         category: ErrorCategory.TRANSIENT,
         retryable: true,
@@ -318,7 +328,7 @@ export class ErrorClassifier {
         return 'Too many requests. Please wait a moment and try again.';
 
       case ErrorCategory.PERMANENT:
-        if (classification.statusCode === 404) {
+        if (classification.statusCode === HTTP_STATUS.NOT_FOUND) {
           return 'The requested resource was not found.';
         }
         return 'An error occurred while processing your request.';

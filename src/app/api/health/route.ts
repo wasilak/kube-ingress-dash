@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import KubernetesClient from '@/lib/k8s/client';
+import { HTTP_STATUS } from '@/constants/http';
+import { KUBERNETES_TIMEOUTS } from '@/constants/kubernetes';
 
 // Create a single instance of the Kubernetes client to reuse
 const kubeClient = new KubernetesClient();
@@ -37,7 +39,7 @@ export async function GET(): Promise<Response> {
     // Perform Kubernetes API connectivity check with 5-second timeout
     const connectivityCheck = await Promise.race([
       checkKubernetesConnectivity(),
-      timeoutPromise(5000),
+      timeoutPromise(KUBERNETES_TIMEOUTS.HEALTH_CHECK_TIMEOUT),
     ]);
 
     const latency = Date.now() - startTime;
@@ -54,7 +56,7 @@ export async function GET(): Promise<Response> {
         },
       };
 
-      return NextResponse.json(result, { status: 200 });
+      return NextResponse.json(result, { status: HTTP_STATUS.OK });
     } else {
       const result: HealthCheckResult = {
         status: 'unhealthy',
@@ -68,7 +70,7 @@ export async function GET(): Promise<Response> {
         },
       };
 
-      return NextResponse.json(result, { status: 503 });
+      return NextResponse.json(result, { status: HTTP_STATUS.SERVICE_UNAVAILABLE });
     }
   } catch (error) {
     const latency = Date.now() - startTime;
@@ -88,7 +90,7 @@ export async function GET(): Promise<Response> {
       },
     };
 
-    return NextResponse.json(result, { status: 503 });
+    return NextResponse.json(result, { status: HTTP_STATUS.SERVICE_UNAVAILABLE });
   }
 }
 
