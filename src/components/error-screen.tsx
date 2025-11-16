@@ -15,6 +15,8 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import Image from 'next/image';
+import { ErrorClassifier } from '@/lib/error-handler/classifier';
+import { ErrorClassification } from '@/types/errors';
 
 interface ErrorScreenProps {
   title?: string;
@@ -23,18 +25,85 @@ interface ErrorScreenProps {
   documentationLink?: string;
   documentationText?: string;
   onRetry?: () => void;
+  error?: unknown;
+  classification?: ErrorClassification;
 }
 
 const ErrorScreen: React.FC<ErrorScreenProps> = ({
   title = 'Access Error',
   message,
   errorType = 'generic',
-  documentationLink = '/docs/architecture/rbac-setup',
-  documentationText = 'RBAC Setup Documentation',
-  onRetry
+  documentationLink,
+  documentationText,
+  onRetry,
+  error,
+  classification
 }) => {
-  // Determine the icon and color scheme based on error type
+  // Classify the error if provided
+  const errorClassification = classification || (error ? ErrorClassifier.classify(error) : null);
+  
+  // Get smart defaults from classification
+  const smartDocLink = errorClassification 
+    ? ErrorClassifier.getDocumentationLink(errorClassification)
+    : documentationLink || 'https://wasilak.github.io/kube-ingress-dash/docs/architecture/rbac-setup';
+  
+  const smartDocText = errorClassification
+    ? ErrorClassifier.getDocumentationText(errorClassification)
+    : documentationText || 'RBAC Setup Documentation';
+  
+  const smartMessage = errorClassification
+    ? ErrorClassifier.getUserMessage(errorClassification)
+    : message;
+
+  // Determine the icon and color scheme based on error type or classification
   const getErrorConfig = () => {
+    // Use classification if available
+    if (errorClassification) {
+      switch (errorClassification.category) {
+        case 'authentication':
+          return {
+            iconColor: 'text-red-500',
+            title: title || 'Authentication Error',
+            description: 'Authentication is required to access this resource',
+            border: 'border-red-500',
+            text: 'text-red-500'
+          };
+        case 'authorization':
+          return {
+            iconColor: 'text-orange-500',
+            title: title || 'Permission Error',
+            description: 'You don\'t have sufficient permissions to access Kubernetes resources',
+            border: 'border-orange-500',
+            text: 'text-orange-500'
+          };
+        case 'rate_limit':
+          return {
+            iconColor: 'text-yellow-500',
+            title: title || 'Rate Limit Exceeded',
+            description: 'Too many requests have been made',
+            border: 'border-yellow-500',
+            text: 'text-yellow-500'
+          };
+        case 'transient':
+          return {
+            iconColor: 'text-amber-500',
+            title: title || 'Temporary Error',
+            description: 'A temporary issue occurred, please try again',
+            border: 'border-amber-500',
+            text: 'text-amber-500'
+          };
+        case 'permanent':
+          return {
+            iconColor: 'text-red-600',
+            title: title || 'Error',
+            description: 'An error occurred while processing your request',
+            border: 'border-red-600',
+            text: 'text-red-600'
+          };
+      }
+    }
+    
+    // Fallback to errorType prop
     switch (errorType) {
       case 'permission':
         return {
@@ -122,19 +191,19 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
           </CardHeader>
           <CardContent className="text-center">
             <p className={`mb-6 ${config.text}`}>
-              {message}
+              {smartMessage}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              {onRetry && (
+              {(onRetry || (errorClassification?.retryable)) && (
                 <Button onClick={onRetry} variant="default">
                   Retry Connection
                 </Button>
               )}
 
               <Button asChild variant="outline">
-                <Link href={documentationLink} target="_blank">
-                  {documentationText}
+                <Link href={smartDocLink} target="_blank">
+                  {smartDocText}
                   <ExternalLink className="ml-2 h-4 w-4" />
                 </Link>
               </Button>

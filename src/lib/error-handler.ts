@@ -1,7 +1,17 @@
+import { ErrorClassifier } from './error-handler/classifier';
+import { ErrorCategory } from '@/types/errors';
+
 // Global error handling utility
 export class ErrorHandler {
   static handle(error: unknown, context?: string): void {
-    console.error(`Error in ${context || 'unknown context'}:`, error);
+    const classification = ErrorClassifier.classify(error);
+    
+    console.error(`Error in ${context || 'unknown context'}:`, {
+      error,
+      category: classification.category,
+      retryable: classification.retryable,
+      statusCode: classification.statusCode,
+    });
     
     // Log to external service if configured (e.g., Sentry, LogRocket)
     // In a real application, you would send this to an error tracking service
@@ -15,12 +25,15 @@ export class ErrorHandler {
   }
 
   static formatError(error: unknown): string {
+    const classification = ErrorClassifier.classify(error);
+    const userMessage = ErrorClassifier.getUserMessage(classification);
+    
     if (error instanceof Error) {
-      return error.message;
+      return `${userMessage} (${error.message})`;
     } else if (typeof error === 'string') {
-      return error;
+      return `${userMessage} (${error})`;
     }
-    return 'An unknown error occurred';
+    return userMessage;
   }
 
   static isKubernetesError(error: unknown): boolean {
@@ -31,6 +44,16 @@ export class ErrorHandler {
       'response' in error &&
       'body' in error
     );
+  }
+
+  static isRetryable(error: unknown): boolean {
+    const classification = ErrorClassifier.classify(error);
+    return classification.retryable;
+  }
+
+  static getErrorCategory(error: unknown): ErrorCategory {
+    const classification = ErrorClassifier.classify(error);
+    return classification.category;
   }
 }
 
