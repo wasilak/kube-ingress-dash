@@ -1,0 +1,758 @@
+---
+sidebar_position: 4
+title: 'Production Features Architecture'
+---
+
+# Production Features Architecture
+
+This document provides detailed architecture diagrams for the production-ready features implemented in kube-ingress-dash.
+
+## Multi-Namespace SSE Streaming
+
+### High-Level Architecture
+
+The multi-namespace streaming system enables real-time monitoring of ingress resources across multiple namespaces simultaneously.
+
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        A[Browser/UI]
+    end
+
+    subgraph "Application Layer"
+        B[SSE Stream Endpoint<br/>/api/ingresses/stream]
+        C[Multi-Namespace<br/>Stream Manager]
+        D[Event Aggregator]
+    end
+
+    subgraph "Watcher Layer"
+        E[Namespace 1<br/>Watcher]
+        F[Namespace 2<br/>Watcher]
+        G[Namespace N<br/>Watcher]
+    end
+
+    subgraph "Kubernetes Layer"
+        H[Kubernetes API<br/>Watch Endpoint]
+        I[Ingress Resources]
+    end
+
+    A -->|"SSE Connection<br/>?namespaces=ns1,ns2"| B
+    B --> C
+    C --> D
+    C -->|"Create/Manage"| E
+    C -->|"Create/Manage"| F
+    C -->|"Create/Manage"| G
+    E -->|"Watch API Call"| H
+    F -->|"Watch API Call"| H
+    G -->|"Watch API Call"| H
+    H -->|"Stream Events"| E
+    H -->|"Stream Events"| F
+    H -->|"Stream Events"| G
+    E -->|"Events"| D
+    F -->|"Events"| D
+    G -->|"Events"| D
+    D -->|"Aggregated Events"| B
+    B -->|"SSE Messages"| A
+    H <--> I
+
+    style A fill:#e1f5ff
+    style B fill:#fff4e1
+    style C fill:#fff4e1
+    style D fill:#fff4e1
+    style E fill:#e8f5e9
+    style F fill:#e8f5e9
+    style G fill:#e8f5e9
+    style H fill:#f3e5f5
+    style I fill:#f3e5f5
+```
+
+### Detailed Sequence Flow
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant SSE as SSE Endpoint
+    participant Manager as Stream Manager
+    participant W1 as Watcher (ns1)
+    participant W2 as Watcher (ns2)
+    participant K8s as Kubernetes API
+
+    Client->>SSE: Connect with namespaces=[ns1, ns2]
+    SSE->>Manager: Initialize stream
+
+    par Create Watchers
+        Manager->>W1: Create watcher for ns1
+        Manager->>W2: Create watcher for ns2
+    end
+
+    par Start Watching
+        W1->>K8s: Watch ingresses in ns1
+        W2->>K8s: Watch ingresses in ns2
+    end
+
+    Note over K8s: Ingress created in ns1
+    K8s-->>W1: ADDED event
+    W1->>Manager: Forward event (ns1)
+    Manager->>SSE: Aggregate event
+    SSE-->>Client: Push SSE message
+
+    Note over K8s: Ingress modified in ns2
+    K8s-->>W2: MODIFIED event
+    W2->>Manager: Forward event (ns2)
+    Manager->>SSE: Aggregate event
+    SSE-->>Client: Push SSE message
+
+    Note over W1: Error in ns1 watcher
+    W1->>Manager: Report error (ns1)
+    Manager->>SSE: Error event (ns1 only)
+    SSE-->>Client: Push error message
+    Note over W2: ns2 continues normally
+
+    Client->>SSE: Update namespaces=[ns2, ns3]
+    SSE->>Manager: Update watchers
+    Manager->>W1: Stop watcher (ns1)
+    Manager->>Manager: Create watcher (ns3)
+    Manager->>K8s: Watch ingresses in ns3
+```
+
+### Error Isolation
+
+```mermaid
+graph LR
+    subgraph "Healthy State"
+        A[Watcher ns1<br/>✓ Active]
+        B[Watcher ns2<br/>✓ Active]
+        C[Watcher ns3<br/>✓ Active]
+    end
+
+    subgraph "Partial Failure"
+        D[Watcher ns1<br/>✓ Active]
+        E[Watcher ns2<br/>✗ Failed]
+        F[Watcher ns3<br/>✓ Active]
+    end
+
+    G[Stream Manager]
+    H[Client receives<br/>all events except ns2]
+
+    A --> G
+    B --> G
+    C --> G
+    G --> H
+
+    D --> G
+    E -.->|Error isolated| G
+    F --> G
+
+    style E fill:#ffebee,stroke:#c62828
+    style A fill:#e8f5e9,stroke:#2e7d32
+    style B fill:#e8f5e9,stroke:#2e7d32
+    style C fill:#e8f5e9,stroke:#2e7d32
+    style D fill:#e8f5e9,stroke:#2e7d32
+    style F fill:#e8f5e9,stroke:#2e7d32
+```
+
+## Error Handling with Retry and Circuit Breaker
+
+### Complete Error Handling Flow
+
+```mermaid
+graph TB
+    Start[API Request] --> CB{Circuit Breaker<br/>State?}
+
+    CB -->|Open| FastFail[Fail Fast<br/>Return Error]
+    CB -->|Half-Open| TestReq[Allow Test<br/>Request]
+    CB -->|Closed| Classify[Error Classifier]
+
+    TestReq --> Classify
+
+    Classify --> Retry[Retry Handler]
+
+    Retry --> Attempt1[Attempt 1<br/>Immediate]
+    Attempt1 -->|Success| Success[Return Data]
+    Attempt1 -->|Transient Error| Wait1[Wait 100ms]
+    Attempt1 -->|Permanent Error| PermError[Return Error<br/>Immediately]
+
+    Wait1 --> Attempt2[Attempt 2]
+    Attempt2 -->|Success| Success
+    Attempt2 -->|Transient Error| Wait2[Wait 200ms]
+    Attempt2 -->|Permanent Error| PermError
+
+    Wait2 --> Attempt3[Attempt 3]
+    Attempt3 -->|Success| Success
+    Attempt3 -->|Error| MaxRetries[Max Retries<br/>Exceeded]
+
+    Success --> RecordSuccess[Record Success<br/>in Circuit Breaker]
+    PermError --> RecordFailure[Record Failure<br/>in Circuit Breaker]
+    MaxRetries --> RecordFailure
+    FastFail --> End[End]
+
+    RecordSuccess --> CheckCB1{Failure Rate<br/>< 50%?}
+    CheckCB1 -->|Yes| KeepClosed[Keep Circuit<br/>Closed]
+    CheckCB1 -->|No| OpenCircuit[Open Circuit]
+
+    RecordFailure --> CheckCB2{Failure Rate<br/>> 50%?}
+    CheckCB2 -->|Yes| OpenCircuit
+    CheckCB2 -->|No| KeepClosed
+
+    OpenCircuit --> Timer[Wait 60s]
+    Timer --> HalfOpen[Set Circuit<br/>Half-Open]
+
+    KeepClosed --> End
+    HalfOpen --> End
+
+    style Start fill:#e3f2fd
+    style Success fill:#e8f5e9
+    style PermError fill:#ffebee
+    style MaxRetries fill:#ffebee
+    style FastFail fill:#ffebee
+    style OpenCircuit fill:#fff3e0
+    style HalfOpen fill:#fff9c4
+    style KeepClosed fill:#e8f5e9
+```
+
+### Circuit Breaker State Machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> Closed: Initialize
+
+    Closed --> Open: Failure rate > 50%<br/>in 30s window
+    Closed --> Closed: Success or<br/>failure rate < 50%
+
+    Open --> HalfOpen: After 60s timeout
+    Open --> Open: All requests<br/>fail fast
+
+    HalfOpen --> Closed: Test request<br/>succeeds
+    HalfOpen --> Open: Test request<br/>fails
+
+    note right of Closed
+        Normal Operation
+        - All requests pass through
+        - Track success/failure rate
+        - Monitor 30s sliding window
+    end note
+
+    note right of Open
+        Failing Fast
+        - Reject all requests immediately
+        - Return cached data if available
+        - Prevent cascading failures
+    end note
+
+    note right of HalfOpen
+        Testing Recovery
+        - Allow limited test requests
+        - Verify service health
+        - Transition based on result
+    end note
+```
+
+### Error Classification Decision Tree
+
+```mermaid
+graph TB
+    Error[Error Occurred] --> HasStatus{Has HTTP<br/>Status Code?}
+
+    HasStatus -->|Yes| CheckStatus{Status Code?}
+    HasStatus -->|No| CheckCode{Error Code?}
+
+    CheckStatus -->|401, 403, 404| Permanent[Permanent Error<br/>❌ No Retry]
+    CheckStatus -->|429| RateLimit[Rate Limit Error<br/>⏱️ Retry after delay]
+    CheckStatus -->|500, 502, 503, 504| Transient[Transient Error<br/>🔄 Retry with backoff]
+    CheckStatus -->|Other| CheckMessage{Check Error<br/>Message}
+
+    CheckCode -->|ETIMEDOUT| Transient
+    CheckCode -->|ECONNREFUSED| Transient
+    CheckCode -->|ECONNRESET| Transient
+    CheckCode -->|ENOTFOUND| Transient
+    CheckCode -->|Other| CheckMessage
+
+    CheckMessage -->|Contains 'timeout'| Transient
+    CheckMessage -->|Contains 'refused'| Transient
+    CheckMessage -->|Contains 'permission'| Permanent
+    CheckMessage -->|Contains 'unauthorized'| Permanent
+    CheckMessage -->|Other| Unknown[Unknown Error<br/>❌ No Retry]
+
+    Permanent --> Return1[Return to User<br/>with Error Details]
+    RateLimit --> Return2[Return to User<br/>with Retry-After]
+    Transient --> Return3[Retry with<br/>Exponential Backoff]
+    Unknown --> Return1
+
+    style Permanent fill:#ffebee
+    style RateLimit fill:#fff3e0
+    style Transient fill:#e8f5e9
+    style Unknown fill:#f5f5f5
+```
+
+### Retry Timing Diagram
+
+```mermaid
+gantt
+    title Retry Logic with Exponential Backoff
+    dateFormat X
+    axisFormat %Ls
+
+    section Attempt 1
+    API Call           :a1, 0, 100
+    Failure (Timeout)  :crit, 100, 100
+
+    section Wait
+    Backoff 100ms      :active, 200, 100
+
+    section Attempt 2
+    API Call           :a2, 300, 100
+    Failure (Timeout)  :crit, 400, 100
+
+    section Wait
+    Backoff 200ms      :active, 500, 200
+
+    section Attempt 3
+    API Call           :a3, 700, 100
+    Success            :done, 800, 100
+
+    section Result
+    Return Data        :milestone, 900, 0
+```
+
+## Caching and Rate Limiting Architecture
+
+### Caching Layer Architecture
+
+```mermaid
+graph TB
+    subgraph "Client Requests"
+        A[API Request 1]
+        B[API Request 2]
+        C[API Request 3]
+    end
+
+    subgraph "API Layer"
+        D[API Route Handler]
+    end
+
+    subgraph "Caching Layer"
+        E{Cache Check}
+        F[Request Deduplicator]
+        G[Cache Store<br/>Memory/Redis]
+    end
+
+    subgraph "Backend"
+        H[Kubernetes Client]
+        I[Kubernetes API]
+    end
+
+    A --> D
+    B --> D
+    C --> D
+
+    D --> E
+
+    E -->|Cache Hit| Return1[Return Cached Data<br/>Header: X-Cache: HIT]
+    E -->|Cache Miss| F
+
+    F -->|First Request| H
+    F -->|Duplicate Request| Wait[Wait for<br/>First Request]
+
+    H --> I
+    I -->|Data| H
+    H --> Store[Store in Cache<br/>with TTL]
+    Store --> G
+    Store --> Return2[Return Fresh Data<br/>Header: X-Cache: MISS]
+
+    Wait --> Return2
+
+    G -.->|TTL Expires| Invalidate[Invalidate Entry]
+
+    Return1 --> Client[Client]
+    Return2 --> Client
+
+    style Return1 fill:#e8f5e9
+    style Return2 fill:#fff3e0
+    style G fill:#e1f5ff
+```
+
+### Request Deduplication Flow
+
+```mermaid
+sequenceDiagram
+    participant C1 as Client 1
+    participant C2 as Client 2
+    participant C3 as Client 3
+    participant API as API Handler
+    participant Dedup as Deduplicator
+    participant K8s as Kubernetes API
+
+    Note over Dedup: No pending requests
+
+    C1->>API: GET /api/namespaces
+    API->>Dedup: Check for pending request
+    Dedup->>Dedup: No pending, create promise
+    Dedup->>K8s: Fetch namespaces
+
+    Note over C2,C3: Concurrent requests arrive
+
+    par Concurrent Requests
+        C2->>API: GET /api/namespaces
+        C3->>API: GET /api/namespaces
+    end
+
+    par Deduplication
+        API->>Dedup: Check for pending request
+        API->>Dedup: Check for pending request
+    end
+
+    Dedup-->>API: Return existing promise
+    Dedup-->>API: Return existing promise
+
+    Note over K8s: Single API call
+    K8s-->>Dedup: Return data
+
+    Dedup->>Dedup: Resolve all waiting promises
+
+    par Response Distribution
+        Dedup-->>API: Data
+        Dedup-->>API: Data
+        Dedup-->>API: Data
+    end
+
+    par Client Responses
+        API-->>C1: Response
+        API-->>C2: Response
+        API-->>C3: Response
+    end
+
+    Note over Dedup: Clear pending request
+```
+
+### Cache TTL and Invalidation
+
+```mermaid
+graph LR
+    subgraph "Cache Entries"
+        A[Namespaces<br/>TTL: 5 min]
+        B[Ingress List<br/>TTL: 1 min]
+        C[Health Status<br/>TTL: 30 sec]
+    end
+
+    subgraph "Time-based Invalidation"
+        D[TTL Timer]
+    end
+
+    subgraph "Event-based Invalidation"
+        E[Write Operation]
+        F[Manual Invalidation]
+    end
+
+    D -->|Expires| A
+    D -->|Expires| B
+    D -->|Expires| C
+
+    E -->|Invalidate| B
+    F -->|Invalidate| A
+    F -->|Invalidate| B
+    F -->|Invalidate| C
+
+    A -->|Expired| G[Remove from Cache]
+    B -->|Expired| G
+    C -->|Expired| G
+
+    style A fill:#e3f2fd
+    style B fill:#e3f2fd
+    style C fill:#e3f2fd
+    style G fill:#ffebee
+```
+
+### Rate Limiting Architecture
+
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        A[Client Request]
+    end
+
+    subgraph "Rate Limiting Layer"
+        B[Rate Limiter<br/>Middleware]
+        C{Check Rate Limit}
+        D[Token Bucket<br/>Algorithm]
+        E[Client Tracking<br/>by IP/Token]
+    end
+
+    subgraph "API Layer"
+        F[API Handler]
+    end
+
+    subgraph "Kubernetes Throttling"
+        G[K8s Throttler]
+        H[Request Queue]
+        I[Min Delay: 100ms]
+    end
+
+    subgraph "Kubernetes"
+        J[Kubernetes API]
+    end
+
+    A --> B
+    B --> C
+    C --> E
+    E --> D
+
+    D -->|Tokens Available| Allow[Allow Request]
+    D -->|No Tokens| Reject[HTTP 429<br/>Too Many Requests]
+
+    Allow --> F
+    Reject --> Return1[Return with<br/>Retry-After header]
+
+    F --> G
+    G --> H
+    H --> I
+    I --> J
+
+    J --> Response[Response]
+    Response --> Client[Client]
+    Return1 --> Client
+
+    style Allow fill:#e8f5e9
+    style Reject fill:#ffebee
+    style I fill:#fff3e0
+```
+
+### Token Bucket Algorithm
+
+```mermaid
+graph TB
+    Start[Request Arrives] --> Check{Tokens<br/>Available?}
+
+    Check -->|Yes| Consume[Consume 1 Token]
+    Check -->|No| Reject[Reject Request<br/>HTTP 429]
+
+    Consume --> Process[Process Request]
+    Process --> Success[Return Response]
+
+    Reject --> CalcRetry[Calculate<br/>Retry-After]
+    CalcRetry --> Return[Return 429<br/>with Retry-After]
+
+    subgraph "Token Bucket State"
+        Bucket[Current Tokens: N<br/>Max Tokens: 100<br/>Refill Rate: 10/sec]
+    end
+
+    subgraph "Refill Process"
+        Timer[Every 100ms]
+        Timer --> Refill[Add 1 Token]
+        Refill --> Cap{At Max<br/>Capacity?}
+        Cap -->|No| Bucket
+        Cap -->|Yes| Skip[Skip Refill]
+    end
+
+    Consume --> Bucket
+    Bucket --> Check
+
+    style Success fill:#e8f5e9
+    style Reject fill:#ffebee
+    style Return fill:#ffebee
+    style Bucket fill:#e3f2fd
+```
+
+### Rate Limiting Sequence
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant RL as Rate Limiter
+    participant API as API Handler
+    participant K8s as Kubernetes API
+
+    Note over RL: Bucket: 100 tokens<br/>Rate: 10/sec
+
+    loop Normal Requests
+        C->>RL: Request 1
+        RL->>RL: Check tokens (100 available)
+        RL->>RL: Consume 1 token (99 left)
+        RL->>API: Allow request
+        API->>K8s: API call
+        K8s-->>API: Response
+        API-->>C: 200 OK
+    end
+
+    Note over C: Burst of requests
+
+    loop Burst Requests (100 requests)
+        C->>RL: Request N
+        RL->>RL: Consume 1 token
+        RL->>API: Allow request
+        API-->>C: 200 OK
+    end
+
+    Note over RL: Bucket: 0 tokens
+
+    C->>RL: Request 101
+    RL->>RL: Check tokens (0 available)
+    RL->>RL: Calculate retry time
+    RL-->>C: 429 Too Many Requests<br/>Retry-After: 1
+
+    Note over RL: Wait for refill
+
+    Note over RL: Bucket: 1 token<br/>(after 100ms)
+
+    C->>RL: Request (after delay)
+    RL->>RL: Check tokens (1 available)
+    RL->>RL: Consume 1 token
+    RL->>API: Allow request
+    API-->>C: 200 OK
+```
+
+### Kubernetes API Throttling
+
+```mermaid
+graph LR
+    subgraph "Application Requests"
+        A[Request 1]
+        B[Request 2]
+        C[Request 3]
+        D[Request 4]
+    end
+
+    subgraph "Throttler Queue"
+        E[Queue Manager]
+        F[Min Delay: 100ms]
+    end
+
+    subgraph "Kubernetes API"
+        G[API Server]
+    end
+
+    A --> E
+    B --> E
+    C --> E
+    D --> E
+
+    E -->|t=0ms| G
+    E -->|t=100ms| G
+    E -->|t=200ms| G
+    E -->|t=300ms| G
+
+    G -->|Response| H[Application]
+
+    style E fill:#fff3e0
+    style F fill:#ffebee
+```
+
+## Performance Optimization Architecture
+
+### Virtual Scrolling
+
+```mermaid
+graph TB
+    subgraph "Data Layer"
+        A[All Ingresses<br/>1000+ items]
+    end
+
+    subgraph "Virtual Scroll Engine"
+        B[Viewport Calculator]
+        C[Visible Range<br/>Start: 10, End: 30]
+        D[Buffer Zone<br/>±5 items]
+    end
+
+    subgraph "Rendering Layer"
+        E[Rendered Items<br/>25 DOM nodes]
+        F[Placeholder Space<br/>Top: 10 items]
+        G[Placeholder Space<br/>Bottom: 970 items]
+    end
+
+    subgraph "User View"
+        H[Visible Viewport<br/>20 items]
+    end
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    D --> F
+    D --> G
+
+    F --> H
+    E --> H
+    G --> H
+
+    style A fill:#e3f2fd
+    style E fill:#e8f5e9
+    style F fill:#f5f5f5
+    style G fill:#f5f5f5
+    style H fill:#fff3e0
+```
+
+### Component Optimization with React.memo
+
+```mermaid
+graph TB
+    subgraph "Parent Component Re-render"
+        A[Dashboard State Change]
+    end
+
+    subgraph "Child Components"
+        B[IngressCard 1<br/>Props unchanged]
+        C[IngressCard 2<br/>Props changed]
+        D[IngressCard 3<br/>Props unchanged]
+    end
+
+    subgraph "React.memo Check"
+        E{Compare Props}
+    end
+
+    subgraph "Render Decision"
+        F[Skip Re-render<br/>✓ Optimized]
+        G[Re-render<br/>Props changed]
+    end
+
+    A --> B
+    A --> C
+    A --> D
+
+    B --> E
+    C --> E
+    D --> E
+
+    E -->|Unchanged| F
+    E -->|Changed| G
+
+    F -.->|Reuse| B
+    F -.->|Reuse| D
+    G --> C
+
+    style F fill:#e8f5e9
+    style G fill:#fff3e0
+```
+
+## Security Architecture
+
+### Security Headers Flow
+
+```mermaid
+graph LR
+    A[Client Request] --> B[Next.js Middleware]
+    B --> C{Apply Security<br/>Headers}
+
+    C --> D[Content-Security-Policy]
+    C --> E[X-Frame-Options: DENY]
+    C --> F[X-Content-Type-Options: nosniff]
+    C --> G[Strict-Transport-Security]
+    C --> H[Permissions-Policy]
+
+    D --> I[API Handler]
+    E --> I
+    F --> I
+    G --> I
+    H --> I
+
+    I --> J[Response with<br/>Security Headers]
+    J --> K[Client]
+
+    style B fill:#fff3e0
+    style J fill:#e8f5e9
+```
+
+## Related Documentation
+
+- [Multi-Namespace Streaming](../features/multi-namespace-streaming.mdx)
+- [Error Handling](../features/error-handling.mdx)
+- [Interaction with Kubernetes](./interaction-with-kubernetes.mdx)
+- [RBAC Setup](./rbac-setup.mdx)
