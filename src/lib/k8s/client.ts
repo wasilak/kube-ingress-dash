@@ -1,13 +1,14 @@
 import { KubeConfig, CoreV1Api, NetworkingV1Api, V1Ingress, V1NamespaceList } from '@kubernetes/client-node';
 import { IngressData } from '@/types/ingress';
 import { transformIngress, transformIngresses } from '@/lib/utils/ingress-transformer';
-import { RetryHandler } from '@/lib/error-handler';
+import { RetryHandler, CircuitBreaker, CircuitBreakerOpenError } from '@/lib/error-handler';
 
 class KubernetesClient {
   public kubeConfig: KubeConfig;
   public networkingV1Api: NetworkingV1Api;
   public coreV1Api: CoreV1Api;
   private retryHandler: RetryHandler;
+  private circuitBreaker: CircuitBreaker;
 
   constructor() {
     this.kubeConfig = new KubeConfig();
@@ -32,6 +33,14 @@ class KubernetesClient {
       maxDelayMs: 5000,
       backoffMultiplier: 2,
     });
+
+    // Initialize circuit breaker to prevent cascading failures
+    this.circuitBreaker = new CircuitBreaker({
+      failureThreshold: 0.5, // Open circuit at 50% failure rate
+      successThreshold: 1, // Close after 1 successful request in half-open state
+      timeout: 60000, // Wait 60 seconds before trying again
+      windowMs: 30000, // Track failures over 30 second window
+    });
   }
 
   /**
@@ -55,15 +64,21 @@ class KubernetesClient {
    */
   async getIngresses(): Promise<IngressData[]> {
     try {
-      const response = await this.retryHandler.execute(async () => {
-        return await this.networkingV1Api.listIngressForAllNamespaces();
+      const response = await this.circuitBreaker.execute(async () => {
+        return await this.retryHandler.execute(async () => {
+          return await this.networkingV1Api.listIngressForAllNamespaces();
+        });
       });
       const k8sIngresses = response.items;
       
       // Transform Kubernetes ingress objects to our format
       return transformIngresses(k8sIngresses);
     } catch (error) {
-      console.error('Error fetching ingresses:', error);
+      if (error instanceof CircuitBreakerOpenError) {
+        console.error('Circuit breaker is open - Kubernetes API is unavailable:', error.message);
+      } else {
+        console.error('Error fetching ingresses:', error);
+      }
       throw error;
     }
   }
@@ -73,14 +88,20 @@ class KubernetesClient {
    */
   async getIngressesByNamespace(namespace: string): Promise<IngressData[]> {
     try {
-      const response = await this.retryHandler.execute(async () => {
-        return await this.networkingV1Api.listNamespacedIngress({namespace});
+      const response = await this.circuitBreaker.execute(async () => {
+        return await this.retryHandler.execute(async () => {
+          return await this.networkingV1Api.listNamespacedIngress({namespace});
+        });
       });
       const k8sIngresses = response.items;
       
       return transformIngresses(k8sIngresses);
     } catch (error) {
-      console.error(`Error fetching ingresses from namespace ${namespace}:`, error);
+      if (error instanceof CircuitBreakerOpenError) {
+        console.error(`Circuit breaker is open - cannot fetch ingresses from namespace ${namespace}:`, error.message);
+      } else {
+        console.error(`Error fetching ingresses from namespace ${namespace}:`, error);
+      }
       throw error;
     }
   }
@@ -90,8 +111,10 @@ class KubernetesClient {
    */
   async getIngress(name: string, namespace: string): Promise<IngressData | null> {
     try {
-      const response = await this.retryHandler.execute(async () => {
-        return await this.networkingV1Api.readNamespacedIngress({name, namespace});
+      const response = await this.circuitBreaker.execute(async () => {
+        return await this.retryHandler.execute(async () => {
+          return await this.networkingV1Api.readNamespacedIngress({name, namespace});
+        });
       });
       return transformIngress(response);
     } catch (error: unknown) {
@@ -100,7 +123,11 @@ class KubernetesClient {
       if (err?.response?.statusCode === 404) {
         return null;
       }
-      console.error(`Error fetching ingress ${name} in namespace ${namespace}:`, error);
+      if (error instanceof CircuitBreakerOpenError) {
+        console.error(`Circuit breaker is open - cannot fetch ingress ${name} in namespace ${namespace}:`, error);
+      } else {
+        console.error(`Error fetching ingress ${name} in namespace ${namespace}:`, error);
+      }
       throw error;
     }
   }
@@ -110,12 +137,18 @@ class KubernetesClient {
    */
   async getNamespaces(): Promise<V1NamespaceList> {
     try {
-      const response = await this.retryHandler.execute(async () => {
-        return await this.coreV1Api.listNamespace();
+      const response = await this.circuitBreaker.execute(async () => {
+        return await this.retryHandler.execute(async () => {
+          return await this.coreV1Api.listNamespace();
+        });
       });
       return response;
     } catch (error) {
-      console.error('Error fetching namespaces:', error);
+      if (error instanceof CircuitBreakerOpenError) {
+        console.error('Circuit breaker is open - Kubernetes API is unavailable:', error.message);
+      } else {
+        console.error('Error fetching namespaces:', error);
+      }
       throw error;
     }
   }
@@ -164,6 +197,18 @@ class KubernetesClient {
         isRBACError
       };
     }
+  }
+
+  /**
+   * Get circuit breaker status for monitoring
+   */
+  getCircuitBreakerStatus() {
+    return {
+      state: this.circuitBreaker.getState(),
+      failureRate: this.circuitBreaker.getFailureRate(),
+      requestCount: this.circuitBreaker.getRequestCount(),
+      remainingTimeout: this.circuitBreaker.getRemainingTimeout(),
+    };
   }
 
   /**
