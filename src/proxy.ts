@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { HTTP_HEADERS, HTTP_HEADER_VALUES } from '@/constants/http';
+import { SECURITY } from '@/constants/kubernetes';
 
 /**
  * Security configuration for Content Security Policy
@@ -56,7 +58,7 @@ function getCSPDirectives(): string {
  */
 function getSecurityConfig(): SecurityConfig {
   const isDevelopment = process.env.NODE_ENV === 'development';
-  const hstsMaxAge = process.env.HSTS_MAX_AGE || '31536000'; // 1 year default
+  const hstsMaxAge = process.env.HSTS_MAX_AGE || String(SECURITY.HSTS_MAX_AGE); // 1 year default
 
   return {
     contentSecurityPolicy: getCSPDirectives(),
@@ -80,17 +82,20 @@ export default function proxy(_request: NextRequest): NextResponse {
   const config = getSecurityConfig();
 
   // Add Content-Security-Policy header
-  response.headers.set('Content-Security-Policy', config.contentSecurityPolicy);
+  response.headers.set(HTTP_HEADERS.CONTENT_SECURITY_POLICY, config.contentSecurityPolicy);
 
   // Add X-Frame-Options header
-  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set(HTTP_HEADERS.X_FRAME_OPTIONS, HTTP_HEADER_VALUES.X_FRAME_OPTIONS_DENY);
 
   // Add X-Content-Type-Options header
-  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set(
+    HTTP_HEADERS.X_CONTENT_TYPE_OPTIONS,
+    HTTP_HEADER_VALUES.X_CONTENT_TYPE_OPTIONS_NOSNIFF
+  );
 
   // Add Strict-Transport-Security header (only in production)
   if (config.strictTransportSecurity) {
-    response.headers.set('Strict-Transport-Security', config.strictTransportSecurity);
+    response.headers.set(HTTP_HEADERS.STRICT_TRANSPORT_SECURITY, config.strictTransportSecurity);
   }
 
   // Add Permissions-Policy header

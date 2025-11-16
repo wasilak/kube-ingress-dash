@@ -2,6 +2,7 @@ import { KubeConfig, V1Ingress } from '@kubernetes/client-node';
 import { IngressData } from '@/types/ingress';
 import KubernetesClient from './client';
 import { transformIngress } from '@/lib/utils/ingress-transformer';
+import { KUBERNETES_TIMEOUTS, KUBERNETES_WATCH_EVENT } from '@/constants/kubernetes';
 
 export interface IngressEvent {
   type: 'ADDED' | 'MODIFIED' | 'DELETED';
@@ -167,9 +168,9 @@ export class IngressStream {
 
       // Use type mapping for optimal performance
       const eventTypeMap: Record<string, 'ADDED' | 'MODIFIED' | 'DELETED'> = {
-        ADDED: 'ADDED',
-        MODIFIED: 'MODIFIED',
-        DELETED: 'DELETED',
+        ADDED: KUBERNETES_WATCH_EVENT.ADDED,
+        MODIFIED: KUBERNETES_WATCH_EVENT.MODIFIED,
+        DELETED: KUBERNETES_WATCH_EVENT.DELETED,
       };
 
       const eventType = eventTypeMap[type];
@@ -206,7 +207,7 @@ export class IngressStream {
           console.error('Failed to restart watch:', err);
           this.emitError(err);
         });
-      }, 5000); // Retry after 5 seconds
+      }, KUBERNETES_TIMEOUTS.RECONNECT_DELAY); // Retry after 5 seconds
     }
   }
 

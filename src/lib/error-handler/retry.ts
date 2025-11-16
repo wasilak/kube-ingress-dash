@@ -1,4 +1,5 @@
 import { ErrorClassifier } from './classifier';
+import { KUBERNETES_RETRY } from '@/constants/kubernetes';
 
 /**
  * Configuration options for the retry handler
@@ -33,10 +34,10 @@ export interface RetryConfig {
  * Default retry configuration with exponential backoff: 100ms, 200ms, 400ms
  */
 const DEFAULT_RETRY_CONFIG: RetryConfig = {
-  maxAttempts: 3,
-  initialDelayMs: 100,
-  maxDelayMs: 5000,
-  backoffMultiplier: 2,
+  maxAttempts: KUBERNETES_RETRY.MAX_ATTEMPTS,
+  initialDelayMs: KUBERNETES_RETRY.INITIAL_DELAY,
+  maxDelayMs: KUBERNETES_RETRY.MAX_DELAY,
+  backoffMultiplier: KUBERNETES_RETRY.BACKOFF_MULTIPLIER,
 };
 
 /**

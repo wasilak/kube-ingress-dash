@@ -1,4 +1,5 @@
 import { ErrorClassifier } from './classifier';
+import { KUBERNETES_CIRCUIT_BREAKER, KUBERNETES_TIMEOUTS } from '@/constants/kubernetes';
 
 /**
  * Circuit breaker states
@@ -50,10 +51,10 @@ interface RequestResult {
  * Default circuit breaker configuration
  */
 const DEFAULT_CIRCUIT_BREAKER_CONFIG: CircuitBreakerConfig = {
-  failureThreshold: 0.5, // 50% failure rate
-  successThreshold: 1,
-  timeout: 60000, // 60 seconds
-  windowMs: 30000, // 30 seconds
+  failureThreshold: KUBERNETES_CIRCUIT_BREAKER.FAILURE_THRESHOLD, // 50% failure rate
+  successThreshold: KUBERNETES_CIRCUIT_BREAKER.SUCCESS_THRESHOLD,
+  timeout: KUBERNETES_TIMEOUTS.CIRCUIT_BREAKER_TIMEOUT, // 60 seconds
+  windowMs: KUBERNETES_TIMEOUTS.CIRCUIT_BREAKER_WINDOW, // 30 seconds
 };
 
 /**

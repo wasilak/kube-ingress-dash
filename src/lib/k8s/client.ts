@@ -8,6 +8,8 @@ import {
 import { IngressData } from '@/types/ingress';
 import { transformIngress, transformIngresses } from '@/lib/utils/ingress-transformer';
 import { RetryHandler, CircuitBreaker, CircuitBreakerOpenError } from '@/lib/error-handler';
+import { KUBERNETES_RETRY, KUBERNETES_TIMEOUTS } from '@/constants/kubernetes';
+import { HTTP_STATUS } from '@/constants/http';
 
 /**
  * Kubernetes client for interacting with the Kubernetes API.
@@ -78,10 +80,10 @@ class KubernetesClient {
     // Retries: 3 attempts with delays of 100ms, 200ms, 400ms
     // This handles transient network issues and temporary API unavailability
     this.retryHandler = new RetryHandler({
-      maxAttempts: 3,
-      initialDelayMs: 100,
-      maxDelayMs: 5000,
-      backoffMultiplier: 2,
+      maxAttempts: KUBERNETES_RETRY.MAX_ATTEMPTS,
+      initialDelayMs: KUBERNETES_RETRY.INITIAL_DELAY,
+      maxDelayMs: KUBERNETES_RETRY.MAX_DELAY,
+      backoffMultiplier: KUBERNETES_RETRY.BACKOFF_MULTIPLIER,
     });
 
     // Initialize circuit breaker to prevent cascading failures
@@ -91,8 +93,8 @@ class KubernetesClient {
     this.circuitBreaker = new CircuitBreaker({
       failureThreshold: 0.5, // Open circuit at 50% failure rate
       successThreshold: 1, // Close after 1 successful request in half-open state
-      timeout: 60000, // Wait 60 seconds before trying again
-      windowMs: 30000, // Track failures over 30 second window
+      timeout: KUBERNETES_TIMEOUTS.CIRCUIT_BREAKER_TIMEOUT, // Wait 60 seconds before trying again
+      windowMs: KUBERNETES_TIMEOUTS.CIRCUIT_BREAKER_WINDOW, // Track failures over 30 second window
     });
   }
 
@@ -222,7 +224,7 @@ class KubernetesClient {
     } catch (error: unknown) {
       const err = error as { response?: { statusCode?: number } };
       // Check if it's a "not found" error
-      if (err?.response?.statusCode === 404) {
+      if (err?.response?.statusCode === HTTP_STATUS.NOT_FOUND) {
         return null;
       }
       if (error instanceof CircuitBreakerOpenError) {
@@ -352,7 +354,7 @@ class KubernetesClient {
       const isRBACError =
         err?.response?.body?.message?.includes('forbidden') ||
         err?.response?.body?.message?.includes('denied') ||
-        err?.response?.statusCode === 403;
+        err?.response?.statusCode === HTTP_STATUS.FORBIDDEN;
 
       return {
         hasPermissions: false,
