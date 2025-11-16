@@ -19,8 +19,8 @@ Install kube-ingress-dash with default settings:
 
 ```bash
 helm install kube-ingress-dash \
-  oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash \
-  --version 0.1.0
+  oci://ghcr.io/wasilak/kube-ingress-dash-chart \
+  --version @HELM_VERSION@
 ```
 
 :::info OCI Registry
@@ -55,8 +55,8 @@ Deploy:
 
 ```bash
 helm install kube-ingress-dash \
-  oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash \
-  --version 0.1.0 \
+  oci://ghcr.io/wasilak/kube-ingress-dash-chart \
+  --version @HELM_VERSION@ \
   --namespace kube-ingress-dash \
   --create-namespace \
   --values dev-values.yaml
@@ -113,8 +113,8 @@ Deploy:
 
 ```bash
 helm install kube-ingress-dash \
-  oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash \
-  --version 0.1.0 \
+  oci://ghcr.io/wasilak/kube-ingress-dash-chart \
+  --version @HELM_VERSION@ \
   --namespace kube-ingress-dash \
   --create-namespace \
   --values prod-values.yaml
@@ -129,7 +129,7 @@ For monitoring ingresses across multiple clusters with custom image:
 # Use a custom image with additional monitoring tools
 image:
   repository: ghcr.io/wasilak/kube-ingress-dash
-  tag: "0.1.0"
+  tag: "@DOCKER_VERSION@"
   pullPolicy: IfNotPresent
 
 replicaCount: 1
@@ -169,8 +169,8 @@ Deploy:
 
 ```bash
 helm install kube-ingress-dash \
-  oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash \
-  --version 0.1.0 \
+  oci://ghcr.io/wasilak/kube-ingress-dash-chart \
+  --version @HELM_VERSION@ \
   --namespace monitoring \
   --create-namespace \
   --values multi-cluster-values.yaml
@@ -350,8 +350,8 @@ rbac:
 
 ```bash
 helm install kube-ingress-dash \
-  oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash \
-  --version 0.1.0 \
+  oci://ghcr.io/wasilak/kube-ingress-dash-chart \
+  --version @HELM_VERSION@ \
   --namespace kube-ingress-dash \
   --create-namespace
 ```
@@ -362,8 +362,8 @@ Create a `values.yaml` file with your customizations and install:
 
 ```bash
 helm install kube-ingress-dash \
-  oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash \
-  --version 0.1.0 \
+  oci://ghcr.io/wasilak/kube-ingress-dash-chart \
+  --version @HELM_VERSION@ \
   --values values.yaml
 ```
 
@@ -373,8 +373,8 @@ For quick testing, you can set values directly:
 
 ```bash
 helm install kube-ingress-dash \
-  oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash \
-  --version 0.1.0 \
+  oci://ghcr.io/wasilak/kube-ingress-dash-chart \
+  --version @HELM_VERSION@ \
   --set replicaCount=2 \
   --set resources.requests.cpu=100m \
   --set resources.requests.memory=128Mi
@@ -418,8 +418,8 @@ Upgrade to a new version:
 
 ```bash
 helm upgrade kube-ingress-dash \
-  oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash \
-  --version 0.1.1 \
+  oci://ghcr.io/wasilak/kube-ingress-dash-chart \
+  --version @HELM_VERSION@ \
   --values values.yaml
 ```
 
@@ -672,8 +672,8 @@ helm rollback kube-ingress-dash -n <namespace>
 ```bash
 helm uninstall kube-ingress-dash -n <namespace>
 helm install kube-ingress-dash \
-  oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash \
-  --version 0.1.0 \
+  oci://ghcr.io/wasilak/kube-ingress-dash-chart \
+  --version @HELM_VERSION@ \
   --namespace <namespace> \
   --values values.yaml
 ```
