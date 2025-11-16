@@ -59,7 +59,28 @@ const DEFAULT_CIRCUIT_BREAKER_CONFIG: CircuitBreakerConfig = {
 /**
  * Circuit breaker error thrown when circuit is open
  */
+/**
+ * Error thrown when circuit breaker is in OPEN state.
+ * Indicates that the protected service is experiencing failures and requests are being rejected
+ * to prevent cascading failures and allow the service time to recover.
+ * 
+ * @example
+ * ```typescript
+ * try {
+ *   await circuitBreaker.execute(() => fetchData());
+ * } catch (error) {
+ *   if (error instanceof CircuitBreakerOpenError) {
+ *     console.log('Service temporarily unavailable, using cached data');
+ *   }
+ * }
+ * ```
+ */
 export class CircuitBreakerOpenError extends Error {
+  /**
+   * Creates a new CircuitBreakerOpenError instance.
+   * 
+   * @param message - Error message describing the circuit breaker state
+   */
   constructor(message: string = 'Circuit breaker is open') {
     super(message);
     this.name = 'CircuitBreakerOpenError';
@@ -167,7 +188,11 @@ export class CircuitBreaker {
   }
 
   /**
-   * Records a successful request
+   * Records a successful request and updates circuit breaker state.
+   * In HALF_OPEN state, increments success count and may close the circuit.
+   * In CLOSED state, adds success to request history.
+   * 
+   * @private
    */
   private recordSuccess(): void {
     const now = Date.now();
@@ -194,7 +219,11 @@ export class CircuitBreaker {
   }
 
   /**
-   * Records a failed request
+   * Records a failed request and updates circuit breaker state.
+   * In HALF_OPEN state, any failure reopens the circuit.
+   * In CLOSED state, adds failure to history and checks if threshold is exceeded.
+   * 
+   * @private
    */
   private recordFailure(): void {
     const now = Date.now();
@@ -219,7 +248,11 @@ export class CircuitBreaker {
   }
 
   /**
-   * Removes entries outside the sliding window
+   * Removes entries outside the sliding window to maintain accurate failure rate calculation.
+   * 
+   * @param now - Current timestamp in milliseconds
+   * 
+   * @private
    */
   private cleanupHistory(now: number): void {
     const cutoff = now - this.config.windowMs;
@@ -229,7 +262,10 @@ export class CircuitBreaker {
   }
 
   /**
-   * Checks if failure threshold is exceeded and opens circuit if needed
+   * Checks if failure threshold is exceeded and opens circuit if needed.
+   * Calculates failure rate from request history and compares against configured threshold.
+   * 
+   * @private
    */
   private checkFailureThreshold(): void {
     if (this.requestHistory.length === 0) {
@@ -246,7 +282,10 @@ export class CircuitBreaker {
   }
 
   /**
-   * Checks if circuit should transition from OPEN to HALF_OPEN
+   * Checks if circuit should transition from OPEN to HALF_OPEN.
+   * Transitions when the configured timeout has elapsed since circuit opened.
+   * 
+   * @private
    */
   private checkStateTransition(): void {
     if (this.state === CircuitState.OPEN && this.openTimestamp !== null) {
@@ -260,7 +299,12 @@ export class CircuitBreaker {
   }
 
   /**
-   * Transitions the circuit breaker to a new state
+   * Transitions the circuit breaker to a new state and resets relevant counters.
+   * Logs state transitions for observability.
+   * 
+   * @param newState - The new circuit state to transition to
+   * 
+   * @private
    */
   private transitionTo(newState: CircuitState): void {
     const oldState = this.state;
