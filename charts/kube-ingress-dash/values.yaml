@@ -115,3 +115,19 @@ rbac:
   clusterRoleBinding: true
   # ServiceAccount name for the role binding
   serviceAccountName: "kube-ingress-dash-viewer"
+
+# Liveness probe configuration
+livenessProbe:
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+
+# Readiness probe configuration
+readinessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
