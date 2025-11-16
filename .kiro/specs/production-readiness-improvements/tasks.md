@@ -23,10 +23,11 @@ This implementation plan breaks down the production readiness improvements into 
 
 ## Phase 2: Reliability (Error Handling & Health)
 
-- [ ] 3. Implement Error Classification System
+- [x] 3. Implement Error Classification System
   - Create `src/lib/error-handler/classifier.ts` with error classification logic
   - Implement `ErrorClassifier.classify()` method to categorize errors as transient, permanent, rate limit, authentication, or authorization
   - Add logic to detect error types from HTTP status codes and error messages
+  - Add proper UI error handling - clear and simple informations for user, backed with proper links to documentation (docusaurus) built from this repo but hosted at https://wasilak.github.io/kube-ingress-dash/
   - Export `ErrorCategory` enum and `ErrorClassification` interface
   - _Requirements: 7.5_
 
