@@ -86,6 +86,7 @@ debug.log
 
 # Local storage
 localStorage.json
+local-storage
 
 # Temporary files
 tmp/
