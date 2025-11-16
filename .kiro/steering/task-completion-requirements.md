@@ -2,6 +2,15 @@
 
 When implementing tasks from specs, you MUST follow these completion criteria:
 
+## Critical Thinking After Implementation
+- After completing any task implementation, ALWAYS critically evaluate whether the code is functional or dead code
+- Ask yourself: "Is this code actually being used anywhere in the application?"
+- Verify integration points: Check if the implemented functionality is imported and called
+- Search the codebase for actual usage of new classes, functions, or modules
+- If code is not integrated, identify ALL places where it should be used and integrate it fully
+- Don't just implement infrastructure - ensure it's wired into the application flow
+- Reference your steering rules to ensure you're following best practices
+
 ## Build Verification
 - Always run `npm run build` after implementing code changes
 - Fix ALL build errors before marking a task as complete
