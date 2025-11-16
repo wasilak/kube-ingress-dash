@@ -15,15 +15,18 @@ A Kubernetes Ingress Dashboard for monitoring and navigating services running in
 
 ## Features
 
-- **Real-time Ingress Monitoring**: Watch ingress resources update in real-time
+- **Real-time Ingress Monitoring**: Watch ingress resources update in real-time using Server-Sent Events
+- **Multi-Namespace Support**: Monitor ingresses across multiple namespaces simultaneously
 - **Search and Filter**: Quickly find ingresses by name, namespace, host, or path
-- **Advanced Filtering**: Multi-select component for filtering by labels and annotations
-- **Kubernetes Context Information**: View cluster, namespace, and other context information
+- **Namespace Filtering**: Multi-select component for filtering by namespace
 - **TLS Visualization**: Clear indicators for TLS-enabled ingresses
 - **Responsive Dashboard**: Clean, modern UI built with shadcn/ui and Tailwind CSS
 - **Dark/Light Theme**: Toggle between light, dark, and system themes with custom indigo theme
 - **Service Navigation**: Direct links to your services from the dashboard
-- **Error Handling**: Comprehensive error boundaries and centralized error reporting
+- **Error Handling**: Comprehensive error boundaries with retry logic and circuit breaker pattern
+- **Health Checks**: Kubernetes API connectivity monitoring for liveness and readiness probes
+- **Virtual Scrolling**: Efficient rendering of large ingress lists
+- **Security Headers**: Built-in security headers middleware for production deployments
 - **Testing**: Comprehensive test suite with Jest and React Testing Library
 
 ## Quick Start
