@@ -1,63 +1,180 @@
 ---
-sidebar_position: 3
-title: "Deployment: Helm"
+sidebar_position: 2
+title: 'Deployment: Helm'
 ---
 
 # Deploying kube-ingress-dash with Helm
 
-This guide explains how to deploy kube-ingress-dash using Helm charts.
+The recommended way to deploy kube-ingress-dash to Kubernetes is using the official Helm chart.
 
 ## Prerequisites
 
 - Helm 3.0+ installed
-- Kubernetes cluster with appropriate RBAC permissions
-- Access to the kube-ingress-dash Helm chart
+- Kubernetes cluster with kubectl configured
+- Appropriate RBAC permissions to create ClusterRole and ClusterRoleBinding
 
 ## Quick Start
 
-### Add the Helm Repository
-
-Since our chart is published to GitHub Container Registry (GHCR) as an OCI chart:
+Install kube-ingress-dash with default settings:
 
 ```bash
-# Install directly from OCI registry
-helm install kube-ingress-dash oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash --version @HELM_VERSION@
+helm install kube-ingress-dash \
+  oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash \
+  --version 0.1.0
 ```
 
-## Installation
+:::info OCI Registry
+The chart is published to GitHub Container Registry (GHCR) as an OCI artifact. This is the modern Helm 3 approach and doesn't require adding a traditional Helm repository.
+:::
 
-### 1. Install with Default Values
+## Installation Options
+
+### Install to Specific Namespace
 
 ```bash
-helm install kube-ingress-dash oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash --version @HELM_VERSION@
+helm install kube-ingress-dash \
+  oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash \
+  --version 0.1.0 \
+  --namespace kube-ingress-dash \
+  --create-namespace
 ```
 
-### 2. Install with Custom Values
+### Install with Custom Values
+
+Create a `values.yaml` file with your customizations:
+
+```yaml
+# Example: Enable ingress
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: ingress-dash.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+# Example: Set resource limits
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+```
+
+Install with custom values:
 
 ```bash
-helm install kube-ingress-dash oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash --version @HELM_VERSION@ -f my-values.yaml
+helm install kube-ingress-dash \
+  oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash \
+  --version 0.1.0 \
+  --values values.yaml
 ```
 
 ## Configuration
 
-### Common Configuration Options
+For a complete list of configuration options and their descriptions, see the [Chart README](https://github.com/wasilak/kube-ingress-dash/tree/main/charts/kube-ingress-dash).
 
-The Helm chart provides extensive configuration options:
+### Key Configuration Options
 
-#### Image Configuration
+| Parameter                | Description                                  | Default                               |
+| ------------------------ | -------------------------------------------- | ------------------------------------- |
+| `image.repository`       | Container image repository                   | `ghcr.io/wasilak/kube-ingress-dash`  |
+| `image.tag`              | Container image tag                          | Chart appVersion                      |
+| `replicaCount`           | Number of replicas                           | `1`                                   |
+| `service.type`           | Kubernetes service type                      | `ClusterIP`                           |
+| `service.port`           | Service port                                 | `3000`                                |
+| `ingress.enabled`        | Enable ingress                               | `false`                               |
+| `rbac.create`            | Create RBAC resources                        | `true`                                |
+| `rbac.clusterRoleBinding`| Create ClusterRoleBinding                    | `true`                                |
+| `resources`              | CPU/Memory resource requests/limits          | `{}`                                  |
+| `autoscaling.enabled`    | Enable horizontal pod autoscaling            | `false`                               |
 
-```yaml
-image:
-	repository: ghcr.io/wasilak/kube-ingress-dash
-	pullPolicy: IfNotPresent
-	tag: ""  # Defaults to appVersion in Chart.yaml
+## Upgrading
+
+Upgrade to a new version:
+
+```bash
+helm upgrade kube-ingress-dash \
+  oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash \
+  --version 0.1.1 \
+  --values values.yaml
 ```
 
-#### Service Configuration
+## Uninstalling
 
-```yaml
-service:
-	type: ClusterIP
-	port: 80
-	targetPort: 3000
+Remove the deployment:
+
+```bash
+helm uninstall kube-ingress-dash
 ```
+
+:::warning
+This will remove all resources created by the chart, including the ClusterRole and ClusterRoleBinding.
+:::
+
+## Accessing the Dashboard
+
+After installation, follow the instructions in the Helm output to access the dashboard.
+
+### Port Forward (Default)
+
+If using the default ClusterIP service:
+
+```bash
+kubectl port-forward svc/kube-ingress-dash 8080:3000
+```
+
+Then open http://localhost:8080 in your browser.
+
+### Ingress
+
+If you enabled ingress, access the dashboard at your configured hostname.
+
+### LoadBalancer
+
+If you set `service.type: LoadBalancer`:
+
+```bash
+kubectl get svc kube-ingress-dash
+```
+
+Access the dashboard at the external IP shown.
+
+## Troubleshooting
+
+### Check Pod Status
+
+```bash
+kubectl get pods -l app.kubernetes.io/name=kube-ingress-dash
+```
+
+### View Logs
+
+```bash
+kubectl logs -l app.kubernetes.io/name=kube-ingress-dash
+```
+
+### Verify RBAC
+
+```bash
+kubectl get clusterrole kube-ingress-dash-viewer
+kubectl get clusterrolebinding kube-ingress-dash-rolebinding
+```
+
+### Common Issues
+
+**Permission Errors**: Ensure the ClusterRole includes all required permissions. See [RBAC Setup](../architecture/rbac-setup.mdx).
+
+**Pod Not Starting**: Check resource limits and node capacity.
+
+**Cannot Access Dashboard**: Verify service type and ingress configuration.
+
+## Related Documentation
+
+- [Chart README](https://github.com/wasilak/kube-ingress-dash/tree/main/charts/kube-ingress-dash) - Complete values reference
+- [RBAC Setup](../architecture/rbac-setup.mdx) - Detailed RBAC configuration
+- [Docker Deployment](./docker.mdx) - Alternative deployment method
+- [From Source](./from-source.mdx) - Development deployment
