@@ -42,12 +42,12 @@ function getCSPDirectives(): string {
     `base-uri 'self'`,
     `form-action 'self'`,
     `frame-ancestors 'none'`,
-    `upgrade-insecure-requests`,
   ];
 
-  // Remove upgrade-insecure-requests in development
-  if (isDevelopment) {
-    return directives.filter((d) => !d.includes('upgrade-insecure-requests')).join('; ');
+  // Only add upgrade-insecure-requests if explicitly enabled via env var
+  // This allows running without TLS in local/development environments
+  if (process.env.CSP_UPGRADE_INSECURE_REQUESTS === 'true') {
+    directives.push('upgrade-insecure-requests');
   }
 
   return directives.join('; ');
