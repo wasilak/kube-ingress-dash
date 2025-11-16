@@ -154,10 +154,12 @@ export class CircuitBreaker {
    * ```
    */
   async execute<T>(fn: () => Promise<T>): Promise<T> {
-    // Check if we should transition from OPEN to HALF_OPEN
+    // Check if enough time has elapsed to transition from OPEN to HALF_OPEN state
+    // This allows the circuit breaker to test if the service has recovered
     this.checkStateTransition();
 
-    // If circuit is OPEN, reject immediately
+    // Fast-fail: If circuit is OPEN, reject immediately without calling the function
+    // This prevents overwhelming a failing service and gives it time to recover
     if (this.state === CircuitState.OPEN) {
       throw new CircuitBreakerOpenError(
         `Circuit breaker is open. Service will be retried after ${this.getRemainingTimeout()}ms`
@@ -165,24 +167,27 @@ export class CircuitBreaker {
     }
 
     try {
-      // Execute the function
+      // Execute the protected function
       const result = await fn();
 
-      // Record success
+      // Record successful execution to update circuit breaker state
+      // In HALF_OPEN state, this may close the circuit if threshold is met
       this.recordSuccess();
 
       return result;
     } catch (error) {
-      // Classify the error to determine if it should count as a failure
+      // Classify the error to determine if it indicates service health issues
+      // This prevents permanent errors (404, 400) from triggering circuit breaker
       const classification = ErrorClassifier.classify(error);
 
-      // Only count transient errors as failures for circuit breaker
+      // Only count transient errors and rate limits as failures for circuit breaker
       // Permanent errors (like 404, 400) don't indicate service health issues
+      // Rate limit errors are transient and should count toward failure threshold
       if (classification.category === 'transient' || classification.category === 'rate_limit') {
         this.recordFailure();
       }
 
-      // Re-throw the original error
+      // Always re-throw the original error so caller can handle it appropriately
       throw error;
     }
   }
@@ -268,14 +273,19 @@ export class CircuitBreaker {
    * @private
    */
   private checkFailureThreshold(): void {
+    // No data to analyze - circuit remains closed
     if (this.requestHistory.length === 0) {
       return;
     }
 
+    // Calculate failure rate from the sliding window of recent requests
+    // This provides a real-time view of service health
     const failures = this.requestHistory.filter((r) => !r.success).length;
     const total = this.requestHistory.length;
     const failureRate = failures / total;
 
+    // Open the circuit if failure rate exceeds threshold (default 50%)
+    // This prevents cascading failures by stopping requests to the failing service
     if (failureRate >= this.config.failureThreshold) {
       this.transitionTo(CircuitState.OPEN);
     }
@@ -310,18 +320,25 @@ export class CircuitBreaker {
     const oldState = this.state;
     this.state = newState;
 
+    // Reset state-specific counters and timestamps based on the new state
     if (newState === CircuitState.OPEN) {
+      // Circuit opened due to high failure rate
+      // Record timestamp to track when we can transition to HALF_OPEN
       this.openTimestamp = Date.now();
       this.halfOpenSuccessCount = 0;
     } else if (newState === CircuitState.CLOSED) {
+      // Circuit closed - service is healthy
+      // Clear all tracking data for a fresh start
       this.openTimestamp = null;
       this.halfOpenSuccessCount = 0;
       this.requestHistory = [];
     } else if (newState === CircuitState.HALF_OPEN) {
+      // Testing if service has recovered
+      // Reset success counter to track test requests
       this.halfOpenSuccessCount = 0;
     }
 
-    // Log state transition (in production, this would use a proper logger)
+    // Log state transition for observability (in production, use structured logging)
     if (process.env.NODE_ENV !== 'test') {
       console.log(`Circuit breaker state transition: ${oldState} -> ${newState}`);
     }

@@ -93,30 +93,35 @@ export class RetryHandler {
     let lastError: unknown;
     let attempt = 0;
 
+    // Retry loop with exponential backoff
+    // Continues until max attempts reached or function succeeds
     while (attempt < this.config.maxAttempts) {
       try {
         attempt++;
         
-        // Execute the function
+        // Execute the protected function
         const result = await fn();
         
-        // Success - return the result
+        // Success - return immediately without further retries
         return result;
       } catch (error) {
         lastError = error;
 
-        // Classify the error to determine if it's retryable
+        // Classify the error to determine retry strategy
+        // Only transient errors (network issues, 5xx) should be retried
         const classification = ErrorClassifier.classify(error);
 
-        // If this is the last attempt or error is not retryable, throw immediately
+        // Fast-fail for non-retryable errors or when out of attempts
+        // Permanent errors (404, 400, 403) indicate client issues that won't be fixed by retrying
         if (attempt >= this.config.maxAttempts || !classification.retryable) {
           throw error;
         }
 
-        // Calculate delay for next retry using exponential backoff
+        // Calculate exponential backoff delay: 100ms, 200ms, 400ms (with default config)
+        // This gives the failing service time to recover between attempts
         const delay = this.calculateDelay(attempt);
 
-        // Log retry attempt (in production, this would use a proper logger)
+        // Log retry attempt for observability (in production, use structured logging)
         if (process.env.NODE_ENV !== 'test') {
           console.warn(
             `Retry attempt ${attempt}/${this.config.maxAttempts} after ${delay}ms`,
@@ -128,12 +133,13 @@ export class RetryHandler {
           );
         }
 
-        // Wait before retrying
+        // Wait before retrying to avoid overwhelming the failing service
         await this.delay(delay);
       }
     }
 
-    // This should never be reached, but TypeScript needs it
+    // This should never be reached due to the throw in the catch block,
+    // but TypeScript requires a return/throw at the end of the function
     throw lastError;
   }
 
