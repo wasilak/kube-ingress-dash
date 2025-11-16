@@ -19,9 +19,12 @@ export class IngressStream {
   private errorHandlers: ((error: Error) => void)[] = [];
   private activeWatch: WatchInstance | null = null;
   private watchStopper: (() => void) | null = null;
+  private currentNamespace?: string;
+  private autoReconnect: boolean = true;
 
-  constructor() {
+  constructor(options?: { autoReconnect?: boolean }) {
     this.kubeClient = new KubernetesClient();
+    this.autoReconnect = options?.autoReconnect ?? true;
     
     // Dynamically import the Watch class since it's not in the types
     this.watch = require('@kubernetes/client-node').Watch;
@@ -92,6 +95,9 @@ export class IngressStream {
       this.stopWatching();
     }
 
+    // Store the namespace for potential reconnection
+    this.currentNamespace = namespace;
+
     try {
       // Create a new watch instance
       const watchInstance = new this.watch(this.kubeClient.kubeConfig);
@@ -132,6 +138,7 @@ export class IngressStream {
       };
     } catch (error) {
       this.emitError(error as Error);
+      throw error;
     }
   }
 
@@ -175,24 +182,17 @@ export class IngressStream {
     console.error('Watch error:', error);
     this.emitError(error);
 
-    // Implement reconnection logic with exponential backoff
-    setTimeout(() => {
-      console.log('Attempting to restart watch after error...');
-      const namespace = this.extractNamespaceFromActiveWatch();
-      this.startWatching(namespace).catch(err => {
-        console.error('Failed to restart watch:', err);
-        this.emitError(err);
-      });
-    }, 5000); // Retry after 5 seconds
-  }
-
-  /**
-   * Extract the namespace from the currently active watch (simplified - in real implementation would need to track)
-   */
-  private extractNamespaceFromActiveWatch(): string | undefined {
-    // This is a simplification - in practice, you'd need to track the namespace
-    // that was used when starting the watch
-    return undefined;
+    // Only auto-reconnect if enabled (disabled when used in multi-namespace manager)
+    if (this.autoReconnect) {
+      // Implement reconnection logic with exponential backoff
+      setTimeout(() => {
+        console.log('Attempting to restart watch after error...');
+        this.startWatching(this.currentNamespace).catch(err => {
+          console.error('Failed to restart watch:', err);
+          this.emitError(err);
+        });
+      }, 5000); // Retry after 5 seconds
+    }
   }
 
   /**
