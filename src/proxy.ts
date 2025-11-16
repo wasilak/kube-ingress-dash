@@ -20,10 +20,10 @@ function getCSPDirectives(): string {
   // Allow configurable CSP directives via environment variables
   const scriptSrc =
     process.env.CSP_SCRIPT_SRC ||
-    (isDevelopment ? "'self' 'unsafe-eval' 'unsafe-inline'" : "'self'");
+    (isDevelopment ? "'self' 'unsafe-eval' 'unsafe-inline'" : "'self' 'unsafe-inline'");
   const styleSrc = process.env.CSP_STYLE_SRC || "'self' 'unsafe-inline'";
   const imgSrc = process.env.CSP_IMG_SRC || "'self' data: blob:";
-  const connectSrc = process.env.CSP_CONNECT_SRC || "'self'";
+  const connectSrc = process.env.CSP_CONNECT_SRC || "'self' blob:";
   const fontSrc = process.env.CSP_FONT_SRC || "'self'";
   const objectSrc = process.env.CSP_OBJECT_SRC || "'none'";
   const mediaSrc = process.env.CSP_MEDIA_SRC || "'self'";
