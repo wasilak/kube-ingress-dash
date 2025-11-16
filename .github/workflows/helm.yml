@@ -44,29 +44,21 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | oras login ${{ env.HELM_REGISTRY }} -u ${{ github.actor }} --password-stdin
 
       - name: Package and push Helm chart to OCI registry
-        env:
-          CHART_NAME: ${{ github.event.repository.name }}
         run: |
-          cd charts
+          cd charts/kube-ingress-dash
           VERSION=${GITHUB_REF_NAME#v}
-          CHART_PACKAGE_NAME=${CHART_NAME}-chart
           # Update version in Chart.yaml temporarily for this build
-          sed -i "s/version: .*/version: $VERSION/" $CHART_NAME/Chart.yaml
-          sed -i "s/appVersion: .*/appVersion: \"$VERSION\"/" $CHART_NAME/Chart.yaml
+          sed -i "s/version: .*/version: $VERSION/" Chart.yaml
+          sed -i "s/appVersion: .*/appVersion: \"$VERSION\"/" Chart.yaml
           # Package the chart
-          helm package $CHART_NAME/ --destination .
-          # Rename the chart package to avoid collision
-          mv $CHART_NAME-$VERSION.tgz $CHART_PACKAGE_NAME-$VERSION.tgz
-          # Push to OCI registry under unique chart path
-          helm push $CHART_PACKAGE_NAME-$VERSION.tgz oci://${{ env.HELM_REGISTRY }}/${{ env.HELM_NAMESPACE }}/$CHART_PACKAGE_NAME
+          helm package . --destination /tmp
+          # Push to OCI registry (Helm will use the chart name from Chart.yaml: kube-ingress-dash-chart)
+          helm push /tmp/kube-ingress-dash-chart-$VERSION.tgz oci://${{ env.HELM_REGISTRY }}/${{ env.HELM_NAMESPACE }}
 
       - name: Push Artifact Hub metadata to OCI registry
-        env:
-          CHART_NAME: ${{ github.event.repository.name }}
         run: |
-          CHART_PACKAGE_NAME=${CHART_NAME}-chart
           # Push artifacthub-repo.yml as a separate OCI artifact with the special tag
           oras push \
-            ${{ env.HELM_REGISTRY }}/${{ env.HELM_NAMESPACE }}/$CHART_PACKAGE_NAME:artifacthub.io \
+            ${{ env.HELM_REGISTRY }}/${{ env.HELM_NAMESPACE }}/kube-ingress-dash-chart:artifacthub.io \
             --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml \
-            charts/$CHART_NAME/artifacthub-repo.yml:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml
+            charts/kube-ingress-dash/artifacthub-repo.yml:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml
