@@ -5,41 +5,123 @@ import KubernetesClient from '@/lib/k8s/client';
 const kubeClient = new KubernetesClient();
 
 /**
- * Health check endpoint that includes circuit breaker status
- * GET /api/health
+ * Health check result interface
  */
-export async function GET() {
+interface HealthCheckResult {
+  status: 'healthy' | 'degraded' | 'unhealthy';
+  timestamp: string;
+  checks: {
+    kubernetes: {
+      status: 'up' | 'down';
+      latency?: number;
+      error?: string;
+    };
+  };
+}
+
+/**
+ * Health check endpoint with Kubernetes API connectivity check
+ * GET /api/health
+ * 
+ * Performs a lightweight connectivity check to the Kubernetes API by listing namespaces.
+ * Returns HTTP 200 when healthy, HTTP 503 when unhealthy.
+ * Includes latency metrics and has a 5-second timeout.
+ * 
+ * @returns {Promise<Response>} Health check response with status and metrics
+ */
+export async function GET(): Promise<Response> {
+  const startTime = Date.now();
+  const timestamp = new Date().toISOString();
+  
   try {
-    // Get circuit breaker status
-    const circuitBreakerStatus = kubeClient.getCircuitBreakerStatus();
+    // Perform Kubernetes API connectivity check with 5-second timeout
+    const connectivityCheck = await Promise.race([
+      checkKubernetesConnectivity(),
+      timeoutPromise(5000)
+    ]);
 
-    // Determine overall health based on circuit breaker state
-    const isHealthy = circuitBreakerStatus.state !== 'open';
+    const latency = Date.now() - startTime;
 
-    return NextResponse.json(
-      {
-        status: isHealthy ? 'healthy' : 'degraded',
-        timestamp: new Date().toISOString(),
-        circuitBreaker: {
-          state: circuitBreakerStatus.state,
-          failureRate: circuitBreakerStatus.failureRate,
-          requestCount: circuitBreakerStatus.requestCount,
-          remainingTimeout: circuitBreakerStatus.remainingTimeout,
+    if (connectivityCheck.status === 'up') {
+      const result: HealthCheckResult = {
+        status: 'healthy',
+        timestamp,
+        checks: {
+          kubernetes: {
+            status: 'up',
+            latency,
+          },
         },
-        kubernetes: {
-          connected: circuitBreakerStatus.state === 'closed',
-        },
-      },
-      { status: isHealthy ? 200 : 503 }
-    );
-  } catch (error) {
-    return NextResponse.json(
-      {
+      };
+
+      return NextResponse.json(result, { status: 200 });
+    } else {
+      const result: HealthCheckResult = {
         status: 'unhealthy',
-        timestamp: new Date().toISOString(),
-        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp,
+        checks: {
+          kubernetes: {
+            status: 'down',
+            latency,
+            error: connectivityCheck.error,
+          },
+        },
+      };
+
+      return NextResponse.json(result, { status: 503 });
+    }
+  } catch (error) {
+    const latency = Date.now() - startTime;
+    
+    // Handle timeout or other errors
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    
+    const result: HealthCheckResult = {
+      status: 'unhealthy',
+      timestamp,
+      checks: {
+        kubernetes: {
+          status: 'down',
+          latency,
+          error: errorMessage,
+        },
       },
-      { status: 503 }
-    );
+    };
+
+    return NextResponse.json(result, { status: 503 });
   }
+}
+
+/**
+ * Check Kubernetes API connectivity by listing namespaces
+ * This is a lightweight operation suitable for health checks
+ * 
+ * @returns {Promise<{status: 'up' | 'down', error?: string}>} Connectivity status
+ */
+async function checkKubernetesConnectivity(): Promise<{ status: 'up' | 'down'; error?: string }> {
+  try {
+    // Attempt to list namespaces as a connectivity check
+    await kubeClient.getNamespaces();
+    return { status: 'up' };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to connect to Kubernetes API';
+    return { 
+      status: 'down', 
+      error: errorMessage 
+    };
+  }
+}
+
+/**
+ * Create a promise that rejects after the specified timeout
+ * 
+ * @param {number} ms - Timeout in milliseconds
+ * @returns {Promise<never>} Promise that rejects on timeout
+ */
+function timeoutPromise(ms: number): Promise<never> {
+  return new Promise((_, reject) => {
+    setTimeout(() => {
+      reject(new Error(`Health check timeout after ${ms}ms`));
+    }, ms);
+  });
 }
