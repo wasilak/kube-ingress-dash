@@ -49,20 +49,28 @@ class KubernetesClient {
   constructor() {
     this.kubeConfig = new KubeConfig();
     
-    // Load configuration based on environment (in-cluster vs out-of-cluster)
+    // Load Kubernetes configuration based on deployment environment
+    // In-cluster: Uses service account token mounted at /var/run/secrets/kubernetes.io/serviceaccount/
+    // Out-of-cluster: Uses kubeconfig file from ~/.kube/config or KUBECONFIG env var
     if (process.env.NODE_ENV === 'production' || this.isInCluster()) {
-      // In-cluster configuration
+      // In-cluster configuration - running inside a Kubernetes pod
+      // Automatically uses the pod's service account credentials
       this.kubeConfig.loadFromCluster();
     } else {
-      // Out-of-cluster configuration
+      // Out-of-cluster configuration - running locally for development
+      // Loads from default kubeconfig file location
       this.kubeConfig.loadFromDefault();
     }
 
-    // Initialize the Kubernetes API clients
+    // Initialize the Kubernetes API clients for different resource types
+    // NetworkingV1Api: For ingress resources
+    // CoreV1Api: For namespaces and other core resources
     this.networkingV1Api = this.kubeConfig.makeApiClient(NetworkingV1Api);
     this.coreV1Api = this.kubeConfig.makeApiClient(CoreV1Api);
     
-    // Initialize retry handler with exponential backoff
+    // Initialize retry handler with exponential backoff strategy
+    // Retries: 3 attempts with delays of 100ms, 200ms, 400ms
+    // This handles transient network issues and temporary API unavailability
     this.retryHandler = new RetryHandler({
       maxAttempts: 3,
       initialDelayMs: 100,
@@ -71,6 +79,9 @@ class KubernetesClient {
     });
 
     // Initialize circuit breaker to prevent cascading failures
+    // Opens circuit at 50% failure rate over 30-second window
+    // Waits 60 seconds before testing if service has recovered
+    // This protects both our app and the Kubernetes API from overload
     this.circuitBreaker = new CircuitBreaker({
       failureThreshold: 0.5, // Open circuit at 50% failure rate
       successThreshold: 1, // Close after 1 successful request in half-open state
@@ -267,17 +278,23 @@ class KubernetesClient {
    */
   async getIngressesByNamespaces(namespaces: string[]): Promise<IngressData[]> {
     try {
-      // Fetch ingresses from all specified namespaces in parallel
+      // Fetch ingresses from all specified namespaces in parallel for optimal performance
+      // Each namespace query is independent and can run concurrently
       const namespacePromises = namespaces.map(ns =>
         this.getIngressesByNamespace(ns).catch(err => {
+          // Graceful degradation: Log error but don't fail the entire operation
+          // This ensures that if one namespace fails (e.g., due to RBAC), others still work
           console.error(`Error fetching ingresses from namespace ${ns}:`, err);
           return []; // Return empty array for failed namespaces so others can still work
         })
       );
 
+      // Wait for all namespace queries to complete
+      // Promise.all is safe here because we catch errors in the map above
       const namespaceResults = await Promise.all(namespacePromises);
 
       // Flatten the results from all namespaces into a single array
+      // This provides a unified view of ingresses across multiple namespaces
       return namespaceResults.flat();
     } catch (error) {
       console.error('Error fetching ingresses from multiple namespaces:', error);

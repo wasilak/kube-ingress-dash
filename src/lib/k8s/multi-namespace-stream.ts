@@ -234,25 +234,33 @@ export class MultiNamespaceStreamManager {
    * ```
    */
   async updateNamespaces(namespaces: string[]): Promise<void> {
+    // Use Sets for efficient lookup when comparing namespace lists
     const currentNamespaces = new Set(this.watches.keys());
     const newNamespaces = new Set(namespaces);
 
+    // Calculate the diff between current and new namespace selections
+    // This allows us to efficiently add/remove only what changed
+    
     // Find namespaces to stop watching (in current but not in new)
+    // These are namespaces the user deselected
     const namespacesToStop = Array.from(currentNamespaces).filter(
       ns => !newNamespaces.has(ns)
     );
 
     // Find namespaces to start watching (in new but not in current)
+    // These are namespaces the user newly selected
     const namespacesToStart = Array.from(newNamespaces).filter(
       ns => !currentNamespaces.has(ns)
     );
 
     // Stop watches for deselected namespaces
+    // This frees up resources and stops unnecessary API calls
     if (namespacesToStop.length > 0) {
       this.stopWatching(namespacesToStop);
     }
 
     // Start watches for newly selected namespaces
+    // This begins streaming events from the new namespaces
     if (namespacesToStart.length > 0) {
       await this.startWatching(namespacesToStart);
     }
@@ -387,11 +395,13 @@ export class MultiNamespaceStreamManager {
     const watch = this.watches.get(namespace);
     
     // If watch doesn't exist or was explicitly stopped, don't reconnect
+    // This prevents reconnection attempts for namespaces the user deselected
     if (!watch) {
       return;
     }
 
     // Check if we've exceeded max reconnection attempts
+    // After max attempts, we give up to avoid infinite retry loops
     if (watch.reconnectAttempts >= this.maxReconnectAttempts) {
       console.error(
         `Max reconnection attempts (${this.maxReconnectAttempts}) reached for namespace ${namespace}. Giving up.`
@@ -403,12 +413,14 @@ export class MultiNamespaceStreamManager {
       return;
     }
 
-    // Clear any existing reconnection timer
+    // Clear any existing reconnection timer to avoid duplicate attempts
     if (watch.reconnectTimer) {
       clearTimeout(watch.reconnectTimer);
     }
 
-    // Calculate delay with exponential backoff
+    // Calculate delay with exponential backoff: 5s, 10s, 20s, 40s, 80s (with default config)
+    // This progressively increases the delay between attempts to avoid overwhelming the API
+    // Formula: baseDelay * (multiplier ^ attemptNumber)
     const delay = this.reconnectDelayMs * Math.pow(
       this.reconnectBackoffMultiplier,
       watch.reconnectAttempts
@@ -418,12 +430,13 @@ export class MultiNamespaceStreamManager {
       `Scheduling reconnection for namespace ${namespace} in ${delay}ms (attempt ${watch.reconnectAttempts + 1}/${this.maxReconnectAttempts})`
     );
 
-    // Schedule the reconnection attempt
+    // Schedule the reconnection attempt using setTimeout
+    // This is non-blocking and allows other namespaces to continue working
     watch.reconnectTimer = setTimeout(() => {
       this.attemptReconnection(namespace);
     }, delay);
 
-    // Increment reconnection attempts
+    // Increment reconnection attempts counter for next time
     watch.reconnectAttempts++;
   }
 

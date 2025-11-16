@@ -20,25 +20,30 @@ export class ErrorClassifier {
    * ```
    */
   static classify(error: unknown): ErrorClassification {
-    // Handle HTTP Response objects
+    // Handle HTTP Response objects (from fetch API)
+    // These have a status property that directly indicates the error type
     if (error instanceof Response) {
       return this.classifyHttpResponse(error);
     }
 
-    // Handle Error objects
+    // Handle Error objects (standard JavaScript errors)
+    // These require message parsing to determine the error type
     if (error instanceof Error) {
       return this.classifyErrorObject(error);
     }
 
-    // Handle plain objects with status codes
+    // Handle plain objects with status codes (from axios, node-fetch, etc.)
+    // Different HTTP libraries structure errors differently, so we check multiple patterns
     if (typeof error === 'object' && error !== null) {
       const errorObj = error as Record<string, unknown>;
       
+      // Check for direct status code properties (axios pattern)
       if ('statusCode' in errorObj || 'status' in errorObj) {
         const statusCode = (errorObj.statusCode || errorObj.status) as number;
         return this.classifyByStatusCode(statusCode);
       }
 
+      // Check for nested response object (axios error pattern)
       if ('response' in errorObj) {
         const response = errorObj.response as Record<string, unknown>;
         if ('status' in response) {
@@ -48,6 +53,7 @@ export class ErrorClassifier {
     }
 
     // Default to transient error for unknown types
+    // This is a safe default that allows retries for unexpected error formats
     return {
       category: ErrorCategory.TRANSIENT,
       retryable: true,
@@ -79,7 +85,10 @@ export class ErrorClassifier {
   private static classifyErrorObject(error: Error): ErrorClassification {
     const message = error.message.toLowerCase();
 
-    // Network-related errors (transient)
+    // Network-related errors (transient) - these indicate temporary connectivity issues
+    // Common patterns: ECONNREFUSED (connection refused), ENOTFOUND (DNS lookup failed),
+    // ECONNRESET (connection reset by peer), timeouts, and generic network errors
+    // These should be retried as they often resolve themselves
     if (
       message.includes('network') ||
       message.includes('timeout') ||
@@ -95,7 +104,8 @@ export class ErrorClassifier {
       };
     }
 
-    // Authentication errors
+    // Authentication errors - credentials are invalid or expired
+    // These require user intervention (re-authentication) and should not be retried
     if (
       message.includes('unauthorized') ||
       message.includes('authentication') ||
@@ -109,7 +119,8 @@ export class ErrorClassifier {
       };
     }
 
-    // Authorization errors
+    // Authorization errors - user lacks necessary permissions
+    // These require RBAC configuration changes and should not be retried
     if (
       message.includes('forbidden') ||
       message.includes('permission denied') ||
@@ -123,7 +134,8 @@ export class ErrorClassifier {
       };
     }
 
-    // Rate limit errors
+    // Rate limit errors - too many requests sent too quickly
+    // These are transient and should be retried after a delay
     if (
       message.includes('rate limit') ||
       message.includes('too many requests') ||
@@ -136,7 +148,8 @@ export class ErrorClassifier {
       };
     }
 
-    // Not found errors
+    // Not found errors - resource doesn't exist
+    // These are permanent and should not be retried
     if (message.includes('not found') || message.includes('404')) {
       return {
         category: ErrorCategory.PERMANENT,
@@ -146,6 +159,7 @@ export class ErrorClassifier {
     }
 
     // Default to transient for unknown errors
+    // This is a safe default that allows retries for unexpected error messages
     return {
       category: ErrorCategory.TRANSIENT,
       retryable: true,
