@@ -1,7 +1,3 @@
----
-inclusion: manual
----
-
 # Conversation Initialization
 
 ## Serena MCP Tool Bootstrap
