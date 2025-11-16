@@ -303,15 +303,15 @@ export class ErrorClassifier {
     switch (classification.category) {
       case ErrorCategory.AUTHENTICATION:
       case ErrorCategory.AUTHORIZATION:
-        return `${baseUrl}/docs/architecture/rbac-setup`;
+        return `${baseUrl}/architecture/rbac-setup`;
       
       case ErrorCategory.RATE_LIMIT:
-        return `${baseUrl}/docs/architecture/interaction-with-kubernetes`;
+        return `${baseUrl}/architecture/interaction-with-kubernetes`;
       
       case ErrorCategory.PERMANENT:
       case ErrorCategory.TRANSIENT:
       default:
-        return `${baseUrl}/docs`;
+        return baseUrl;
     }
   }
 
