@@ -5,7 +5,7 @@ title: 'Deployment: Helm'
 
 # Deploying kube-ingress-dash with Helm
 
-The recommended way to deploy kube-ingress-dash to Kubernetes is using the official Helm chart.
+The recommended way to deploy kube-ingress-dash to Kubernetes is using the official Helm chart. This guide provides practical deployment scenarios, configuration examples, and troubleshooting tips to help you get started quickly.
 
 ## Prerequisites
 
@@ -27,6 +27,325 @@ helm install kube-ingress-dash \
 The chart is published to GitHub Container Registry (GHCR) as an OCI artifact. This is the modern Helm 3 approach and doesn't require adding a traditional Helm repository.
 :::
 
+## Deployment Scenarios
+
+### Scenario 1: Development/Testing Environment
+
+For quick testing in a development cluster with minimal resources:
+
+```yaml
+# dev-values.yaml
+replicaCount: 1
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+# Use port-forward for access
+service:
+  type: ClusterIP
+  port: 3000
+```
+
+Deploy:
+
+```bash
+helm install kube-ingress-dash \
+  oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash \
+  --version 0.1.0 \
+  --namespace kube-ingress-dash \
+  --create-namespace \
+  --values dev-values.yaml
+```
+
+### Scenario 2: Production Environment with Ingress
+
+For production deployment with external access via ingress controller:
+
+```yaml
+# prod-values.yaml
+replicaCount: 2
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# Enable autoscaling for production workloads
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+
+# Configure ingress for external access
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: ingress-dash.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: ingress-dash-tls
+      hosts:
+        - ingress-dash.example.com
+
+# Add pod annotations for monitoring
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "3000"
+  prometheus.io/path: "/api/health"
+```
+
+Deploy:
+
+```bash
+helm install kube-ingress-dash \
+  oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash \
+  --version 0.1.0 \
+  --namespace kube-ingress-dash \
+  --create-namespace \
+  --values prod-values.yaml
+```
+
+### Scenario 3: Multi-Cluster Monitoring
+
+For monitoring ingresses across multiple clusters with custom image:
+
+```yaml
+# multi-cluster-values.yaml
+# Use a custom image with additional monitoring tools
+image:
+  repository: ghcr.io/wasilak/kube-ingress-dash
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+# Configure environment variables for multi-cluster setup
+env:
+  - name: LOG_LEVEL
+    value: "info"
+  - name: FEATURE_CACHING
+    value: "true"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# Use LoadBalancer for direct access
+service:
+  type: LoadBalancer
+  port: 3000
+
+# Configure node affinity for dedicated monitoring nodes
+affinity:
+  - nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: node-role.kubernetes.io/monitoring
+                operator: In
+                values:
+                  - "true"
+```
+
+Deploy:
+
+```bash
+helm install kube-ingress-dash \
+  oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash \
+  --version 0.1.0 \
+  --namespace monitoring \
+  --create-namespace \
+  --values multi-cluster-values.yaml
+```
+
+## Common Configuration Examples
+
+### Custom Image Configuration
+
+Use a specific image version or private registry:
+
+```yaml
+image:
+  repository: your-registry.example.com/kube-ingress-dash
+  tag: "v1.2.3"
+  pullPolicy: Always
+
+imagePullSecrets:
+  - name: registry-credentials
+```
+
+### Resource Limits and Requests
+
+Set appropriate resource limits based on your cluster size:
+
+```yaml
+# For small clusters (< 50 ingresses)
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+# For medium clusters (50-200 ingresses)
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# For large clusters (> 200 ingresses)
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+```
+
+### Ingress Configuration Examples
+
+#### NGINX Ingress Controller
+
+```yaml
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: ingress-dash.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: ingress-dash-tls
+      hosts:
+        - ingress-dash.example.com
+```
+
+#### Traefik Ingress Controller
+
+```yaml
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+  hosts:
+    - host: ingress-dash.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+```
+
+#### AWS ALB Ingress Controller
+
+```yaml
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:region:account:certificate/xxx
+  hosts:
+    - host: ingress-dash.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+```
+
+### High Availability Configuration
+
+Enable autoscaling and configure pod disruption budgets:
+
+```yaml
+replicaCount: 3
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Configure rolling update strategy
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 0
+
+# Add pod anti-affinity for better distribution
+affinity:
+  - podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - kube-ingress-dash
+            topologyKey: kubernetes.io/hostname
+```
+
+### Security Hardening
+
+Configure security contexts and RBAC:
+
+```yaml
+# Run as non-root user
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+# Customize RBAC
+rbac:
+  create: true
+  enabled: true
+  clusterRoleName: "kube-ingress-dash-viewer"
+  clusterRoleBinding: true
+```
+
 ## Installation Options
 
 ### Install to Specific Namespace
@@ -41,30 +360,7 @@ helm install kube-ingress-dash \
 
 ### Install with Custom Values
 
-Create a `values.yaml` file with your customizations:
-
-```yaml
-# Example: Enable ingress
-ingress:
-  enabled: true
-  className: nginx
-  hosts:
-    - host: ingress-dash.example.com
-      paths:
-        - path: /
-          pathType: Prefix
-
-# Example: Set resource limits
-resources:
-  requests:
-    cpu: 100m
-    memory: 128Mi
-  limits:
-    cpu: 500m
-    memory: 512Mi
-```
-
-Install with custom values:
+Create a `values.yaml` file with your customizations and install:
 
 ```bash
 helm install kube-ingress-dash \
@@ -73,9 +369,35 @@ helm install kube-ingress-dash \
   --values values.yaml
 ```
 
-## Configuration
+### Install with Inline Values
 
-For a complete list of configuration options and their descriptions, see the [Chart README](https://github.com/wasilak/kube-ingress-dash/tree/main/charts/kube-ingress-dash).
+For quick testing, you can set values directly:
+
+```bash
+helm install kube-ingress-dash \
+  oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash \
+  --version 0.1.0 \
+  --set replicaCount=2 \
+  --set resources.requests.cpu=100m \
+  --set resources.requests.memory=128Mi
+```
+
+## Configuration Reference
+
+For a complete list of all available configuration options and their default values, see the auto-generated [Chart README](https://github.com/wasilak/kube-ingress-dash/blob/main/charts/kube-ingress-dash/README.md).
+
+The chart provides extensive configuration options including:
+
+- **Image Configuration**: Repository, tag, pull policy, and secrets
+- **Deployment Settings**: Replica count, update strategy, and pod annotations
+- **Service Configuration**: Type, ports, and annotations
+- **Ingress Settings**: Hosts, paths, TLS, and annotations
+- **RBAC Configuration**: ClusterRole, ClusterRoleBinding, and ServiceAccount
+- **Resource Management**: CPU/memory requests and limits
+- **Autoscaling**: HPA configuration with CPU/memory targets
+- **Health Checks**: Liveness and readiness probe settings
+- **Security**: Pod security contexts and container security contexts
+- **Scheduling**: Node selectors, tolerations, and affinity rules
 
 ### Key Configuration Options
 
@@ -101,6 +423,13 @@ helm upgrade kube-ingress-dash \
   oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash \
   --version 0.1.1 \
   --values values.yaml
+```
+
+Check the upgrade status:
+
+```bash
+helm status kube-ingress-dash
+helm history kube-ingress-dash
 ```
 
 ## Uninstalling
@@ -131,7 +460,7 @@ Then open http://localhost:8080 in your browser.
 
 ### Ingress
 
-If you enabled ingress, access the dashboard at your configured hostname.
+If you enabled ingress, access the dashboard at your configured hostname (e.g., https://ingress-dash.example.com).
 
 ### LoadBalancer
 
@@ -145,36 +474,257 @@ Access the dashboard at the external IP shown.
 
 ## Troubleshooting
 
-### Check Pod Status
+### Common Issues and Solutions
 
+#### Issue: Pod Not Starting
+
+**Symptoms:**
+- Pod stuck in `Pending` or `CrashLoopBackOff` state
+- Error messages in pod events
+
+**Solutions:**
+
+1. Check pod status and events:
 ```bash
 kubectl get pods -l app.kubernetes.io/name=kube-ingress-dash
+kubectl describe pod <pod-name>
 ```
 
-### View Logs
+2. Check resource availability:
+```bash
+kubectl describe nodes
+```
 
+3. Verify resource limits aren't too restrictive:
+```yaml
+resources:
+  requests:
+    cpu: 50m      # Lower if nodes are resource-constrained
+    memory: 64Mi
+```
+
+4. Check image pull issues:
+```bash
+kubectl get events --sort-by='.lastTimestamp'
+```
+
+If image pull fails, verify `imagePullSecrets` are configured correctly.
+
+#### Issue: RBAC Permission Errors
+
+**Symptoms:**
+- Dashboard shows "Forbidden" or "Unauthorized" errors
+- Logs show 403 errors when accessing Kubernetes API
+
+**Solutions:**
+
+1. Verify RBAC resources exist:
+```bash
+kubectl get clusterrole kube-ingress-dash-viewer
+kubectl get clusterrolebinding kube-ingress-dash-rolebinding
+kubectl get serviceaccount kube-ingress-dash-viewer -n <namespace>
+```
+
+2. Check ClusterRole permissions:
+```bash
+kubectl describe clusterrole kube-ingress-dash-viewer
+```
+
+3. Ensure the ServiceAccount is bound correctly:
+```bash
+kubectl describe clusterrolebinding kube-ingress-dash-rolebinding
+```
+
+4. If using custom RBAC, ensure these permissions are granted:
+```yaml
+rules:
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list"]
+```
+
+See [RBAC Setup](../architecture/rbac-setup.mdx) for detailed configuration.
+
+#### Issue: Cannot Access Dashboard
+
+**Symptoms:**
+- Cannot reach dashboard URL
+- Connection timeout or refused
+
+**Solutions:**
+
+1. Verify service is running:
+```bash
+kubectl get svc kube-ingress-dash
+```
+
+2. Check pod logs for errors:
 ```bash
 kubectl logs -l app.kubernetes.io/name=kube-ingress-dash
 ```
 
-### Verify RBAC
-
+3. For ClusterIP service, use port-forward:
 ```bash
-kubectl get clusterrole kube-ingress-dash-viewer
-kubectl get clusterrolebinding kube-ingress-dash-rolebinding
+kubectl port-forward svc/kube-ingress-dash 8080:3000
 ```
 
-### Common Issues
+4. For Ingress, verify ingress resource:
+```bash
+kubectl get ingress kube-ingress-dash
+kubectl describe ingress kube-ingress-dash
+```
 
-**Permission Errors**: Ensure the ClusterRole includes all required permissions. See [RBAC Setup](../architecture/rbac-setup.mdx).
+5. Check ingress controller logs:
+```bash
+# For NGINX
+kubectl logs -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx
 
-**Pod Not Starting**: Check resource limits and node capacity.
+# For Traefik
+kubectl logs -n traefik -l app.kubernetes.io/name=traefik
+```
 
-**Cannot Access Dashboard**: Verify service type and ingress configuration.
+#### Issue: High Memory Usage
+
+**Symptoms:**
+- Pod being OOMKilled
+- High memory consumption in metrics
+
+**Solutions:**
+
+1. Increase memory limits:
+```yaml
+resources:
+  limits:
+    memory: 512Mi  # Increase based on cluster size
+```
+
+2. Check for memory leaks in logs:
+```bash
+kubectl logs -l app.kubernetes.io/name=kube-ingress-dash --tail=100
+```
+
+3. Monitor memory usage:
+```bash
+kubectl top pod -l app.kubernetes.io/name=kube-ingress-dash
+```
+
+#### Issue: Ingress Not Working
+
+**Symptoms:**
+- Ingress resource created but not accessible
+- 404 or 502 errors
+
+**Solutions:**
+
+1. Verify ingress controller is installed:
+```bash
+kubectl get pods -n ingress-nginx  # or your ingress controller namespace
+```
+
+2. Check ingress resource status:
+```bash
+kubectl describe ingress kube-ingress-dash
+```
+
+3. Verify ingress class matches your controller:
+```yaml
+ingress:
+  className: nginx  # Must match your ingress controller
+```
+
+4. Check DNS resolution:
+```bash
+nslookup ingress-dash.example.com
+```
+
+5. Verify TLS certificate (if using HTTPS):
+```bash
+kubectl get certificate -n <namespace>
+kubectl describe certificate ingress-dash-tls
+```
+
+#### Issue: Helm Install/Upgrade Fails
+
+**Symptoms:**
+- Helm command returns error
+- Release in failed state
+
+**Solutions:**
+
+1. Check Helm release status:
+```bash
+helm list -n <namespace>
+helm status kube-ingress-dash -n <namespace>
+```
+
+2. View detailed error:
+```bash
+helm get manifest kube-ingress-dash -n <namespace>
+```
+
+3. Rollback to previous version:
+```bash
+helm rollback kube-ingress-dash -n <namespace>
+```
+
+4. Uninstall and reinstall if necessary:
+```bash
+helm uninstall kube-ingress-dash -n <namespace>
+helm install kube-ingress-dash \
+  oci://ghcr.io/wasilak/kube-ingress-dash-chart/kube-ingress-dash \
+  --version 0.1.0 \
+  --namespace <namespace> \
+  --values values.yaml
+```
+
+### Debugging Commands
+
+Useful commands for troubleshooting:
+
+```bash
+# Check pod status
+kubectl get pods -l app.kubernetes.io/name=kube-ingress-dash
+
+# View pod logs
+kubectl logs -l app.kubernetes.io/name=kube-ingress-dash
+
+# Follow logs in real-time
+kubectl logs -l app.kubernetes.io/name=kube-ingress-dash -f
+
+# Get pod events
+kubectl get events --field-selector involvedObject.name=<pod-name>
+
+# Verify RBAC
+kubectl get clusterrole kube-ingress-dash-viewer
+kubectl get clusterrolebinding kube-ingress-dash-rolebinding
+
+# Check service endpoints
+kubectl get endpoints kube-ingress-dash
+
+# Test connectivity from within cluster
+kubectl run -it --rm debug --image=curlimages/curl --restart=Never -- \
+  curl http://kube-ingress-dash.default.svc.cluster.local:3000/api/health
+
+# Check resource usage
+kubectl top pod -l app.kubernetes.io/name=kube-ingress-dash
+```
+
+### Getting Help
+
+If you encounter issues not covered here:
+
+1. Check the [GitHub Issues](https://github.com/wasilak/kube-ingress-dash/issues)
+2. Review the [Chart README](https://github.com/wasilak/kube-ingress-dash/blob/main/charts/kube-ingress-dash/README.md) for all configuration options
+3. See [RBAC Setup](../architecture/rbac-setup.mdx) for permission-related issues
+4. Check [Error Handling](../features/error-handling.mdx) documentation
 
 ## Related Documentation
 
-- [Chart README](https://github.com/wasilak/kube-ingress-dash/tree/main/charts/kube-ingress-dash) - Complete values reference
+- [Chart README](https://github.com/wasilak/kube-ingress-dash/blob/main/charts/kube-ingress-dash/README.md) - Complete auto-generated values reference
 - [RBAC Setup](../architecture/rbac-setup.mdx) - Detailed RBAC configuration
 - [Docker Deployment](./docker.mdx) - Alternative deployment method
 - [From Source](./from-source.mdx) - Development deployment
+- [Error Handling](../features/error-handling.mdx) - Understanding error messages
