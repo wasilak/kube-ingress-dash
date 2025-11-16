@@ -1,0 +1,139 @@
+---
+sidebar_position: 1
+title: 'Health Check API'
+---
+
+# Health Check API
+
+The health check endpoint provides a simple way to verify that the application is running and responsive.
+
+## Endpoint
+
+```
+GET /api/health
+```
+
+## Response
+
+### Success Response
+
+**Status Code:** `200 OK`
+
+**Response Body:**
+
+```json
+{
+  "status": "healthy",
+  "timestamp": "2024-01-15T10:30:00.000Z"
+}
+```
+
+### Response Fields
+
+| Field       | Type   | Description                                    |
+| ----------- | ------ | ---------------------------------------------- |
+| `status`    | string | Health status, always "healthy" if responding  |
+| `timestamp` | string | ISO 8601 timestamp of the health check        |
+
+## Usage
+
+### Kubernetes Liveness Probe
+
+Use the health check endpoint in your Kubernetes deployment for liveness probes:
+
+```yaml
+livenessProbe:
+  httpGet:
+    path: /api/health
+    port: 3000
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+```
+
+### Kubernetes Readiness Probe
+
+Use the health check endpoint for readiness probes:
+
+```yaml
+readinessProbe:
+  httpGet:
+    path: /api/health
+    port: 3000
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 5
+  failureThreshold: 3
+```
+
+### Docker Health Check
+
+Add a health check to your Docker container:
+
+```dockerfile
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health || exit 1
+```
+
+### Manual Testing
+
+Test the health check endpoint manually:
+
+```bash
+curl http://localhost:3000/api/health
+```
+
+## Behavior
+
+- The endpoint responds immediately without checking external dependencies
+- It verifies that the Next.js application is running and can handle requests
+- Does not check Kubernetes API connectivity (use ingress listing for that)
+- Lightweight and fast, suitable for frequent polling
+
+## Troubleshooting
+
+### Health Check Fails
+
+If the health check endpoint returns an error or times out:
+
+1. **Check if the application is running:**
+
+   ```bash
+   kubectl get pods -l app=kube-ingress-dash
+   ```
+
+2. **Check application logs:**
+
+   ```bash
+   kubectl logs -l app=kube-ingress-dash
+   ```
+
+3. **Verify port configuration:**
+   - Default port is 3000
+   - Check `PORT` environment variable if customized
+
+4. **Check resource limits:**
+   - Application may be OOMKilled or CPU throttled
+   - Review resource requests and limits
+
+### Probe Configuration Issues
+
+If Kubernetes probes are failing:
+
+- **Increase `initialDelaySeconds`**: Application may need more time to start
+- **Increase `timeoutSeconds`**: Network latency may cause timeouts
+- **Adjust `failureThreshold`**: Reduce false positives during high load
+
+## Best Practices
+
+1. **Set appropriate timeouts**: Balance between quick failure detection and false positives
+2. **Use different settings for liveness vs readiness**: Readiness can be more aggressive
+3. **Monitor probe failures**: Set up alerts for repeated probe failures
+4. **Test probe configuration**: Verify probes work before deploying to production
+
+## Related Documentation
+
+- [Docker Deployment](../deployment/docker.mdx)
+- [Kubernetes Deployment](../deployment/helm.mdx)
+- [Architecture Overview](../architecture/interaction-with-kubernetes.mdx)

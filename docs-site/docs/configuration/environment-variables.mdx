@@ -1,0 +1,373 @@
+---
+sidebar_position: 1
+title: 'Environment Variables'
+---
+
+# Environment Variables
+
+Configure kube-ingress-dash using environment variables. All variables are optional with sensible defaults.
+
+## Quick Start
+
+Copy the example environment file:
+
+```bash
+cp .env.example .env.local
+```
+
+Edit `.env.local` with your configuration.
+
+## Application Configuration
+
+### NODE_ENV
+
+**Type:** `string`
+**Default:** `production`
+**Values:** `development`, `production`, `test`
+
+Sets the Node.js environment mode.
+
+```bash
+NODE_ENV=production
+```
+
+### PORT
+
+**Type:** `number`
+**Default:** `3000`
+
+Port number for the application server.
+
+```bash
+PORT=3000
+```
+
+## Kubernetes Configuration
+
+### KUBERNETES_IN_CLUSTER
+
+**Type:** `boolean`
+**Default:** Auto-detected
+**Values:** `true`, `false`
+
+Force in-cluster or out-of-cluster Kubernetes configuration.
+
+```bash
+# Force in-cluster mode (uses service account)
+KUBERNETES_IN_CLUSTER=true
+
+# Force out-of-cluster mode (uses kubeconfig)
+KUBERNETES_IN_CLUSTER=false
+```
+
+:::info
+When not set, the application automatically detects the environment by checking for `KUBERNETES_SERVICE_HOST`.
+:::
+
+### KUBERNETES_CONFIG_PATH
+
+**Type:** `string`
+**Default:** `~/.kube/config`
+
+Path to kubeconfig file for out-of-cluster mode.
+
+```bash
+KUBERNETES_CONFIG_PATH=/path/to/kubeconfig
+```
+
+### KUBERNETES_REQUEST_TIMEOUT
+
+**Type:** `number` (milliseconds)
+**Default:** `30000` (30 seconds)
+
+Timeout for Kubernetes API requests.
+
+```bash
+KUBERNETES_REQUEST_TIMEOUT=30000
+```
+
+## Feature Flags
+
+### FEATURE_CACHING
+
+**Type:** `boolean`
+**Default:** `true`
+**Values:** `true`, `false`
+
+Enable or disable caching layer.
+
+```bash
+FEATURE_CACHING=true
+```
+
+### FEATURE_RATE_LIMITING
+
+**Type:** `boolean`
+**Default:** `true`
+**Values:** `true`, `false`
+
+Enable or disable rate limiting.
+
+```bash
+FEATURE_RATE_LIMITING=true
+```
+
+## Logging Configuration
+
+### LOG_LEVEL
+
+**Type:** `string`
+**Default:** `info`
+**Values:** `error`, `warn`, `info`, `debug`, `trace`
+
+Set logging verbosity level.
+
+```bash
+LOG_LEVEL=info
+```
+
+### LOG_FORMAT
+
+**Type:** `string`
+**Default:** `json`
+**Values:** `json`, `pretty`
+
+Set log output format.
+
+```bash
+# JSON format (recommended for production)
+LOG_FORMAT=json
+
+# Pretty format (recommended for development)
+LOG_FORMAT=pretty
+```
+
+## Rate Limiting Configuration
+
+### RATE_LIMIT_WINDOW_MS
+
+**Type:** `number` (milliseconds)
+**Default:** `60000` (1 minute)
+
+Time window for rate limiting.
+
+```bash
+RATE_LIMIT_WINDOW_MS=60000
+```
+
+### RATE_LIMIT_MAX_REQUESTS
+
+**Type:** `number`
+**Default:** `100`
+
+Maximum requests per window per client.
+
+```bash
+RATE_LIMIT_MAX_REQUESTS=100
+```
+
+### K8S_THROTTLE_MS
+
+**Type:** `number` (milliseconds)
+**Default:** `100`
+
+Minimum time between Kubernetes API requests.
+
+```bash
+K8S_THROTTLE_MS=100
+```
+
+## Caching Configuration
+
+### CACHE_TYPE
+
+**Type:** `string`
+**Default:** `memory`
+**Values:** `memory`, `redis`
+
+Type of cache to use.
+
+```bash
+# In-memory cache (default)
+CACHE_TYPE=memory
+
+# Redis cache (requires Redis server)
+CACHE_TYPE=redis
+```
+
+### CACHE_TTL
+
+**Type:** `number` (seconds)
+**Default:** `300` (5 minutes)
+
+Time-to-live for cached data.
+
+```bash
+CACHE_TTL=300
+```
+
+### REDIS_URL
+
+**Type:** `string`
+**Default:** `redis://localhost:6379`
+
+Redis connection URL (only used when `CACHE_TYPE=redis`).
+
+```bash
+REDIS_URL=redis://localhost:6379
+
+# With authentication
+REDIS_URL=redis://:password@localhost:6379
+
+# With TLS
+REDIS_URL=rediss://localhost:6380
+```
+
+## Security Configuration
+
+### CSP_SCRIPT_SRC
+
+**Type:** `string`
+**Default:** `self,unsafe-inline`
+
+Content Security Policy script-src directive.
+
+```bash
+CSP_SCRIPT_SRC=self,unsafe-inline
+```
+
+### HSTS_MAX_AGE
+
+**Type:** `number` (seconds)
+**Default:** `31536000` (1 year)
+
+HTTP Strict Transport Security max-age.
+
+```bash
+HSTS_MAX_AGE=31536000
+```
+
+## Example Configurations
+
+### Development
+
+```bash
+NODE_ENV=development
+PORT=3000
+LOG_LEVEL=debug
+LOG_FORMAT=pretty
+KUBERNETES_IN_CLUSTER=false
+KUBERNETES_CONFIG_PATH=~/.kube/config
+```
+
+### Production (In-Cluster)
+
+```bash
+NODE_ENV=production
+PORT=3000
+LOG_LEVEL=info
+LOG_FORMAT=json
+KUBERNETES_IN_CLUSTER=true
+FEATURE_CACHING=true
+FEATURE_RATE_LIMITING=true
+CACHE_TYPE=memory
+CACHE_TTL=300
+```
+
+### Production (Redis Cache)
+
+```bash
+NODE_ENV=production
+PORT=3000
+LOG_LEVEL=info
+LOG_FORMAT=json
+KUBERNETES_IN_CLUSTER=true
+FEATURE_CACHING=true
+CACHE_TYPE=redis
+REDIS_URL=redis://redis-service:6379
+CACHE_TTL=300
+```
+
+### High-Traffic Production
+
+```bash
+NODE_ENV=production
+PORT=3000
+LOG_LEVEL=warn
+LOG_FORMAT=json
+KUBERNETES_IN_CLUSTER=true
+FEATURE_CACHING=true
+FEATURE_RATE_LIMITING=true
+CACHE_TYPE=redis
+REDIS_URL=redis://redis-service:6379
+CACHE_TTL=600
+RATE_LIMIT_WINDOW_MS=60000
+RATE_LIMIT_MAX_REQUESTS=200
+K8S_THROTTLE_MS=50
+```
+
+## Kubernetes ConfigMap
+
+Create a ConfigMap for environment variables:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kube-ingress-dash-config
+data:
+  NODE_ENV: 'production'
+  PORT: '3000'
+  LOG_LEVEL: 'info'
+  LOG_FORMAT: 'json'
+  FEATURE_CACHING: 'true'
+  FEATURE_RATE_LIMITING: 'true'
+  CACHE_TYPE: 'memory'
+  CACHE_TTL: '300'
+```
+
+Reference in deployment:
+
+```yaml
+spec:
+  containers:
+    - name: kube-ingress-dash
+      envFrom:
+        - configMapRef:
+            name: kube-ingress-dash-config
+```
+
+## Kubernetes Secrets
+
+For sensitive values like Redis passwords:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kube-ingress-dash-secrets
+type: Opaque
+stringData:
+  REDIS_URL: 'redis://:password@redis-service:6379'
+```
+
+Reference in deployment:
+
+```yaml
+spec:
+  containers:
+    - name: kube-ingress-dash
+      envFrom:
+        - secretRef:
+            name: kube-ingress-dash-secrets
+```
+
+## Validation
+
+The application validates environment variables on startup and will log warnings for invalid values.
+
+## Related Documentation
+
+- [Docker Deployment](../deployment/docker.mdx)
+- [From Source Deployment](../deployment/from-source.mdx)
+- [Helm Deployment](../deployment/helm.mdx)

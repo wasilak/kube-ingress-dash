@@ -1,0 +1,316 @@
+---
+sidebar_position: 1
+title: 'Error Handling'
+---
+
+# Error Handling
+
+kube-ingress-dash implements comprehensive error handling to provide a reliable and resilient user experience.
+
+## Architecture Overview
+
+The error handling system consists of multiple layers:
+
+1. **Error Classification** - Categorizes errors as transient or permanent
+2. **Retry Logic** - Automatically retries transient errors with exponential backoff
+3. **Circuit Breaker** - Prevents cascading failures during outages
+4. **Error Boundaries** - Catches and displays UI errors gracefully
+5. **User Feedback** - Provides clear, actionable error messages
+
+## Error Classification
+
+Errors are automatically classified into two categories:
+
+### Transient Errors
+
+Temporary failures that may succeed on retry:
+
+- Network timeouts (`ETIMEDOUT`, `ECONNRESET`)
+- Connection refused (`ECONNREFUSED`)
+- DNS resolution failures (`ENOTFOUND`)
+- HTTP 503 Service Unavailable
+- HTTP 429 Too Many Requests
+- Temporary Kubernetes API unavailability
+
+**Handling:** Automatically retried with exponential backoff
+
+### Permanent Errors
+
+Failures that won't succeed on retry:
+
+- Authentication failures (401 Unauthorized)
+- Permission denied (403 Forbidden)
+- Resource not found (404 Not Found)
+- Invalid requests (400 Bad Request)
+- RBAC permission errors
+
+**Handling:** Returned immediately to user with helpful message
+
+## Retry Logic
+
+Transient errors are automatically retried using exponential backoff:
+
+```typescript
+// Retry configuration
+{
+  maxAttempts: 3,
+  initialDelay: 1000,      // 1 second
+  maxDelay: 30000,         // 30 seconds
+  backoffMultiplier: 2     // Double delay each retry
+}
+```
+
+### Retry Sequence
+
+1. **First attempt** - Immediate
+2. **First retry** - After 1 second
+3. **Second retry** - After 2 seconds
+4. **Third retry** - After 4 seconds
+5. **Give up** - Return error to user
+
+### Example
+
+```
+Attempt 1: Failed (ETIMEDOUT)
+Wait 1s...
+Attempt 2: Failed (ETIMEDOUT)
+Wait 2s...
+Attempt 3: Success ✓
+```
+
+## Circuit Breaker
+
+Protects the application and Kubernetes API from cascading failures.
+
+### States
+
+#### Closed (Normal Operation)
+
+- All requests pass through
+- Failures are tracked
+- Transitions to Open if failure threshold exceeded
+
+#### Open (Failing Fast)
+
+- Requests fail immediately without calling Kubernetes API
+- Prevents overload during outages
+- Transitions to Half-Open after timeout
+
+#### Half-Open (Testing Recovery)
+
+- Limited requests allowed through
+- Tests if service has recovered
+- Transitions to Closed if successful, back to Open if failed
+
+### Configuration
+
+```typescript
+{
+  failureThreshold: 0.5,    // Open at 50% failure rate
+  windowSize: 30000,        // 30-second window
+  openTimeout: 60000        // Wait 60s before testing recovery
+}
+```
+
+### Behavior Example
+
+```
+Time 0s:  Circuit Closed - Normal operation
+Time 10s: 15 failures out of 30 requests (50%)
+Time 10s: Circuit Opens - Fail fast mode
+Time 70s: Circuit Half-Open - Testing recovery
+Time 71s: Test request succeeds
+Time 71s: Circuit Closed - Back to normal
+```
+
+## Error Boundaries
+
+React Error Boundaries catch and handle UI errors gracefully.
+
+### Dashboard Error Boundary
+
+Catches errors in the entire dashboard:
+
+```tsx
+<DashboardErrorBoundary>
+  <Dashboard />
+</DashboardErrorBoundary>
+```
+
+**Fallback:** Full-page error screen with retry option
+
+### Component Error Boundaries
+
+Catches errors in specific components:
+
+- **IngressListErrorBoundary** - Ingress list rendering errors
+- **FiltersErrorBoundary** - Filter component errors
+
+**Fallback:** Component-level error message, rest of UI continues working
+
+### Benefits
+
+- Prevents entire app from crashing
+- Isolates errors to affected components
+- Provides recovery options
+- Maintains user context
+
+## User-Facing Error Messages
+
+Clear, actionable error messages help users resolve issues:
+
+### Permission Errors
+
+```
+Permission Error
+
+You don't have sufficient permissions to access Kubernetes resources.
+Check your RBAC configuration.
+
+[View RBAC Setup Documentation]  [Retry]
+```
+
+### API Errors
+
+```
+API Error
+
+There was an issue connecting to the Kubernetes API.
+Please check your cluster configuration.
+
+[Retry]
+```
+
+### Generic Errors
+
+```
+Something went wrong
+
+An unexpected error occurred. Please try again.
+
+[Retry]
+```
+
+## Error Logging
+
+Errors are logged with context for debugging:
+
+```json
+{
+  "level": "error",
+  "message": "Kubernetes API request failed",
+  "error": {
+    "code": "ETIMEDOUT",
+    "message": "Request timeout",
+    "statusCode": null
+  },
+  "context": {
+    "operation": "listIngresses",
+    "namespace": "default",
+    "attempt": 2,
+    "timestamp": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+
+## Monitoring and Alerts
+
+### Metrics to Monitor
+
+- **Error rate** - Percentage of failed requests
+- **Circuit breaker state** - Open/Closed/Half-Open
+- **Retry attempts** - Number of retries per request
+- **Error types** - Distribution of error categories
+
+### Recommended Alerts
+
+1. **High error rate** - Alert if error rate > 10% for 5 minutes
+2. **Circuit breaker open** - Alert when circuit opens
+3. **Repeated failures** - Alert if same error occurs > 10 times
+4. **Permission errors** - Alert on RBAC errors (may indicate misconfiguration)
+
+## Troubleshooting
+
+### High Error Rate
+
+**Symptoms:** Many requests failing
+
+**Possible Causes:**
+
+- Kubernetes API unavailable or slow
+- Network connectivity issues
+- RBAC permissions incorrect
+- Resource limits too low
+
+**Solutions:**
+
+1. Check Kubernetes API health
+2. Verify network connectivity
+3. Review RBAC configuration
+4. Increase resource limits
+
+### Circuit Breaker Frequently Opening
+
+**Symptoms:** Circuit breaker opens repeatedly
+
+**Possible Causes:**
+
+- Kubernetes API instability
+- Application resource constraints
+- Network issues
+
+**Solutions:**
+
+1. Investigate Kubernetes API health
+2. Increase application resources
+3. Adjust circuit breaker thresholds
+4. Check network latency
+
+### Permission Errors
+
+**Symptoms:** 403 Forbidden errors
+
+**Possible Causes:**
+
+- Missing RBAC permissions
+- Incorrect service account
+- Namespace restrictions
+
+**Solutions:**
+
+1. Verify ClusterRole includes all required permissions
+2. Check ClusterRoleBinding references correct ServiceAccount
+3. Ensure ServiceAccount is mounted in pod
+4. Review [RBAC Setup Guide](../architecture/rbac-setup.mdx)
+
+## Best Practices
+
+1. **Monitor error rates** - Set up alerts for unusual error patterns
+2. **Review logs regularly** - Look for recurring errors
+3. **Test error scenarios** - Verify error handling works as expected
+4. **Update RBAC** - Ensure permissions match application needs
+5. **Tune circuit breaker** - Adjust thresholds based on your environment
+
+## Configuration
+
+Error handling behavior can be configured via environment variables:
+
+```bash
+# Retry configuration
+RETRY_MAX_ATTEMPTS=3
+RETRY_INITIAL_DELAY=1000
+RETRY_MAX_DELAY=30000
+
+# Circuit breaker configuration
+CIRCUIT_BREAKER_FAILURE_THRESHOLD=0.5
+CIRCUIT_BREAKER_WINDOW_SIZE=30000
+CIRCUIT_BREAKER_OPEN_TIMEOUT=60000
+```
+
+See [Environment Variables](../configuration/environment-variables.mdx) for details.
+
+## Related Documentation
+
+- [Architecture Overview](../architecture/interaction-with-kubernetes.mdx)
+- [RBAC Setup](../architecture/rbac-setup.mdx)
+- [Health Check API](../api/health-check.mdx)
