@@ -4,6 +4,8 @@ import { ErrorCategory } from '@/types/errors';
 // Re-export for convenience
 export { RetryHandler } from './error-handler/retry';
 export type { RetryConfig } from './error-handler/retry';
+export { CircuitBreaker, CircuitBreakerOpenError, CircuitState } from './error-handler/circuit-breaker';
+export type { CircuitBreakerConfig } from './error-handler/circuit-breaker';
 
 // Global error handling utility
 export class ErrorHandler {
