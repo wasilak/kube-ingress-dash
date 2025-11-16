@@ -15,6 +15,11 @@ import {
   DashboardFilters,
   IngressList,
 } from '@/components/dashboard';
+import {
+  DashboardErrorBoundary,
+  IngressListErrorBoundary,
+  FiltersErrorBoundary,
+} from '@/components/error-boundaries';
 
 export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
@@ -111,7 +116,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background p-8">
-      <ErrorBoundary>
+      <DashboardErrorBoundary>
         <div className="max-w-6xl mx-auto space-y-8">
           <DashboardHeader
             namespaces={namespacesWithIngresses}
@@ -138,28 +143,32 @@ export default function DashboardPage() {
               />
             </div>
 
-            <DashboardFilters
-              allLabels={allLabels}
-              allAnnotations={allAnnotations}
-              selectedLabels={selectedLabels}
-              selectedAnnotations={selectedAnnotations}
-              onLabelsChange={setSelectedLabels}
-              onAnnotationsChange={setSelectedAnnotations}
-              ingresses={ingresses}
-            />
+            <FiltersErrorBoundary>
+              <DashboardFilters
+                allLabels={allLabels}
+                allAnnotations={allAnnotations}
+                selectedLabels={selectedLabels}
+                selectedAnnotations={selectedAnnotations}
+                onLabelsChange={setSelectedLabels}
+                onAnnotationsChange={setSelectedAnnotations}
+                ingresses={ingresses}
+              />
+            </FiltersErrorBoundary>
           </div>
 
           {loading ? (
             <IngressCardSkeletonGrid count={6} />
           ) : (
-            <IngressList
-              ingresses={filteredIngresses}
-              searchQuery={debouncedSearchQuery}
-              onClearSearch={() => handleSearch('')}
-            />
+            <IngressListErrorBoundary>
+              <IngressList
+                ingresses={filteredIngresses}
+                searchQuery={debouncedSearchQuery}
+                onClearSearch={() => handleSearch('')}
+              />
+            </IngressListErrorBoundary>
           )}
         </div>
-      </ErrorBoundary>
+      </DashboardErrorBoundary>
     </div>
   );
 }

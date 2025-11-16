@@ -230,7 +230,7 @@ This implementation plan breaks down the production readiness improvements into 
   - Ensure each component has single responsibility
   - _Requirements: 12.2_
 
-- [ ] 30. Implement Error Boundaries for Major Sections
+- [x] 30. Implement Error Boundaries for Major Sections
   - Create `src/components/error-boundaries/DashboardErrorBoundary.tsx`
   - Create `src/components/error-boundaries/IngressListErrorBoundary.tsx`
   - Create `src/components/error-boundaries/FiltersErrorBoundary.tsx`
