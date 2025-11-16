@@ -56,6 +56,11 @@ export class ErrorClassifier {
 
   /**
    * Classifies HTTP Response objects based on status code.
+   * 
+   * @param response - HTTP Response object to classify
+   * @returns ErrorClassification with category and retry information
+   * 
+   * @private
    */
   private static classifyHttpResponse(response: Response): ErrorClassification {
     return this.classifyByStatusCode(response.status);
@@ -63,6 +68,13 @@ export class ErrorClassifier {
 
   /**
    * Classifies Error objects based on message content and properties.
+   * Analyzes error messages for keywords indicating network issues, authentication,
+   * authorization, rate limiting, and other error types.
+   * 
+   * @param error - Error object to classify
+   * @returns ErrorClassification with category and retry information
+   * 
+   * @private
    */
   private static classifyErrorObject(error: Error): ErrorClassification {
     const message = error.message.toLowerCase();
@@ -142,6 +154,20 @@ export class ErrorClassifier {
 
   /**
    * Classifies errors based on HTTP status code.
+   * Maps standard HTTP status codes to error categories:
+   * - 2xx: Success (shouldn't be an error)
+   * - 400: Bad Request (permanent)
+   * - 401: Unauthorized (authentication)
+   * - 403: Forbidden (authorization)
+   * - 404: Not Found (permanent)
+   * - 429: Too Many Requests (rate limit)
+   * - 4xx: Other client errors (permanent)
+   * - 5xx: Server errors (transient)
+   * 
+   * @param statusCode - HTTP status code to classify
+   * @returns ErrorClassification with category and retry information
+   * 
+   * @private
    */
   private static classifyByStatusCode(statusCode: number): ErrorClassification {
     // 2xx - Success (shouldn't be classified as error, but handle gracefully)
