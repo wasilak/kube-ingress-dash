@@ -23,6 +23,7 @@ coverage
 
 # Generated files
 next-env.d.ts
+charts/**/README.md
 
 # Documentation site build
 docs-site/build
