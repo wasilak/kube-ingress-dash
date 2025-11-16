@@ -16,8 +16,13 @@ The kube-ingress-dash application requires specific RBAC permissions to access t
 The application needs the following permissions:
 
 - **List, Get, Watch** ingress resources across all namespaces
-- **List, Get** namespaces to provide namespace filtering capabilities
-- **List, Get** services to provide service navigation features
+- **List, Get, Watch** namespaces to provide namespace filtering capabilities
+- **List, Get, Watch** services for service navigation features
+- **List, Get, Watch** pods and endpoints (reserved for future features)
+
+:::info
+The Helm chart includes permissions for pods and endpoints resources. While not currently used in the core functionality, these permissions are included to support future enhancements and follow the principle of least privilege while allowing for planned features.
+:::
 
 ## Example RBAC Manifests
 
@@ -147,7 +152,7 @@ Here are common RBAC-related issues you might encounter and how to resolve them:
 
 **Symptom**: The application shows "Permission denied" or "Forbidden" errors.
 
-**Solution**: 
+**Solution**:
 - Verify that the ClusterRoleBinding or RoleBinding is correctly configured
 - Check that the service account name matches between your deployment and RBAC resources
 - Ensure the service account has the correct namespace

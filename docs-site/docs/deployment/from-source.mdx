@@ -45,6 +45,27 @@ The application will be available at [http://localhost:3000](http://localhost:30
 
 ## Configuration
 
+### Environment Variables
+
+The application can be configured using environment variables. See the [`.env.example`](https://github.com/wasilak/kube-ingress-dash/blob/main/.env.example) file in the repository root for all available options.
+
+For local development, you can create a `.env.local` file:
+
+```bash
+cp .env.example .env.local
+# Edit .env.local with your configuration
+```
+
+### Development Mode
+
+For local development with hot-reload:
+
+```bash
+npm run dev
+```
+
+The application will be available at [http://localhost:3000](http://localhost:3000) with automatic reloading on file changes.
+
 ### Kubernetes RBAC
 
 The application requires the following Kubernetes permissions:
@@ -53,9 +74,14 @@ The application requires the following Kubernetes permissions:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-	name: kube-ingress-dash-viewer
+  name: kube-ingress-dash-viewer
 rules:
 - apiGroups: [""]
-	resources: ["services", "pods", "endpoints", "namespaces"]
-	verbs: ["get", "list", "watch"]
+  resources: ["services", "pods", "endpoints", "namespaces"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get", "list", "watch"]
 ```
+
+For complete RBAC setup including ServiceAccount and ClusterRoleBinding, see the [RBAC Setup Guide](../architecture/rbac-setup.mdx).
