@@ -66,9 +66,12 @@ The appropriate image will be automatically selected based on your platform.
 ```bash
 # Example with environment variables
 docker run -p 3000:3000 \
-	-e NODE_ENV=production \
-	ghcr.io/wasilak/kube-ingress-dash:@DOCKER_VERSION@
+  -e NODE_ENV=production \
+  -e PORT=3000 \
+  ghcr.io/wasilak/kube-ingress-dash:@DOCKER_VERSION@
 ```
+
+For a complete list of available environment variables, see the [`.env.example`](https://github.com/wasilak/kube-ingress-dash/blob/main/.env.example) file in the repository.
 
 ## Kubernetes Deployment with Docker
 
@@ -80,26 +83,53 @@ While Docker is typically used for local development, you can use Docker images 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-	name: kube-ingress-dash
+  name: kube-ingress-dash
 spec:
-	replicas: 1
-	selector:
-		matchLabels:
-			app: kube-ingress-dash
-	template:
-		metadata:
-			labels:
-				app: kube-ingress-dash
-		spec:
-			serviceAccountName: kube-ingress-dash-viewer  # Ensure proper RBAC
-			containers:
-			- name: kube-ingress-dash
-				image: ghcr.io/wasilak/kube-ingress-dash:@DOCKER_VERSION@
-				ports:
-				- containerPort: 3000
-				env:
-				- name: PORT
-					value: "3000"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-ingress-dash
+  template:
+    metadata:
+      labels:
+        app: kube-ingress-dash
+    spec:
+      serviceAccountName: kube-ingress-dash-viewer  # Ensure proper RBAC
+      containers:
+      - name: kube-ingress-dash
+        image: ghcr.io/wasilak/kube-ingress-dash:@DOCKER_VERSION@
+        ports:
+        - containerPort: 3000
+        env:
+        - name: PORT
+          value: "3000"
+        - name: NODE_ENV
+          value: "production"
+        # Health check probes
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 3
+        # Resource limits and requests
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
 ```
 
 ### 2. Create a Service
@@ -108,13 +138,25 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-	name: kube-ingress-dash
+  name: kube-ingress-dash
 spec:
-	selector:
-		app: kube-ingress-dash
-	ports:
-		- protocol: TCP
-			port: 80
-			targetPort: 3000
-	type: ClusterIP
+  selector:
+    app: kube-ingress-dash
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP
 ```
+
+## Resource Recommendations
+
+For production deployments, we recommend the following resource allocation:
+
+| Resource | Minimum | Recommended | Notes |
+|----------|---------|-------------|-------|
+| CPU | 100m | 250m | Scales with number of ingresses |
+| Memory | 128Mi | 256Mi | Increases with cache size |
+| Replicas | 1 | 2+ | For high availability |
+
+Adjust based on your cluster size and ingress count. Monitor resource usage and scale accordingly.
