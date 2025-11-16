@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +12,7 @@ interface IngressCardProps {
   onClick?: () => void;
 }
 
-const IngressCard: React.FC<IngressCardProps> = ({ ingress, onClick: _onClick }) => {
+const IngressCardComponent: React.FC<IngressCardProps> = ({ ingress, onClick: _onClick }) => {
   const handleLinkClick = (url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer');
   };
@@ -108,5 +108,42 @@ const IngressCard: React.FC<IngressCardProps> = ({ ingress, onClick: _onClick })
     </Card>
   );
 };
+
+/**
+ * Memoized IngressCard component with custom comparison function.
+ * Only re-renders when ingress data actually changes (based on id and creationTimestamp).
+ */
+const IngressCard = memo(IngressCardComponent, (prevProps, nextProps) => {
+  // Compare ingress data efficiently using stable identifiers
+  const prevIngress = prevProps.ingress;
+  const nextIngress = nextProps.ingress;
+  
+  // If the ingress ID or creation timestamp changed, re-render
+  if (prevIngress.id !== nextIngress.id || 
+      prevIngress.creationTimestamp !== nextIngress.creationTimestamp) {
+    return false; // Props changed, re-render
+  }
+  
+  // Check if any meaningful data changed
+  const dataChanged = 
+    prevIngress.name !== nextIngress.name ||
+    prevIngress.namespace !== nextIngress.namespace ||
+    prevIngress.tls !== nextIngress.tls ||
+    prevIngress.status !== nextIngress.status ||
+    prevIngress.hosts.length !== nextIngress.hosts.length ||
+    prevIngress.paths.length !== nextIngress.paths.length ||
+    prevIngress.urls.length !== nextIngress.urls.length ||
+    JSON.stringify(prevIngress.hosts) !== JSON.stringify(nextIngress.hosts) ||
+    JSON.stringify(prevIngress.paths) !== JSON.stringify(nextIngress.paths) ||
+    JSON.stringify(prevIngress.annotations) !== JSON.stringify(nextIngress.annotations);
+  
+  // Compare onClick function reference
+  const onClickChanged = prevProps.onClick !== nextProps.onClick;
+  
+  // Return true if nothing changed (skip re-render), false if something changed (re-render)
+  return !dataChanged && !onClickChanged;
+});
+
+IngressCard.displayName = 'IngressCard';
 
 export default IngressCard;
