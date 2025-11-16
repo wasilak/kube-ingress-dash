@@ -14,9 +14,10 @@ import { getAllLabels, getAllAnnotations, filterIngressesAdvanced } from '@/lib/
 import Image from 'next/image';
 import { ErrorHandler } from '@/lib/error-handler';
 import ErrorScreen from '@/components/error-screen';
-import { Loader2, Tag, FileText } from 'lucide-react';
+import { Tag, FileText } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { VirtualIngressGrid } from '@/components/virtual-ingress-grid';
+import { IngressCardSkeletonGrid } from '@/components/skeletons';
 
 export default function DashboardPage() {
   const [ingresses, setIngresses] = useState<IngressData[]>([]);
@@ -372,11 +373,14 @@ export default function DashboardPage() {
   if (!isMounted) {
     return (
       <div className="min-h-screen bg-background p-8">
-        <div className="max-w-6xl mx-auto flex justify-center items-center h-64">
-          <div className="flex flex-col items-center gap-2">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="text-lg">Loading...</span>
-          </div>
+        <div className="max-w-6xl mx-auto space-y-8">
+          <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <div className="h-10 w-10 bg-muted animate-pulse rounded" />
+              <div className="h-8 bg-muted animate-pulse rounded w-64" />
+            </div>
+          </header>
+          <IngressCardSkeletonGrid count={6} />
         </div>
       </div>
     );
@@ -503,12 +507,7 @@ export default function DashboardPage() {
           </div>
 
           {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="flex flex-col items-center gap-2">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <span className="text-lg">Loading ingresses...</span>
-              </div>
-            </div>
+            <IngressCardSkeletonGrid count={6} />
           ) : filteredIngresses.length === 0 ? (
             <div className="text-center py-12">
               <h3 className="text-lg font-bold">No ingresses found</h3>
