@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, X } from 'lucide-react';
@@ -12,7 +12,7 @@ interface SearchBarProps {
   value?: string;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ 
+const SearchBarComponent: React.FC<SearchBarProps> = ({ 
   onSearch, 
   placeholder = 'Search ingresses...', 
   className = '',
@@ -53,5 +53,22 @@ const SearchBar: React.FC<SearchBarProps> = ({
     </div>
   );
 };
+
+/**
+ * Memoized SearchBar component with custom comparison function.
+ * Only re-renders when value, placeholder, or className props change.
+ * The onSearch callback is compared by reference.
+ */
+const SearchBar = memo(SearchBarComponent, (prevProps, nextProps) => {
+  // Compare all props efficiently
+  return (
+    prevProps.value === nextProps.value &&
+    prevProps.placeholder === nextProps.placeholder &&
+    prevProps.className === nextProps.className &&
+    prevProps.onSearch === nextProps.onSearch
+  );
+});
+
+SearchBar.displayName = 'SearchBar';
 
 export default SearchBar;
