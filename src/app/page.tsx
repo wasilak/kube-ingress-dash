@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, Suspense } from 'react';
+import { useState, useMemo, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import SearchBar from '@/components/search-bar';
 import ErrorBoundary from '@/components/error-boundary';
@@ -58,29 +58,33 @@ function DashboardContent() {
     });
 
   // Parse ingress parameter from URL and validate format
-  const parseIngressFromUrl = (
-    ingressParam: string | null
-  ): { namespace: string; name: string } | null => {
-    if (!ingressParam) return null;
+  const parseIngressFromUrl = useCallback(
+    (ingressParam: string | null): { namespace: string; name: string } | null => {
+      if (!ingressParam) return null;
 
-    // Expected format: namespace/name
-    const parts = ingressParam.split('/');
-    if (parts.length !== 2) {
-      return null;
-    }
+      // Expected format: namespace/name
+      const parts = ingressParam.split('/');
+      if (parts.length !== 2) {
+        return null;
+      }
 
-    const [namespace, name] = parts;
-    if (!namespace || !name) {
-      return null;
-    }
+      const [namespace, name] = parts;
+      if (!namespace || !name) {
+        return null;
+      }
 
-    return { namespace, name };
-  };
+      return { namespace, name };
+    },
+    []
+  );
 
   // Find ingress in data by namespace and name
-  const findIngressByIdentifier = (namespace: string, name: string): IngressData | null => {
-    return ingresses.find((ing) => ing.namespace === namespace && ing.name === name) || null;
-  };
+  const findIngressByIdentifier = useCallback(
+    (namespace: string, name: string): IngressData | null => {
+      return ingresses.find((ing) => ing.namespace === namespace && ing.name === name) || null;
+    },
+    [ingresses]
+  );
 
   // Update URL when grouping mode changes
   useEffect(() => {
@@ -145,7 +149,15 @@ function DashboardContent() {
       setSelectedIngress(foundIngress);
       setModalOpened(true);
     }
-  }, [searchParams, isMounted, loading, ingresses, router]);
+  }, [
+    searchParams,
+    isMounted,
+    loading,
+    ingresses,
+    router,
+    parseIngressFromUrl,
+    findIngressByIdentifier,
+  ]);
 
   // Namespaces management
   const { namespaceCounts, namespacesWithIngresses } = useNamespaces({
@@ -176,19 +188,22 @@ function DashboardContent() {
   );
 
   // Handle opening modal and updating URL (Sub-task 10.2)
-  const handleDetailsClick = (ingress: IngressData) => {
-    setSelectedIngress(ingress);
-    setModalOpened(true);
+  const handleDetailsClick = useCallback(
+    (ingress: IngressData) => {
+      setSelectedIngress(ingress);
+      setModalOpened(true);
 
-    // Update URL with ingress identifier
-    const params = new URLSearchParams(window.location.search);
-    params.set('ingress', `${ingress.namespace}/${ingress.name}`);
-    const newUrl = `?${params.toString()}`;
-    router.replace(newUrl, { scroll: false });
-  };
+      // Update URL with ingress identifier
+      const params = new URLSearchParams(window.location.search);
+      params.set('ingress', `${ingress.namespace}/${ingress.name}`);
+      const newUrl = `?${params.toString()}`;
+      router.replace(newUrl, { scroll: false });
+    },
+    [router]
+  );
 
   // Handle closing modal and cleaning URL (Sub-task 10.3)
-  const handleModalClose = () => {
+  const handleModalClose = useCallback(() => {
     setModalOpened(false);
     setSelectedIngress(null);
 
@@ -197,7 +212,7 @@ function DashboardContent() {
     params.delete('ingress');
     const newUrl = params.toString() ? `?${params.toString()}` : '/';
     router.replace(newUrl, { scroll: false });
-  };
+  }, [router]);
 
   // Loading skeleton
   if (!isMounted) {

@@ -193,14 +193,14 @@
   - Test modal closing and URL cleanup
   - _Requirements: 2.1, 2.8, 2.9, 6.2_
 
-- [ ] 12. Add performance optimizations
-  - [ ] 12.1 Implement component memoization
+- [x] 12. Add performance optimizations
+  - [x] 12.1 Implement component memoization
     - Wrap IngressCard in React.memo with custom comparison
     - Memoize GroupedIngressGrid sections
     - Use useMemo for grouping calculations
     - Use useCallback for event handlers
     - _Requirements: 10.4_
-  - [ ] 12.2 Implement virtualization for large lists
+  - [x] 12.2 Implement virtualization for large lists
     - Install @tanstack/react-virtual
     - Add virtualization to GroupedIngressGrid when count > 100
     - Configure virtual scrolling with estimated card height
