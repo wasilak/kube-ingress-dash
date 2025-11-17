@@ -63,8 +63,8 @@
   - Verify title displays correctly
   - _Requirements: 4.1, 4.2_
 
-- [ ] 6. Implement grouping system
-  - [ ] 6.1 Create grouping types and utilities
+- [x] 6. Implement grouping system
+  - [x] 6.1 Create grouping types and utilities
     - Define GroupingMode type ('none' | 'namespace' | 'tls')
     - Create groupIngresses utility function
     - Implement logic for namespace grouping
@@ -72,13 +72,13 @@
     - Handle empty groups
     - Add sorting for groups
     - _Requirements: 5.2, 5.3, 5.4_
-  - [ ] 6.2 Create GroupingSelector component
+  - [x] 6.2 Create GroupingSelector component
     - Build component with Mantine Select
     - Add grouping mode options (None, Namespace, TLS Status)
     - Implement onChange handler
     - Style component for dashboard integration
     - _Requirements: 5.1_
-  - [ ] 6.3 Create GroupedIngressGrid component
+  - [x] 6.3 Create GroupedIngressGrid component
     - Build component to render grouped sections
     - Display group headers with counts
     - Render ingress cards within each group
@@ -86,7 +86,7 @@
     - Handle empty groups display
     - Add smooth transitions between grouping modes
     - _Requirements: 5.5, 5.6, 5.7_
-  - [ ] 6.4 Integrate grouping into dashboard page
+  - [x] 6.4 Integrate grouping into dashboard page
     - Add grouping state to dashboard page
     - Connect GroupingSelector to state
     - Replace IngressList with GroupedIngressGrid
