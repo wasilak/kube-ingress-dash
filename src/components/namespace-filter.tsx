@@ -1,5 +1,5 @@
 import React from 'react';
-import { MultiSelect, MultiSelectOption } from '../multi-select';
+import { MultiSelect, MultiSelectOption } from './multi-select';
 import { Layers } from 'lucide-react';
 
 export interface NamespaceFilterProps {

@@ -14,6 +14,7 @@ interface MultiSelectTriggerProps {
   getOptionByValue: (value: string) => MultiSelectOption | undefined;
   onRemoveValue: (value: string) => void;
   onClear: () => void;
+  onClick?: () => void;
 }
 
 export const MultiSelectTrigger = React.forwardRef<HTMLButtonElement, MultiSelectTriggerProps>(
@@ -28,6 +29,7 @@ export const MultiSelectTrigger = React.forwardRef<HTMLButtonElement, MultiSelec
       getOptionByValue,
       onRemoveValue,
       onClear,
+      onClick,
     },
     ref
   ) => {
@@ -38,6 +40,7 @@ export const MultiSelectTrigger = React.forwardRef<HTMLButtonElement, MultiSelec
         role="combobox"
         aria-expanded={isOpen}
         disabled={disabled}
+        onClick={onClick}
         className={cn(
           'w-full justify-between bg-background text-sm font-normal px-3 py-2 h-auto min-h-10',
           'flex items-center gap-2'
