@@ -1,17 +1,10 @@
 import React from 'react';
 import Image from 'next/image';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select } from '@mantine/core';
 
 interface ErrorScreenHeaderProps {
   theme: string;
-  onThemeChange: (theme: string) => void;
+  onThemeChange: (theme: string | null) => void;
 }
 
 export const ErrorScreenHeader: React.FC<ErrorScreenHeaderProps> = ({ theme, onThemeChange }) => {
@@ -32,17 +25,20 @@ export const ErrorScreenHeader: React.FC<ErrorScreenHeaderProps> = ({ theme, onT
 
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
-          <Label htmlFor="theme-select">Theme:</Label>
-          <Select value={theme} onValueChange={onThemeChange}>
-            <SelectTrigger id="theme-select" className="w-[120px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="light">Light</SelectItem>
-              <SelectItem value="dark">Dark</SelectItem>
-              <SelectItem value="system">System</SelectItem>
-            </SelectContent>
-          </Select>
+          <label htmlFor="theme-select" className="text-sm font-medium">
+            Theme:
+          </label>
+          <Select
+            id="theme-select"
+            value={theme}
+            onChange={onThemeChange}
+            data={[
+              { value: 'light', label: 'Light' },
+              { value: 'dark', label: 'Dark' },
+              { value: 'system', label: 'System' },
+            ]}
+            className="w-[120px]"
+          />
         </div>
       </div>
     </div>

@@ -1,8 +1,7 @@
 'use client';
 
 import React, { memo } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { TextInput, ActionIcon } from '@mantine/core';
 import { Search, X } from 'lucide-react';
 
 interface SearchBarProps {
@@ -28,29 +27,27 @@ const SearchBarComponent: React.FC<SearchBarProps> = ({
   };
 
   return (
-    <div className={`relative ${className}`}>
-      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-        <Search className="h-4 w-4" />
-      </div>
-      <Input
-        type="text"
-        placeholder={placeholder}
-        value={value}
-        onChange={handleInputChange}
-        className="pl-10 pr-10 w-full"
-      />
-      {value && (
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0"
-          onClick={clearSearch}
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      )}
-    </div>
+    <TextInput
+      type="text"
+      placeholder={placeholder}
+      value={value}
+      onChange={handleInputChange}
+      className={className}
+      leftSection={<Search className="h-4 w-4" />}
+      rightSection={
+        value ? (
+          <ActionIcon
+            type="button"
+            variant="subtle"
+            size="sm"
+            onClick={clearSearch}
+            aria-label="Clear search"
+          >
+            <X className="h-4 w-4" />
+          </ActionIcon>
+        ) : null
+      }
+    />
   );
 };
 

@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button, Card, Text, Title } from '@mantine/core';
 import { ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -25,8 +24,8 @@ export const ErrorScreenCard: React.FC<ErrorScreenCardProps> = ({
 }) => {
   return (
     <div className="flex justify-center items-center min-h-[50vh] p-4">
-      <Card className={`w-full max-w-2xl ${config.border}`}>
-        <CardHeader className="text-center">
+      <Card className={`w-full max-w-2xl ${config.border}`} padding="lg" radius="md" withBorder>
+        <Card.Section className="text-center p-6">
           <div className="flex justify-center mb-4">
             <Image
               src="/images/logo.svg"
@@ -36,27 +35,34 @@ export const ErrorScreenCard: React.FC<ErrorScreenCardProps> = ({
               className="h-16 w-16"
             />
           </div>
-          <CardTitle className="text-2xl">{config.title}</CardTitle>
-          <CardDescription>{config.description}</CardDescription>
-        </CardHeader>
-        <CardContent className="text-center">
+          <Title order={2} className="text-2xl">
+            {config.title}
+          </Title>
+          <Text c="dimmed" size="sm">
+            {config.description}
+          </Text>
+        </Card.Section>
+        <Card.Section className="text-center p-6 pt-0">
           <p className={`mb-6 ${config.text}`}>{message}</p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             {(onRetry || retryable) && (
-              <Button onClick={onRetry} variant="default">
+              <Button onClick={onRetry} variant="filled">
                 Retry Connection
               </Button>
             )}
 
-            <Button asChild variant="outline">
-              <Link href={documentationLink} target="_blank">
-                {documentationText}
-                <ExternalLink className="ml-2 h-4 w-4" />
-              </Link>
+            <Button
+              component={Link}
+              href={documentationLink}
+              target="_blank"
+              variant="outline"
+              rightSection={<ExternalLink className="h-4 w-4" />}
+            >
+              {documentationText}
             </Button>
           </div>
-        </CardContent>
+        </Card.Section>
       </Card>
     </div>
   );

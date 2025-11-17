@@ -2,8 +2,7 @@
 
 import React from 'react';
 import { AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button, Card, Title } from '@mantine/core';
 
 interface ClientErrorBoundaryState {
   hasError: boolean;
@@ -31,14 +30,16 @@ class ClientErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <div className="container mx-auto py-8">
-          <Card className="max-w-2xl mx-auto">
-            <CardHeader className="text-center">
+          <Card className="max-w-2xl mx-auto" padding="lg" radius="md" withBorder>
+            <Card.Section className="text-center p-6">
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 mb-4">
                 <AlertCircle className="h-6 w-6 text-destructive" />
               </div>
-              <CardTitle className="text-xl">Something went wrong</CardTitle>
-            </CardHeader>
-            <CardContent className="text-center">
+              <Title order={3} className="text-xl">
+                Something went wrong
+              </Title>
+            </Card.Section>
+            <Card.Section className="text-center p-6 pt-0">
               <p className="text-muted-foreground mb-4">
                 {this.state.error?.message || 'An unexpected error occurred'}
               </p>
@@ -46,9 +47,11 @@ class ClientErrorBoundary extends React.Component<
                 <Button variant="outline" onClick={() => window.location.reload()}>
                   Refresh Page
                 </Button>
-                <Button onClick={() => this.setState({ hasError: false })}>Try Again</Button>
+                <Button variant="filled" onClick={() => this.setState({ hasError: false })}>
+                  Try Again
+                </Button>
               </div>
-            </CardContent>
+            </Card.Section>
           </Card>
         </div>
       );

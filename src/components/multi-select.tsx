@@ -11,7 +11,7 @@ import {
   CommandSeparator,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@mantine/core';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -264,28 +264,32 @@ const MultiSelectComponent = React.forwardRef<HTMLButtonElement, MultiSelectProp
                             backgroundColor: option.style?.badgeColor,
                             color: option.style?.iconColor,
                           }}
-                          variant={variant}
+                          variant={variant === 'outline' ? 'outline' : 'light'}
                           data-disabled={option.disabled}
+                          leftSection={
+                            option.icon && (
+                              <span style={{ color: option.style?.iconColor }}>
+                                <option.icon className="h-3 w-3" />
+                              </span>
+                            )
+                          }
+                          rightSection={
+                            <X
+                              className="h-3 w-3 hover:text-foreground cursor-pointer"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                removeSelectedValue(value);
+                              }}
+                            />
+                          }
                         >
-                          {option.icon && (
-                            <span style={{ color: option.style?.iconColor }}>
-                              <option.icon className="mr-2 h-3 w-3" />
-                            </span>
-                          )}
                           {option.label}
-                          <X
-                            className="ml-1 h-3 w-3 hover:text-foreground cursor-pointer"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              removeSelectedValue(value);
-                            }}
-                          />
                         </Badge>
                       );
                     })}
                     {selectedValues.length > maxCount && (
                       <Badge
-                        variant={variant}
+                        variant="outline"
                         className="bg-transparent text-foreground border-foreground/10 hover:bg-transparent"
                       >
                         +{selectedValues.length - maxCount} more
