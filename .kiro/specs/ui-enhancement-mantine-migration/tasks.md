@@ -128,16 +128,7 @@
     - Handle fetch failures gracefully
     - _Requirements: 7.4_
 
-- [ ] 9. Create certificate details API endpoint
-  - Create /api/certificates/[namespace]/[name] route
-  - Implement GET handler for certificate details
-  - Use Kubernetes client to fetch certificate
-  - Return CertificateResponse with certificate details
-  - Handle errors and return appropriate status codes
-  - Add permission checks
-  - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6_
-
-- [ ] 10. Implement YAML generation
+- [ ] 9. Implement YAML generation
   - Install js-yaml package
   - Create YAML generation utility
   - Convert IngressData to Kubernetes YAML format
@@ -146,28 +137,28 @@
   - Add YAML to ingress detail responses
   - _Requirements: 2.6_
 
-- [ ] 11. Create IngressDetailsModal component
-  - [ ] 11.1 Build modal shell and structure
+- [ ] 10. Create IngressDetailsModal component
+  - [ ] 10.1 Build modal shell and structure
     - Create IngressDetailsModal component file
     - Set up Mantine Modal with props (opened, onClose, ingress)
     - Configure modal size and scroll behavior
     - Add modal header with ingress name
     - Create section layout structure
     - _Requirements: 2.1, 2.10_
-  - [ ] 11.2 Implement main details section
+  - [ ] 10.2 Implement main details section
     - Display ingress name, namespace, creation timestamp
     - Add status indicator with color coding
     - Add TLS badge if enabled
     - Display ingress class
     - Format timestamps for readability
     - _Requirements: 2.2_
-  - [ ] 11.3 Implement labels section
+  - [ ] 10.3 Implement labels section
     - Create grid layout for key-value pairs
     - Display all labels from ingress
     - Add copy button for individual values
     - Handle empty labels state
     - _Requirements: 2.3_
-  - [ ] 11.4 Implement annotations section
+  - [ ] 10.4 Implement annotations section
     - Create grid layout for key-value pairs
     - Display all annotations from ingress
     - Add copy button for individual values
@@ -175,14 +166,14 @@
     - Special formatting for known annotations
     - Handle empty annotations state
     - _Requirements: 2.4_
-  - [ ] 11.5 Implement ingress configuration section
+  - [ ] 10.5 Implement ingress configuration section
     - Display hosts list with external link icons
     - Display paths with backend service information
     - Show load balancer status
     - Display rules breakdown
     - Format configuration for readability
     - _Requirements: 2.5_
-  - [ ] 11.6 Implement certificate section
+  - [ ] 10.6 Implement certificate section
     - Conditionally render section only if TLS enabled
     - Display certificate expiration date prominently
     - Show days until expiration counter
@@ -192,7 +183,7 @@
     - Add error indicator for expired certificates
     - Show error message if certificate unavailable
     - _Requirements: 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9_
-  - [ ] 11.7 Implement YAML manifest section
+  - [ ] 10.7 Implement YAML manifest section
     - Install react-syntax-highlighter
     - Display YAML with syntax highlighting
     - Add copy to clipboard button
@@ -202,25 +193,25 @@
     - Handle YAML generation errors
     - _Requirements: 2.6, 2.7_
 
-- [ ] 12. Implement URL routing for modal state
-  - [ ] 12.1 Add URL parameter handling
+- [ ] 11. Implement URL routing for modal state
+  - [ ] 11.1 Add URL parameter handling
     - Parse ingress parameter from URL query string
     - Extract namespace and name from parameter
     - Find matching ingress in data
     - Open modal if ingress found
     - _Requirements: 2.8, 9.2, 9.3_
-  - [ ] 12.2 Update URL when modal opens
+  - [ ] 11.2 Update URL when modal opens
     - Add ingress identifier to URL when modal opens
     - Use format: ?ingress={namespace}/{name}
     - Update browser history without page reload
     - Preserve other query parameters (grouping, filters)
     - _Requirements: 2.8, 9.1_
-  - [ ] 12.3 Clean URL when modal closes
+  - [ ] 11.3 Clean URL when modal closes
     - Remove ingress parameter from URL on close
     - Update browser history
     - Preserve other query parameters
     - _Requirements: 9.4_
-  - [ ] 12.4 Handle invalid ingress URLs
+  - [ ] 11.4 Handle invalid ingress URLs
     - Validate ingress identifier format
     - Show error notification for invalid identifiers
     - Show error notification for ingress not found
@@ -228,7 +219,7 @@
     - Handle malformed URLs gracefully
     - _Requirements: 9.5_
 
-- [ ] 13. Integrate modal with dashboard
+- [ ] 12. Integrate modal with dashboard
   - Add modal state to dashboard page (selectedIngress, modalOpened)
   - Pass onDetailsClick handler to IngressCard components
   - Render IngressDetailsModal component
@@ -239,7 +230,7 @@
   - Test modal closing and URL cleanup
   - _Requirements: 2.1, 2.8, 2.9, 6.2_
 
-- [ ] 14. Implement lazy loading for certificate details
+- [ ] 13. Implement lazy loading for certificate details
   - Add loading state for certificate fetch
   - Fetch certificate only when modal opens
   - Show loading spinner while fetching
@@ -247,21 +238,21 @@
   - Handle fetch errors with error message
   - _Requirements: 3.1, 10.2, 10.3_
 
-- [ ] 15. Add performance optimizations
-  - [ ] 15.1 Implement component memoization
+- [ ] 14. Add performance optimizations
+  - [ ] 14.1 Implement component memoization
     - Wrap IngressCard in React.memo with custom comparison
     - Memoize GroupedIngressGrid sections
     - Use useMemo for grouping calculations
     - Use useCallback for event handlers
     - _Requirements: 10.4_
-  - [ ] 15.2 Implement virtualization for large lists
+  - [ ] 14.2 Implement virtualization for large lists
     - Install @tanstack/react-virtual
     - Add virtualization to GroupedIngressGrid when count > 100
     - Configure virtual scrolling with estimated card height
     - Test with large data sets
     - _Requirements: 10.5_
 
-- [ ] 16. Add loading states and error handling
+- [ ] 15. Add loading states and error handling
   - Add loading skeletons for certificate section
   - Add loading state for YAML generation
   - Implement error boundaries for modal sections
@@ -270,7 +261,7 @@
   - Test error scenarios
   - _Requirements: 3.9, 7.5, 7.6_
 
-- [ ] 17. Implement accessibility features
+- [ ] 16. Implement accessibility features
   - Add ARIA labels to all icon buttons
   - Implement keyboard navigation for modal
   - Add focus trap within modal
@@ -280,7 +271,7 @@
   - Check color contrast ratios
   - _Requirements: All requirements (accessibility is cross-cutting)_
 
-- [ ] 18. Add animations and transitions
+- [ ] 17. Add animations and transitions
   - Add smooth transitions for grouping mode changes
   - Add modal open/close animations
   - Add loading state animations
