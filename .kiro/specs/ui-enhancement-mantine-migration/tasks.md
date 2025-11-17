@@ -215,7 +215,65 @@
   - Test error scenarios
   - _Requirements: 7.5, 7.6_
 
-- [ ] 14. Implement accessibility features
+- [ ] 14. Implement settings screen with filter exclusions
+  - [ ] 14.1 Create settings page route and layout
+    - Create /settings route using Next.js App Router
+    - Add settings page component with Mantine layout
+    - Add "Settings" text link in dashboard header (right side of app title)
+    - Make app title clickable link to main dashboard view
+    - Use Mantine Container for page layout
+    - _Requirements: TBD_
+  - [ ] 14.2 Implement settings storage utilities
+    - Create localStorage utility functions for settings persistence
+    - Define settings data structure (excludedLabels, excludedNamespaces, excludedAnnotations)
+    - Implement getSettings and saveSettings functions
+    - Add default settings initialization
+    - Handle localStorage errors gracefully
+    - _Requirements: TBD_
+  - [ ] 14.3 Create settings tabs component
+    - Use Mantine Tabs component with three tabs
+    - Tab 1: "Labels" - for label exclusions
+    - Tab 2: "Namespaces" - for namespace exclusions
+    - Tab 3: "Annotations" - for annotation exclusions
+    - Configure tabs with proper styling and icons
+    - _Requirements: TBD_
+  - [ ] 14.4 Implement label exclusion settings
+    - Create MultiSelect component for label selection
+    - Fetch all available labels from ingresses
+    - Display all labels with all selected by default
+    - Save changes to localStorage on selection change
+    - Show count of excluded labels
+    - _Requirements: TBD_
+  - [ ] 14.5 Implement namespace exclusion settings
+    - Create MultiSelect component for namespace selection
+    - Fetch all available namespaces from ingresses
+    - Display all namespaces with all selected by default
+    - Save changes to localStorage on selection change
+    - Show count of excluded namespaces
+    - _Requirements: TBD_
+  - [ ] 14.6 Implement annotation exclusion settings
+    - Create MultiSelect component for annotation selection
+    - Fetch all available annotations from ingresses
+    - Display all annotations with all selected by default
+    - Save changes to localStorage on selection change
+    - Show count of excluded annotations
+    - _Requirements: TBD_
+  - [ ] 14.7 Update main dashboard filters to respect settings
+    - Load settings from localStorage on dashboard mount
+    - Filter out excluded labels from label filter options
+    - Filter out excluded namespaces from namespace filter options
+    - Filter out excluded annotations from annotation filter options
+    - Ensure filters update when settings change
+    - _Requirements: TBD_
+  - [ ] 14.8 Add settings context provider
+    - Create React Context for settings state
+    - Provide settings and updateSettings functions
+    - Wrap application with SettingsProvider
+    - Enable settings access across components
+    - Handle settings synchronization across tabs
+    - _Requirements: TBD_
+
+- [ ] 15. Implement accessibility features
   - Add ARIA labels to all icon buttons
   - Implement keyboard navigation for modal
   - Add focus trap within modal
@@ -225,7 +283,7 @@
   - Check color contrast ratios
   - _Requirements: All requirements (accessibility is cross-cutting)_
 
-- [ ] 15. Add animations and transitions
+- [ ] 16. Add animations and transitions
   - Add smooth transitions for grouping mode changes
   - Add modal open/close animations
   - Add loading state animations
@@ -233,13 +291,103 @@
   - Keep animations subtle and performant
   - _Requirements: 1.4_
 
-- [ ] 16. Update documentation
+- [ ] 17. Update documentation
   - Update README with new features
   - Document grouping functionality
   - Document modal navigation and URL sharing
+  - Document settings screen and filter exclusions
   - Add screenshots of new UI
   - _Requirements: All requirements_
 
-- [ ] 17. Final testing and polish
+- [ ] 18. Final testing and polish
   - Fix any remaining bugs
   - _Requirements: All requirements_
+
+- [ ] 19. Create Helm chart values schema
+  - [ ] 19.1 Create values.schema.json file
+    - Create values.schema.json in the Helm chart directory
+    - Define JSON schema structure following JSON Schema Draft 7 specification
+    - Add schema metadata ($schema, title, description)
+    - _Requirements: TBD_
+  - [ ] 19.2 Define schema for all configuration values
+    - Document all properties from values.yaml
+    - Add type definitions for each property (string, number, boolean, object, array)
+    - Define required vs optional properties
+    - Add property descriptions for user guidance
+    - _Requirements: TBD_
+  - [ ] 19.3 Add validation rules and constraints
+    - Add minimum/maximum values for numeric properties
+    - Add pattern validation for string properties (e.g., regex for URLs, ports)
+    - Add enum constraints for properties with fixed options
+    - Define default values where applicable
+    - Add examples for complex properties
+    - _Requirements: TBD_
+  - [ ] 19.4 Document nested configuration objects
+    - Define schemas for nested objects (ingress, service, resources, etc.)
+    - Add additionalProperties constraints
+    - Document array item schemas
+    - Ensure proper nesting and references
+    - _Requirements: TBD_
+  - [ ] 19.5 Test schema validation
+    - Validate values.yaml against values.schema.json
+    - Test with various configuration scenarios
+    - Verify schema works with Helm and Artifact Hub
+    - Fix any validation errors
+    - Add schema validation to CI/CD pipeline
+    - _Requirements: TBD_
+  - [ ] 19.6 Add schema documentation
+    - Document schema usage in chart README
+    - Add examples of valid configurations
+    - Document how to validate locally
+    - Prepare for Artifact Hub publication
+    - _Requirements: TBD_
+
+- [ ] 20. Implement Helm chart signing and Artifact Hub verification
+  - [ ] 20.1 Set up GPG key for chart signing
+    - Generate or import GPG key pair for signing
+    - Store private key securely (e.g., in CI/CD secrets)
+    - Export public key for verification
+    - Document key management procedures
+    - _Requirements: TBD_
+  - [ ] 20.2 Configure Helm chart signing
+    - Install and configure Helm GPG plugin if needed
+    - Add signing step to chart packaging process
+    - Sign chart packages with GPG key
+    - Generate provenance files (.prov) for each chart version
+    - Verify signed charts locally
+    - _Requirements: TBD_
+  - [ ] 20.3 Integrate signing into CI/CD pipeline
+    - Add chart signing to release workflow
+    - Configure secure key access in CI/CD environment
+    - Automate provenance file generation
+    - Upload signed charts and provenance files to chart repository
+    - Add verification step to ensure signatures are valid
+    - _Requirements: TBD_
+  - [ ] 20.4 Configure Artifact Hub metadata
+    - Create or update artifacthub-repo.yml in chart repository
+    - Add repository metadata (name, display name, description)
+    - Configure signing key information
+    - Add maintainer information
+    - Set up repository URL and documentation links
+    - _Requirements: TBD_
+  - [ ] 20.5 Set up transparency log integration (optional)
+    - Research Sigstore/Rekor integration for immutable signing records
+    - Configure Trusted Artifact Signer (TAS) if using
+    - Set up Fulcio certificate authority integration
+    - Configure Rekor transparency log
+    - Test signing with transparency log
+    - _Requirements: TBD_
+  - [ ] 20.6 Publish to Artifact Hub
+    - Register chart repository on Artifact Hub
+    - Verify chart appears with correct metadata
+    - Confirm "signed" badge displays for signed charts
+    - Test chart installation from Artifact Hub
+    - Monitor Artifact Hub scanning and verification
+    - _Requirements: TBD_
+  - [ ] 20.7 Document signing and verification process
+    - Document how charts are signed
+    - Add verification instructions for users
+    - Document key management and rotation procedures
+    - Add troubleshooting guide for signature verification
+    - Update README with Artifact Hub badge and links
+    - _Requirements: TBD_
