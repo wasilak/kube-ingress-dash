@@ -409,7 +409,7 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                             {Object.entries(ingress.annotations).map(([key, value]) => (
                               <Table.Tr key={key}>
                                 <Table.Td>
-                                  <Text size="sm" fw={600}>
+                                  <Text size="sm" fw={600} c="blue">
                                     {key}
                                   </Text>
                                 </Table.Td>
