@@ -207,7 +207,7 @@
     - Test with large data sets
     - _Requirements: 10.5_
 
-- [ ] 13. Add loading states and error handling
+- [x] 13. Add loading states and error handling
   - Add loading state for YAML generation
   - Implement error boundaries for modal sections
   - Add error messages for failed operations
@@ -241,11 +241,5 @@
   - _Requirements: All requirements_
 
 - [ ] 17. Final testing and polish
-  - Run full test suite
-  - Test with various ingress configurations
-  - Test with different grouping modes
-  - Test URL routing edge cases
-  - Verify accessibility compliance
-  - Check performance with large data sets
   - Fix any remaining bugs
   - _Requirements: All requirements_
