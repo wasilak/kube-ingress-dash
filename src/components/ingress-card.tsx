@@ -1,8 +1,8 @@
 'use client';
 
 import React, { memo } from 'react';
-import { Button, Badge, Card, Text, Stack, Group, ActionIcon } from '@mantine/core';
-import { IconExternalLink, IconLock, IconFolder, IconInfoCircle } from '@tabler/icons-react';
+import { Button, Badge, Card, Text, Stack, Group, Divider } from '@mantine/core';
+import { IconExternalLink, IconLock, IconFolder } from '@tabler/icons-react';
 import { IngressData } from '@/types/ingress';
 
 interface IngressCardProps {
@@ -31,22 +31,13 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({
       {/* Header Section */}
       <Group justify="space-between" align="flex-start" wrap="nowrap" mb="md">
         <Stack gap="xs" style={{ flex: 1, minWidth: 0 }}>
-          <Group gap="xs" wrap="nowrap" align="flex-start">
-            <Text
-              fw={600}
-              className="text-base leading-tight break-words hyphens-auto flex-1 min-w-0"
-              style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1rem)' }}
-            >
-              {ingress.name}
-            </Text>
-            {ingress.tls && (
-              <IconLock
-                size={16}
-                className="text-primary flex-shrink-0"
-                style={{ marginTop: '2px' }}
-              />
-            )}
-          </Group>
+          <Text
+            fw={600}
+            className="text-base leading-tight break-words hyphens-auto"
+            style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1rem)' }}
+          >
+            {ingress.name}
+          </Text>
           <Group gap={4} wrap="nowrap">
             <IconFolder size={12} className="flex-shrink-0" style={{ opacity: 0.6 }} />
             <Text size="xs" c="dimmed" className="leading-tight break-words">
@@ -54,18 +45,7 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({
             </Text>
           </Group>
         </Stack>
-        {onDetailsClick && (
-          <ActionIcon
-            variant="subtle"
-            color="gray"
-            size="lg"
-            onClick={onDetailsClick}
-            aria-label={`View details for ${ingress.name}`}
-            className="flex-shrink-0"
-          >
-            <IconInfoCircle size={20} />
-          </ActionIcon>
-        )}
+        {ingress.tls && <IconLock size={20} className="text-primary flex-shrink-0" />}
       </Group>
 
       {/* Content Section */}
@@ -146,6 +126,16 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({
             {ingress.annotations['kubernetes.io/ingress.class']}
           </Badge>
         </Group>
+      )}
+
+      {/* Show Details Button */}
+      {onDetailsClick && (
+        <>
+          <Divider my="md" />
+          <Button variant="outline" size="sm" fullWidth onClick={onDetailsClick}>
+            Show details
+          </Button>
+        </>
       )}
     </Card>
   );

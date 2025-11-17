@@ -1,6 +1,7 @@
 import { V1Ingress } from '@kubernetes/client-node';
 import { IngressData } from '@/types/ingress';
 import { KUBERNETES_NAMESPACE } from '@/constants/kubernetes';
+import { generateIngressYAML } from './yaml-generator';
 
 /**
  * Filter out auto-generated annotations that shouldn't be displayed to users
@@ -89,6 +90,15 @@ export function transformIngress(k8sIngress: V1Ingress): IngressData {
     }
   }
 
+  // Generate YAML manifest for the ingress
+  let yamlManifest: string | undefined;
+  try {
+    yamlManifest = generateIngressYAML(k8sIngress);
+  } catch (error) {
+    console.error('Failed to generate YAML manifest for ingress:', metadata.name, error);
+    // Continue without YAML manifest if generation fails
+  }
+
   return {
     id: metadata.uid || `${metadata.namespace}-${metadata.name}`,
     name: metadata.name || 'unknown',
@@ -107,6 +117,7 @@ export function transformIngress(k8sIngress: V1Ingress): IngressData {
     tls: hasTLS,
     status: 'unknown', // This would be populated based on actual status in a real implementation
     labels: metadata.labels || {},
+    yamlManifest,
   };
 }
 

@@ -1,3 +1,13 @@
+export interface CertificateDetails {
+  expirationDate: string; // ISO 8601 format
+  daysUntilExpiration: number;
+  issuer: string;
+  subject: string;
+  validDomains: string[];
+  status: 'valid' | 'expiring' | 'expired';
+  secretName: string;
+}
+
 export interface IngressData {
   id: string;
   name: string;
@@ -10,6 +20,8 @@ export interface IngressData {
   tls: boolean;
   status: 'ready' | 'pending' | 'error' | 'unknown';
   labels?: Record<string, string>;
+  certificate?: CertificateDetails;
+  yamlManifest?: string;
 }
 
 export interface KubernetesIngress {
@@ -24,6 +36,7 @@ export interface KubernetesIngress {
     labels?: Record<string, string>;
   };
   spec: {
+    ingressClassName?: string;
     rules?: Array<{
       host?: string;
       http?: {
@@ -59,4 +72,15 @@ export interface KubernetesIngress {
 export interface IngressChangeEvent {
   type: 'ADDED' | 'MODIFIED' | 'DELETED';
   ingress: IngressData;
+}
+
+export interface IngressDetailResponse {
+  ingress: IngressData;
+  certificate?: CertificateDetails;
+  yamlManifest: string;
+}
+
+export interface CertificateResponse {
+  certificate: CertificateDetails;
+  error?: string;
 }
