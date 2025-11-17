@@ -96,39 +96,12 @@
     - _Requirements: 5.8, 5.9, 5.10_
 
 - [ ] 7. Enhance type system for new features
-  - Add CertificateDetails interface to src/types/ingress.ts
-  - Add certificate field to IngressData interface
   - Add yamlManifest field to IngressData interface
   - Create IngressDetailResponse type
-  - Create CertificateResponse type
   - Update KubernetesIngress type if needed
   - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
-- [ ] 8. Implement certificate fetching in Kubernetes client
-  - [ ] 8.1 Add certificate parsing utilities
-    - Create certificate parser utility file
-    - Implement X.509 certificate parsing
-    - Extract expiration date, issuer, subject, domains
-    - Calculate days until expiration
-    - Determine certificate status (valid/expiring/expired)
-    - Handle parsing errors gracefully
-    - _Requirements: 7.2, 7.3_
-  - [ ] 8.2 Add Secret fetching to Kubernetes client
-    - Add method to fetch Secret by name and namespace
-    - Extract certificate data from Secret
-    - Parse certificate using utility functions
-    - Return CertificateDetails object
-    - Handle missing or inaccessible Secrets
-    - Add error logging
-    - _Requirements: 7.1, 7.5, 7.6_
-  - [ ] 8.3 Integrate certificate fetching with ingress data
-    - Update ingress transformer to include certificate details
-    - Fetch certificates for TLS-enabled ingresses
-    - Attach certificate data to IngressData objects
-    - Handle fetch failures gracefully
-    - _Requirements: 7.4_
-
-- [ ] 9. Implement YAML generation
+- [ ] 8. Implement YAML generation
   - Install js-yaml package
   - Create YAML generation utility
   - Convert IngressData to Kubernetes YAML format
@@ -137,28 +110,28 @@
   - Add YAML to ingress detail responses
   - _Requirements: 2.6_
 
-- [ ] 10. Create IngressDetailsModal component
-  - [ ] 10.1 Build modal shell and structure
+- [ ] 9. Create IngressDetailsModal component
+  - [ ] 9.1 Build modal shell and structure
     - Create IngressDetailsModal component file
     - Set up Mantine Modal with props (opened, onClose, ingress)
     - Configure modal size and scroll behavior
     - Add modal header with ingress name
     - Create section layout structure
     - _Requirements: 2.1, 2.10_
-  - [ ] 10.2 Implement main details section
+  - [ ] 9.2 Implement main details section
     - Display ingress name, namespace, creation timestamp
     - Add status indicator with color coding
     - Add TLS badge if enabled
     - Display ingress class
     - Format timestamps for readability
     - _Requirements: 2.2_
-  - [ ] 10.3 Implement labels section
+  - [ ] 9.3 Implement labels section
     - Create grid layout for key-value pairs
     - Display all labels from ingress
     - Add copy button for individual values
     - Handle empty labels state
     - _Requirements: 2.3_
-  - [ ] 10.4 Implement annotations section
+  - [ ] 9.4 Implement annotations section
     - Create grid layout for key-value pairs
     - Display all annotations from ingress
     - Add copy button for individual values
@@ -166,24 +139,14 @@
     - Special formatting for known annotations
     - Handle empty annotations state
     - _Requirements: 2.4_
-  - [ ] 10.5 Implement ingress configuration section
+  - [ ] 9.5 Implement ingress configuration section
     - Display hosts list with external link icons
     - Display paths with backend service information
     - Show load balancer status
     - Display rules breakdown
     - Format configuration for readability
     - _Requirements: 2.5_
-  - [ ] 10.6 Implement certificate section
-    - Conditionally render section only if TLS enabled
-    - Display certificate expiration date prominently
-    - Show days until expiration counter
-    - Display issuer and subject information
-    - List all valid domains
-    - Add warning indicator for expiring certificates (< 30 days)
-    - Add error indicator for expired certificates
-    - Show error message if certificate unavailable
-    - _Requirements: 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9_
-  - [ ] 10.7 Implement YAML manifest section
+  - [ ] 9.6 Implement YAML manifest section
     - Install react-syntax-highlighter
     - Display YAML with syntax highlighting
     - Add copy to clipboard button
@@ -193,25 +156,25 @@
     - Handle YAML generation errors
     - _Requirements: 2.6, 2.7_
 
-- [ ] 11. Implement URL routing for modal state
-  - [ ] 11.1 Add URL parameter handling
+- [ ] 10. Implement URL routing for modal state
+  - [ ] 10.1 Add URL parameter handling
     - Parse ingress parameter from URL query string
     - Extract namespace and name from parameter
     - Find matching ingress in data
     - Open modal if ingress found
     - _Requirements: 2.8, 9.2, 9.3_
-  - [ ] 11.2 Update URL when modal opens
+  - [ ] 10.2 Update URL when modal opens
     - Add ingress identifier to URL when modal opens
     - Use format: ?ingress={namespace}/{name}
     - Update browser history without page reload
     - Preserve other query parameters (grouping, filters)
     - _Requirements: 2.8, 9.1_
-  - [ ] 11.3 Clean URL when modal closes
+  - [ ] 10.3 Clean URL when modal closes
     - Remove ingress parameter from URL on close
     - Update browser history
     - Preserve other query parameters
     - _Requirements: 9.4_
-  - [ ] 11.4 Handle invalid ingress URLs
+  - [ ] 10.4 Handle invalid ingress URLs
     - Validate ingress identifier format
     - Show error notification for invalid identifiers
     - Show error notification for ingress not found
@@ -219,7 +182,7 @@
     - Handle malformed URLs gracefully
     - _Requirements: 9.5_
 
-- [ ] 12. Integrate modal with dashboard
+- [ ] 11. Integrate modal with dashboard
   - Add modal state to dashboard page (selectedIngress, modalOpened)
   - Pass onDetailsClick handler to IngressCard components
   - Render IngressDetailsModal component
@@ -230,38 +193,29 @@
   - Test modal closing and URL cleanup
   - _Requirements: 2.1, 2.8, 2.9, 6.2_
 
-- [ ] 13. Implement lazy loading for certificate details
-  - Add loading state for certificate fetch
-  - Fetch certificate only when modal opens
-  - Show loading spinner while fetching
-  - Cache certificate details to avoid redundant requests
-  - Handle fetch errors with error message
-  - _Requirements: 3.1, 10.2, 10.3_
-
-- [ ] 14. Add performance optimizations
-  - [ ] 14.1 Implement component memoization
+- [ ] 12. Add performance optimizations
+  - [ ] 12.1 Implement component memoization
     - Wrap IngressCard in React.memo with custom comparison
     - Memoize GroupedIngressGrid sections
     - Use useMemo for grouping calculations
     - Use useCallback for event handlers
     - _Requirements: 10.4_
-  - [ ] 14.2 Implement virtualization for large lists
+  - [ ] 12.2 Implement virtualization for large lists
     - Install @tanstack/react-virtual
     - Add virtualization to GroupedIngressGrid when count > 100
     - Configure virtual scrolling with estimated card height
     - Test with large data sets
     - _Requirements: 10.5_
 
-- [ ] 15. Add loading states and error handling
-  - Add loading skeletons for certificate section
+- [ ] 13. Add loading states and error handling
   - Add loading state for YAML generation
   - Implement error boundaries for modal sections
   - Add error messages for failed operations
   - Add retry mechanisms where appropriate
   - Test error scenarios
-  - _Requirements: 3.9, 7.5, 7.6_
+  - _Requirements: 7.5, 7.6_
 
-- [ ] 16. Implement accessibility features
+- [ ] 14. Implement accessibility features
   - Add ARIA labels to all icon buttons
   - Implement keyboard navigation for modal
   - Add focus trap within modal
@@ -271,7 +225,7 @@
   - Check color contrast ratios
   - _Requirements: All requirements (accessibility is cross-cutting)_
 
-- [ ] 17. Add animations and transitions
+- [ ] 15. Add animations and transitions
   - Add smooth transitions for grouping mode changes
   - Add modal open/close animations
   - Add loading state animations
@@ -279,20 +233,17 @@
   - Keep animations subtle and performant
   - _Requirements: 1.4_
 
-- [ ] 19. Update documentation
+- [ ] 16. Update documentation
   - Update README with new features
   - Document grouping functionality
   - Document modal navigation and URL sharing
-  - Document certificate status indicators
   - Add screenshots of new UI
-  - Update API documentation for new endpoints
   - _Requirements: All requirements_
 
-- [ ] 20. Final testing and polish
+- [ ] 17. Final testing and polish
   - Run full test suite
   - Test with various ingress configurations
   - Test with different grouping modes
-  - Test certificate display with various states
   - Test URL routing edge cases
   - Verify accessibility compliance
   - Check performance with large data sets
