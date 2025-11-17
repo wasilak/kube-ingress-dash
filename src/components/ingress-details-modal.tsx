@@ -13,9 +13,11 @@ import {
   Alert,
   Collapse,
   Button,
+  Box,
   Grid,
   CopyButton,
   Tooltip,
+  Table,
 } from '@mantine/core';
 import {
   IconLock,
@@ -277,12 +279,24 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                       <Stack gap="xs">
                         {Array.from(new Set(ingress.paths)).map((path, index) => (
                           <Group key={index} gap="xs" wrap="nowrap" justify="space-between">
-                            <div
-                              className="w-full justify-start h-8 text-xs px-3 truncate border border-input rounded-md bg-transparent flex items-center"
-                              style={{ flex: 1 }}
+                            <Box
+                              style={{
+                                flex: 1,
+                                height: '32px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                padding: '0 12px',
+                                fontSize: '12px',
+                                border: '1px solid var(--mantine-color-default-border)',
+                                borderRadius: 'var(--mantine-radius-default)',
+                                backgroundColor: 'transparent',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}
                             >
                               {path}
-                            </div>
+                            </Box>
                             <CopyButton value={path}>
                               {({ copied, copy }) => (
                                 <Tooltip label={copied ? 'Copied' : 'Copy'} withArrow>
@@ -334,40 +348,23 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                       </Group>
                       <Divider />
                       <Collapse in={labelsExpanded}>
-                        <Stack gap="xs">
-                          {ingress.labels &&
-                            Object.entries(ingress.labels).map(([key, value]) => (
-                              <Group key={key} gap="xs" wrap="nowrap" justify="space-between">
-                                <div
-                                  className="w-full justify-start h-8 text-xs px-3 truncate border border-input rounded-md bg-transparent flex items-center"
-                                  style={{ flex: 1 }}
-                                >
-                                  <Text size="xs" fw={600} c="blue" component="span">
-                                    {key}:
-                                  </Text>
-                                  <Text size="xs" component="span" ml={4}>
-                                    {value}
-                                  </Text>
-                                </div>
-                                <CopyButton value={`${key}: ${value}`}>
-                                  {({ copied, copy }) => (
-                                    <Tooltip label={copied ? 'Copied' : 'Copy'} withArrow>
-                                      <ActionIcon
-                                        color={copied ? 'teal' : 'gray'}
-                                        variant="subtle"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          copy();
-                                        }}
-                                      >
-                                        {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
-                                      </ActionIcon>
-                                    </Tooltip>
-                                  )}
-                                </CopyButton>
-                              </Group>
-                            ))}
-                        </Stack>
+                        <Table>
+                          <Table.Tbody>
+                            {ingress.labels &&
+                              Object.entries(ingress.labels).map(([key, value]) => (
+                                <Table.Tr key={key}>
+                                  <Table.Td>
+                                    <Text size="sm" fw={600} c="blue">
+                                      {key}
+                                    </Text>
+                                  </Table.Td>
+                                  <Table.Td>
+                                    <Text size="sm">{value}</Text>
+                                  </Table.Td>
+                                </Table.Tr>
+                              ))}
+                          </Table.Tbody>
+                        </Table>
                       </Collapse>
                     </>
                   ) : (
@@ -418,54 +415,40 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                       </Group>
                       <Divider />
                       <Collapse in={annotationsExpanded}>
-                        <Stack gap="xs">
-                          {Object.entries(ingress.annotations).map(([key, value]) => (
-                            <Group key={key} gap="xs" wrap="nowrap" justify="space-between">
-                              <div
-                                className="w-full justify-start h-8 text-xs px-3 truncate border border-input rounded-md bg-transparent flex items-center"
+                        <Table>
+                          <Table.Tbody>
+                            {Object.entries(ingress.annotations).map(([key, value]) => (
+                              <Table.Tr
+                                key={key}
                                 style={{
-                                  flex: 1,
                                   backgroundColor: isKnownAnnotation(key)
                                     ? 'var(--mantine-color-blue-0)'
                                     : undefined,
                                 }}
                               >
-                                <Text
-                                  size="xs"
-                                  fw={600}
-                                  c={isKnownAnnotation(key) ? 'blue' : 'gray'}
-                                  component="span"
-                                >
-                                  {key}:
-                                </Text>
-                                {isKnownAnnotation(key) && (
-                                  <Badge size="xs" variant="light" color="blue" ml={4}>
-                                    Known
-                                  </Badge>
-                                )}
-                                <Text size="xs" component="span" ml={4}>
-                                  {value}
-                                </Text>
-                              </div>
-                              <CopyButton value={`${key}: ${value}`}>
-                                {({ copied, copy }) => (
-                                  <Tooltip label={copied ? 'Copied' : 'Copy'} withArrow>
-                                    <ActionIcon
-                                      color={copied ? 'teal' : 'gray'}
-                                      variant="subtle"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        copy();
-                                      }}
+                                <Table.Td>
+                                  <Group gap="xs">
+                                    <Text
+                                      size="sm"
+                                      fw={600}
+                                      c={isKnownAnnotation(key) ? 'blue' : 'gray'}
                                     >
-                                      {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
-                                    </ActionIcon>
-                                  </Tooltip>
-                                )}
-                              </CopyButton>
-                            </Group>
-                          ))}
-                        </Stack>
+                                      {key}
+                                    </Text>
+                                    {isKnownAnnotation(key) && (
+                                      <Badge size="xs" variant="light" color="blue">
+                                        Known
+                                      </Badge>
+                                    )}
+                                  </Group>
+                                </Table.Td>
+                                <Table.Td>
+                                  <Text size="sm">{value}</Text>
+                                </Table.Td>
+                              </Table.Tr>
+                            ))}
+                          </Table.Tbody>
+                        </Table>
                       </Collapse>
                     </>
                   ) : (

@@ -24,7 +24,14 @@ export const ErrorScreenCard: React.FC<ErrorScreenCardProps> = ({
 }) => {
   return (
     <div className="flex justify-center items-center min-h-[50vh] p-4">
-      <Card className={`w-full max-w-2xl ${config.border}`} padding="lg" radius="md" withBorder>
+      <Card
+        className={`w-full max-w-2xl ${config.border}`}
+        padding="lg"
+        radius="md"
+        style={{
+          border: '1px solid var(--mantine-color-default-border)',
+        }}
+      >
         <Card.Section className="text-center p-6">
           <div className="flex justify-center mb-4">
             <Image
