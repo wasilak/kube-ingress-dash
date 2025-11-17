@@ -497,6 +497,7 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                     <CodeHighlight
                       code={ingress.yamlManifest}
                       language="yaml"
+                      withExpandButton={false}
                       styles={{
                         code: {
                           fontSize: '12px',
