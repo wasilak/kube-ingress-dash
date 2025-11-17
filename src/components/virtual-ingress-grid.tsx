@@ -11,6 +11,7 @@ interface VirtualIngressGridProps {
   columnCount?: number;
   itemHeight?: number;
   gap?: number;
+  onDetailsClick?: (ingress: IngressData) => void;
 }
 
 interface CellProps {
@@ -25,6 +26,7 @@ export function VirtualIngressGrid({
   columnCount: propColumnCount,
   itemHeight = 280,
   gap = 24,
+  onDetailsClick,
 }: VirtualIngressGridProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -98,7 +100,10 @@ export function VirtualIngressGrid({
             </div>
           )}
         >
-          <IngressCard ingress={ingress} />
+          <IngressCard
+            ingress={ingress}
+            onDetailsClick={onDetailsClick ? () => onDetailsClick(ingress) : undefined}
+          />
         </ErrorBoundary>
       </div>
     );

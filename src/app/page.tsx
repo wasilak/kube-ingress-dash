@@ -20,6 +20,9 @@ import { GroupingSelector } from '@/components/grouping-selector';
 import { GroupedIngressGrid } from '@/components/grouped-ingress-grid';
 import { GroupingMode } from '@/types/grouping';
 import { groupIngresses } from '@/lib/utils/grouping';
+import { IngressDetailsModal } from '@/components/ingress-details-modal';
+import { notifications } from '@mantine/notifications';
+import { IngressData } from '@/types/ingress';
 
 function DashboardContent() {
   const router = useRouter();
@@ -28,6 +31,8 @@ function DashboardContent() {
   const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
   const [selectedAnnotations, setSelectedAnnotations] = useState<string[]>([]);
   const [selectedNamespaces, setSelectedNamespaces] = useState<string[]>([]);
+  const [selectedIngress, setSelectedIngress] = useState<IngressData | null>(null);
+  const [modalOpened, setModalOpened] = useState(false);
 
   // Initialize grouping mode from URL or default to 'none'
   const [groupingMode, setGroupingMode] = useState<GroupingMode>(() => {
@@ -40,6 +45,42 @@ function DashboardContent() {
 
   // Search sync with URL
   const { searchQuery, debouncedSearchQuery, handleSearch, isMounted } = useSearchSync();
+
+  // Ingresses data and filtering
+  const { ingresses, filteredIngresses, loading, allLabels, allAnnotations, updateIngresses } =
+    useIngresses({
+      searchQuery: debouncedSearchQuery,
+      selectedNamespaces,
+      selectedLabels,
+      selectedAnnotations,
+      isMounted,
+      error,
+    });
+
+  // Parse ingress parameter from URL and validate format
+  const parseIngressFromUrl = (
+    ingressParam: string | null
+  ): { namespace: string; name: string } | null => {
+    if (!ingressParam) return null;
+
+    // Expected format: namespace/name
+    const parts = ingressParam.split('/');
+    if (parts.length !== 2) {
+      return null;
+    }
+
+    const [namespace, name] = parts;
+    if (!namespace || !name) {
+      return null;
+    }
+
+    return { namespace, name };
+  };
+
+  // Find ingress in data by namespace and name
+  const findIngressByIdentifier = (namespace: string, name: string): IngressData | null => {
+    return ingresses.find((ing) => ing.namespace === namespace && ing.name === name) || null;
+  };
 
   // Update URL when grouping mode changes
   useEffect(() => {
@@ -57,16 +98,54 @@ function DashboardContent() {
     router.replace(newUrl, { scroll: false });
   }, [groupingMode, isMounted, router]);
 
-  // Ingresses data and filtering
-  const { ingresses, filteredIngresses, loading, allLabels, allAnnotations, updateIngresses } =
-    useIngresses({
-      searchQuery: debouncedSearchQuery,
-      selectedNamespaces,
-      selectedLabels,
-      selectedAnnotations,
-      isMounted,
-      error,
-    });
+  // Handle URL parameter for opening modal (Sub-task 10.1)
+  useEffect(() => {
+    if (!isMounted || loading) return;
+
+    const ingressParam = searchParams.get('ingress');
+
+    if (ingressParam) {
+      const parsed = parseIngressFromUrl(ingressParam);
+
+      if (!parsed) {
+        // Invalid format
+        notifications.show({
+          title: 'Invalid URL',
+          message: 'The ingress identifier format is invalid. Expected format: namespace/name',
+          color: 'red',
+        });
+
+        // Clean up URL
+        const params = new URLSearchParams(window.location.search);
+        params.delete('ingress');
+        const newUrl = params.toString() ? `?${params.toString()}` : '/';
+        router.replace(newUrl, { scroll: false });
+        return;
+      }
+
+      const foundIngress = findIngressByIdentifier(parsed.namespace, parsed.name);
+
+      if (!foundIngress) {
+        // Ingress not found
+        notifications.show({
+          title: 'Ingress Not Found',
+          message: `Could not find ingress "${parsed.name}" in namespace "${parsed.namespace}"`,
+          color: 'red',
+        });
+
+        // Clean up URL
+        const params = new URLSearchParams(window.location.search);
+        params.delete('ingress');
+        const newUrl = params.toString() ? `?${params.toString()}` : '/';
+        router.replace(newUrl, { scroll: false });
+        return;
+      }
+
+      // Open modal with found ingress
+      setSelectedIngress(foundIngress);
+      setModalOpened(true);
+    }
+  }, [searchParams, isMounted, loading, ingresses, router]);
 
   // Namespaces management
   const { namespaceCounts, namespacesWithIngresses } = useNamespaces({
@@ -95,6 +174,30 @@ function DashboardContent() {
     () => groupIngresses(filteredIngresses, groupingMode),
     [filteredIngresses, groupingMode]
   );
+
+  // Handle opening modal and updating URL (Sub-task 10.2)
+  const handleDetailsClick = (ingress: IngressData) => {
+    setSelectedIngress(ingress);
+    setModalOpened(true);
+
+    // Update URL with ingress identifier
+    const params = new URLSearchParams(window.location.search);
+    params.set('ingress', `${ingress.namespace}/${ingress.name}`);
+    const newUrl = `?${params.toString()}`;
+    router.replace(newUrl, { scroll: false });
+  };
+
+  // Handle closing modal and cleaning URL (Sub-task 10.3)
+  const handleModalClose = () => {
+    setModalOpened(false);
+    setSelectedIngress(null);
+
+    // Remove ingress parameter from URL
+    const params = new URLSearchParams(window.location.search);
+    params.delete('ingress');
+    const newUrl = params.toString() ? `?${params.toString()}` : '/';
+    router.replace(newUrl, { scroll: false });
+  };
 
   // Loading skeleton
   if (!isMounted) {
@@ -208,11 +311,22 @@ function DashboardContent() {
             </div>
           ) : (
             <IngressListErrorBoundary>
-              <GroupedIngressGrid groups={groupedIngresses} searchQuery={debouncedSearchQuery} />
+              <GroupedIngressGrid
+                groups={groupedIngresses}
+                searchQuery={debouncedSearchQuery}
+                onDetailsClick={handleDetailsClick}
+              />
             </IngressListErrorBoundary>
           )}
         </div>
       </DashboardErrorBoundary>
+
+      {/* Ingress Details Modal */}
+      <IngressDetailsModal
+        opened={modalOpened}
+        onClose={handleModalClose}
+        ingress={selectedIngress}
+      />
     </div>
   );
 }

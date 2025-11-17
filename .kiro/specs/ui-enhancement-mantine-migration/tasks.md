@@ -95,13 +95,13 @@
     - Test grouping with various data sets
     - _Requirements: 5.8, 5.9, 5.10_
 
-- [ ] 7. Enhance type system for new features
+- [x] 7. Enhance type system for new features
   - Add yamlManifest field to IngressData interface
   - Create IngressDetailResponse type
   - Update KubernetesIngress type if needed
   - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
-- [ ] 8. Implement YAML generation
+- [x] 8. Implement YAML generation
   - Install js-yaml package
   - Create YAML generation utility
   - Convert IngressData to Kubernetes YAML format
@@ -110,28 +110,28 @@
   - Add YAML to ingress detail responses
   - _Requirements: 2.6_
 
-- [ ] 9. Create IngressDetailsModal component
-  - [ ] 9.1 Build modal shell and structure
+- [x] 9. Create IngressDetailsModal component
+  - [x] 9.1 Build modal shell and structure
     - Create IngressDetailsModal component file
     - Set up Mantine Modal with props (opened, onClose, ingress)
     - Configure modal size and scroll behavior
     - Add modal header with ingress name
     - Create section layout structure
     - _Requirements: 2.1, 2.10_
-  - [ ] 9.2 Implement main details section
+  - [x] 9.2 Implement main details section
     - Display ingress name, namespace, creation timestamp
     - Add status indicator with color coding
     - Add TLS badge if enabled
     - Display ingress class
     - Format timestamps for readability
     - _Requirements: 2.2_
-  - [ ] 9.3 Implement labels section
+  - [x] 9.3 Implement labels section
     - Create grid layout for key-value pairs
     - Display all labels from ingress
     - Add copy button for individual values
     - Handle empty labels state
     - _Requirements: 2.3_
-  - [ ] 9.4 Implement annotations section
+  - [x] 9.4 Implement annotations section
     - Create grid layout for key-value pairs
     - Display all annotations from ingress
     - Add copy button for individual values
@@ -139,14 +139,14 @@
     - Special formatting for known annotations
     - Handle empty annotations state
     - _Requirements: 2.4_
-  - [ ] 9.5 Implement ingress configuration section
+  - [x] 9.5 Implement ingress configuration section
     - Display hosts list with external link icons
     - Display paths with backend service information
     - Show load balancer status
     - Display rules breakdown
     - Format configuration for readability
     - _Requirements: 2.5_
-  - [ ] 9.6 Implement YAML manifest section
+  - [x] 9.6 Implement YAML manifest section
     - Install react-syntax-highlighter
     - Display YAML with syntax highlighting
     - Add copy to clipboard button
@@ -156,25 +156,25 @@
     - Handle YAML generation errors
     - _Requirements: 2.6, 2.7_
 
-- [ ] 10. Implement URL routing for modal state
-  - [ ] 10.1 Add URL parameter handling
+- [x] 10. Implement URL routing for modal state
+  - [x] 10.1 Add URL parameter handling
     - Parse ingress parameter from URL query string
     - Extract namespace and name from parameter
     - Find matching ingress in data
     - Open modal if ingress found
     - _Requirements: 2.8, 9.2, 9.3_
-  - [ ] 10.2 Update URL when modal opens
+  - [x] 10.2 Update URL when modal opens
     - Add ingress identifier to URL when modal opens
     - Use format: ?ingress={namespace}/{name}
     - Update browser history without page reload
     - Preserve other query parameters (grouping, filters)
     - _Requirements: 2.8, 9.1_
-  - [ ] 10.3 Clean URL when modal closes
+  - [x] 10.3 Clean URL when modal closes
     - Remove ingress parameter from URL on close
     - Update browser history
     - Preserve other query parameters
     - _Requirements: 9.4_
-  - [ ] 10.4 Handle invalid ingress URLs
+  - [x] 10.4 Handle invalid ingress URLs
     - Validate ingress identifier format
     - Show error notification for invalid identifiers
     - Show error notification for ingress not found
@@ -182,7 +182,7 @@
     - Handle malformed URLs gracefully
     - _Requirements: 9.5_
 
-- [ ] 11. Integrate modal with dashboard
+- [x] 11. Integrate modal with dashboard
   - Add modal state to dashboard page (selectedIngress, modalOpened)
   - Pass onDetailsClick handler to IngressCard components
   - Render IngressDetailsModal component
