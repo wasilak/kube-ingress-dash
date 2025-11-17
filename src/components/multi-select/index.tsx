@@ -1,92 +1,61 @@
 import * as React from 'react';
-import { MultiSelectComponent } from './multi-select-component';
-import { MultiSelectProps, MultiSelectOption, MultiSelectGroup } from './types';
+import { MultiSelect as MantineMultiSelect } from '@mantine/core';
+import { MultiSelectOption } from './types';
+
+export interface MultiSelectProps {
+  options: MultiSelectOption[];
+  onValueChange: (values: string[]) => void;
+  defaultValue?: string[];
+  placeholder?: string;
+  disabled?: boolean;
+  maxCount?: number;
+  hideSelectAll?: boolean;
+}
 
 /**
- * Memoized MultiSelect component with custom comparison function.
- * Only re-renders when options, defaultValue, or configuration props change.
- * Uses deep comparison for options and defaultValue arrays.
+ * Wrapper around Mantine's MultiSelect component to match our API
  */
-const MultiSelect = React.memo(MultiSelectComponent, (prevProps, nextProps) => {
-  // Compare primitive props
-  if (
-    prevProps.placeholder !== nextProps.placeholder ||
-    prevProps.variant !== nextProps.variant ||
-    prevProps.maxCount !== nextProps.maxCount ||
-    prevProps.modalPopover !== nextProps.modalPopover ||
-    prevProps.searchable !== nextProps.searchable ||
-    prevProps.disabled !== nextProps.disabled ||
-    prevProps.responsive !== nextProps.responsive ||
-    prevProps.closeOnSelect !== nextProps.closeOnSelect ||
-    prevProps.hideSelectAll !== nextProps.hideSelectAll
-  ) {
-    return false;
+export const MultiSelect = React.forwardRef<HTMLInputElement, MultiSelectProps>(
+  (
+    {
+      options,
+      onValueChange,
+      defaultValue = [],
+      placeholder,
+      disabled,
+      maxCount: _maxCount,
+      hideSelectAll: _hideSelectAll,
+    },
+    ref
+  ) => {
+    const [value, setValue] = React.useState<string[]>(defaultValue);
+
+    // Convert our options format to Mantine's format
+    const mantineData = options.map((opt) => ({
+      value: opt.value,
+      label: opt.label,
+    }));
+
+    const handleChange = (newValue: string[]) => {
+      setValue(newValue);
+      onValueChange(newValue);
+    };
+
+    return (
+      <MantineMultiSelect
+        ref={ref}
+        data={mantineData}
+        value={value}
+        onChange={handleChange}
+        placeholder={placeholder}
+        disabled={disabled}
+        searchable
+        clearable
+      />
+    );
   }
-
-  // Compare callback references
-  if (prevProps.onValueChange !== nextProps.onValueChange) {
-    return false;
-  }
-
-  // Compare defaultValue array
-  if (prevProps.defaultValue?.length !== nextProps.defaultValue?.length) {
-    return false;
-  }
-
-  if (prevProps.defaultValue && nextProps.defaultValue) {
-    for (let i = 0; i < prevProps.defaultValue.length; i++) {
-      if (prevProps.defaultValue[i] !== nextProps.defaultValue[i]) {
-        return false;
-      }
-    }
-  }
-
-  // Compare options array
-  if (prevProps.options.length !== nextProps.options.length) {
-    return false;
-  }
-
-  if (prevProps.options === nextProps.options) {
-    return true;
-  }
-
-  // Deep comparison of options structure
-  for (let i = 0; i < prevProps.options.length; i++) {
-    const prevOption = prevProps.options[i];
-    const nextOption = nextProps.options[i];
-
-    if ('heading' in prevOption && 'heading' in nextOption) {
-      if (
-        prevOption.heading !== nextOption.heading ||
-        prevOption.options.length !== nextOption.options.length
-      ) {
-        return false;
-      }
-
-      for (let j = 0; j < prevOption.options.length; j++) {
-        if (
-          prevOption.options[j].value !== nextOption.options[j].value ||
-          prevOption.options[j].label !== nextOption.options[j].label
-        ) {
-          return false;
-        }
-      }
-    } else if ('value' in prevOption && 'value' in nextOption) {
-      if (prevOption.value !== nextOption.value || prevOption.label !== nextOption.label) {
-        return false;
-      }
-    } else {
-      return false;
-    }
-  }
-
-  if (prevProps.emptyIndicator !== nextProps.emptyIndicator) {
-    return false;
-  }
-
-  return true;
-});
+);
 
 MultiSelect.displayName = 'MultiSelect';
 
-export { MultiSelect, type MultiSelectOption, type MultiSelectGroup, type MultiSelectProps };
+export { type MultiSelectOption };

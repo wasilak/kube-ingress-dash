@@ -47,7 +47,7 @@
   - Test card rendering and interactions
   - _Requirements: 1.1, 6.1, 6.2, 6.3, 6.4_
 
-- [ ] 4. Remove shadcn/ui dependencies
+- [x] 4. Remove shadcn/ui dependencies
   - Delete all files in src/components/ui directory
   - Remove @radix-ui/\* packages from package.json
   - Remove class-variance-authority from package.json
@@ -57,7 +57,7 @@
   - Run build to verify no errors
   - _Requirements: 1.2, 1.3_
 
-- [ ] 5. Update application title in header
+- [x] 5. Update application title in header
   - Locate title display in DashboardHeader component
   - Change "kube-ingress-dash" to "Kube Ingress Dash"
   - Verify title displays correctly

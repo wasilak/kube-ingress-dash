@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/multi-select/index';
 import { IngressData } from '@/types/ingress';
 import { Tag, FileText } from 'lucide-react';
@@ -52,10 +51,10 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
       <div className="space-y-2">
-        <Label className="text-sm font-medium flex items-center gap-2">
+        <label className="text-sm font-medium flex items-center gap-2">
           <Tag className="h-4 w-4" />
           Labels
-        </Label>
+        </label>
         <MultiSelect
           options={labelOptions}
           onValueChange={onLabelsChange}
@@ -66,10 +65,10 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
       </div>
 
       <div className="space-y-2">
-        <Label className="text-sm font-medium flex items-center gap-2">
+        <label className="text-sm font-medium flex items-center gap-2">
           <FileText className="h-4 w-4" />
           Annotations
-        </Label>
+        </label>
         <MultiSelect
           options={annotationOptions}
           onValueChange={onAnnotationsChange}

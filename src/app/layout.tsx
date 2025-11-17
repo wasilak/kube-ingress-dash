@@ -1,13 +1,14 @@
 import './globals.css';
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
+import './mantine-overrides.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { ColorSchemeScript, MantineProvider } from '@mantine/core';
+import { ColorSchemeScript } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { ThemeProvider } from '@/components/theme-provider';
 import ErrorBoundary from '@/components/error-boundary';
-import { mantineTheme } from '@/theme/mantine-theme';
+import { MantineThemeProvider } from '@/components/mantine-theme-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,16 +24,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <ColorSchemeScript />
+        <ColorSchemeScript defaultColorScheme="auto" />
         <link rel="icon" href="/images/logo.svg" type="image/svg+xml" />
       </head>
       <body className={inter.className}>
         <ErrorBoundary>
           <ThemeProvider>
-            <MantineProvider theme={mantineTheme}>
+            <MantineThemeProvider>
               <Notifications position="top-right" />
               {children}
-            </MantineProvider>
+            </MantineThemeProvider>
           </ThemeProvider>
         </ErrorBoundary>
       </body>

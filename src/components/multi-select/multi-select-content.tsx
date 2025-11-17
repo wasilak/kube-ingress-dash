@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  Command,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-  CommandInput,
-  CommandEmpty,
-  CommandSeparator,
-} from '@/components/ui/command';
-import { Separator } from '@/components/ui/separator';
+import { TextInput, Divider, ScrollArea, Stack, Group, Text } from '@mantine/core';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MultiSelectOption, MultiSelectGroup } from './types';
@@ -53,51 +44,93 @@ export const MultiSelectContent: React.FC<MultiSelectContentProps> = ({
   };
 
   return (
-    <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
+    <Stack gap={0} className="w-full">
       {searchable && (
-        <CommandInput
-          placeholder="Search options..."
-          value={query}
-          onValueChange={onQueryChange}
-          onKeyDown={onInputKeyDown}
-        />
+        <div className="p-2">
+          <TextInput
+            placeholder="Search options..."
+            value={query}
+            onChange={(e) => onQueryChange(e.currentTarget.value)}
+            onKeyDown={onInputKeyDown}
+          />
+        </div>
       )}
-      <CommandList>
-        <CommandEmpty>{emptyIndicator || 'No results found.'}</CommandEmpty>
-        {!hideSelectAll && !query && (
-          <CommandGroup>
-            <CommandItem key="all" onSelect={onToggleAll} className="cursor-pointer">
+      <ScrollArea.Autosize mah={300} type="auto">
+        <Stack gap="xs" p="xs">
+          {filteredOptions.length === 0 && (
+            <Text size="sm" c="dimmed" ta="center" py="md">
+              {emptyIndicator || 'No results found.'}
+            </Text>
+          )}
+          {!hideSelectAll && !query && filteredOptions.length > 0 && (
+            <>
               <div
-                className={cn(
-                  'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                  allOptionsSelected
-                    ? 'bg-primary text-primary-foreground'
-                    : 'opacity-50 [&_svg]:invisible'
-                )}
+                key="all"
+                onClick={onToggleAll}
+                className="cursor-pointer px-2 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded flex items-center"
               >
-                <Check className="h-4 w-4" />
+                <div
+                  className={cn(
+                    'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+                    allOptionsSelected
+                      ? 'bg-primary text-primary-foreground'
+                      : 'opacity-50 [&_svg]:invisible'
+                  )}
+                >
+                  <Check className="h-4 w-4" />
+                </div>
+                <span>
+                  (Select All
+                  {getAllOptions().length > 20 ? ` - ${getAllOptions().length} options` : ''})
+                </span>
               </div>
-              <span>
-                (Select All
-                {getAllOptions().length > 20 ? ` - ${getAllOptions().length} options` : ''})
-              </span>
-            </CommandItem>
-          </CommandGroup>
-        )}
-        {isGroupedOptions(filteredOptions) ? (
-          filteredOptions.map((group) => (
-            <CommandGroup key={group.heading} heading={group.heading}>
-              {group.options.map((option) => {
+              <Divider />
+            </>
+          )}
+          {isGroupedOptions(filteredOptions)
+            ? filteredOptions.map((group) => (
+                <div key={group.heading}>
+                  <Text size="xs" fw={500} c="dimmed" px="xs" py={4}>
+                    {group.heading}
+                  </Text>
+                  {group.options.map((option) => {
+                    const isSelected = selectedValues.includes(option.value);
+                    return (
+                      <div
+                        key={option.value}
+                        onClick={() => !option.disabled && onToggleOption(option.value)}
+                        className={cn(
+                          'cursor-pointer px-2 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded flex items-center',
+                          option.disabled && 'opacity-50 cursor-not-allowed'
+                        )}
+                      >
+                        <div
+                          className={cn(
+                            'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+                            isSelected
+                              ? 'bg-primary text-primary-foreground'
+                              : 'opacity-50 [&_svg]:invisible'
+                          )}
+                        >
+                          <Check className="h-4 w-4" />
+                        </div>
+                        {option.icon && <option.icon className="mr-2 h-4 w-4" />}
+                        <span>{option.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))
+            : (filteredOptions as MultiSelectOption[]).map((option) => {
                 const isSelected = selectedValues.includes(option.value);
                 return (
-                  <CommandItem
+                  <div
                     key={option.value}
-                    onSelect={() => onToggleOption(option.value)}
+                    onClick={() => !option.disabled && onToggleOption(option.value)}
                     className={cn(
-                      'cursor-pointer',
+                      'cursor-pointer px-2 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded flex items-center',
                       option.disabled && 'opacity-50 cursor-not-allowed'
                     )}
-                    disabled={option.disabled}
                   >
                     <div
                       className={cn(
@@ -111,62 +144,31 @@ export const MultiSelectContent: React.FC<MultiSelectContentProps> = ({
                     </div>
                     {option.icon && <option.icon className="mr-2 h-4 w-4" />}
                     <span>{option.label}</span>
-                  </CommandItem>
+                  </div>
                 );
               })}
-            </CommandGroup>
-          ))
-        ) : (
-          <CommandGroup>
-            {(filteredOptions as MultiSelectOption[]).map((option) => {
-              const isSelected = selectedValues.includes(option.value);
-              return (
-                <CommandItem
-                  key={option.value}
-                  onSelect={() => onToggleOption(option.value)}
-                  className={cn(
-                    'cursor-pointer',
-                    option.disabled && 'opacity-50 cursor-not-allowed'
-                  )}
-                  disabled={option.disabled}
-                >
-                  <div
-                    className={cn(
-                      'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                      isSelected
-                        ? 'bg-primary text-primary-foreground'
-                        : 'opacity-50 [&_svg]:invisible'
-                    )}
-                  >
-                    <Check className="h-4 w-4" />
-                  </div>
-                  {option.icon && <option.icon className="mr-2 h-4 w-4" />}
-                  <span>{option.label}</span>
-                </CommandItem>
-              );
-            })}
-          </CommandGroup>
-        )}
-        <CommandSeparator />
-        <CommandGroup>
-          <div className="flex items-center justify-between">
-            {selectedValues.length > 0 && (
-              <>
-                <CommandItem onSelect={onClear} className="flex-1 justify-center cursor-pointer">
-                  Clear
-                </CommandItem>
-                <Separator orientation="vertical" className="flex min-h-6 h-full" />
-              </>
-            )}
-            <CommandItem
-              onSelect={onClose}
-              className="flex-1 justify-center cursor-pointer max-w-full"
+        </Stack>
+      </ScrollArea.Autosize>
+      <Divider />
+      <Group grow p="xs">
+        {selectedValues.length > 0 && (
+          <>
+            <div
+              onClick={onClear}
+              className="cursor-pointer text-center py-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
             >
-              Close
-            </CommandItem>
-          </div>
-        </CommandGroup>
-      </CommandList>
-    </Command>
+              Clear
+            </div>
+            <Divider orientation="vertical" />
+          </>
+        )}
+        <div
+          onClick={onClose}
+          className="cursor-pointer text-center py-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+        >
+          Close
+        </div>
+      </Group>
+    </Stack>
   );
 };
