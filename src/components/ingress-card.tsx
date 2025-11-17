@@ -12,6 +12,7 @@ import {
   CopyButton,
   ActionIcon,
   Tooltip,
+  Box,
 } from '@mantine/core';
 import { IconExternalLink, IconLock, IconFolder, IconCopy, IconCheck } from '@tabler/icons-react';
 import { IngressData } from '@/types/ingress';
@@ -135,12 +136,24 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({
                 <Stack gap="xs">
                   {uniquePaths.map((path, index) => (
                     <Group key={index} gap="xs" wrap="nowrap" justify="space-between">
-                      <div
-                        className="w-full justify-start h-8 text-xs px-3 truncate border border-input rounded-md bg-transparent flex items-center"
-                        style={{ flex: 1 }}
+                      <Box
+                        style={{
+                          flex: 1,
+                          height: '32px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          padding: '0 12px',
+                          fontSize: '12px',
+                          border: '1px solid var(--mantine-color-default-border)',
+                          borderRadius: 'var(--mantine-radius-default)',
+                          backgroundColor: 'transparent',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
                       >
                         {path}
-                      </div>
+                      </Box>
                       <CopyButton value={path}>
                         {({ copied, copy }) => (
                           <Tooltip label={copied ? 'Copied' : 'Copy'} withArrow>
