@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Button, Badge } from '@mantine/core';
 import { X, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MultiSelectOption } from './types';
@@ -63,28 +62,32 @@ export const MultiSelectTrigger = React.forwardRef<HTMLButtonElement, MultiSelec
                       backgroundColor: option.style?.badgeColor,
                       color: option.style?.iconColor,
                     }}
-                    variant={variant}
+                    variant={variant === 'outline' ? 'outline' : 'light'}
                     data-disabled={option.disabled}
+                    leftSection={
+                      option.icon && (
+                        <span style={{ color: option.style?.iconColor }}>
+                          <option.icon className="h-3 w-3" />
+                        </span>
+                      )
+                    }
+                    rightSection={
+                      <X
+                        className="h-3 w-3 hover:text-foreground cursor-pointer"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          onRemoveValue(value);
+                        }}
+                      />
+                    }
                   >
-                    {option.icon && (
-                      <span style={{ color: option.style?.iconColor }}>
-                        <option.icon className="mr-2 h-3 w-3" />
-                      </span>
-                    )}
                     {option.label}
-                    <X
-                      className="ml-1 h-3 w-3 hover:text-foreground cursor-pointer"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        onRemoveValue(value);
-                      }}
-                    />
                   </Badge>
                 );
               })}
               {selectedValues.length > maxCount && (
                 <Badge
-                  variant={variant}
+                  variant="outline"
                   className="bg-transparent text-foreground border-foreground/10 hover:bg-transparent"
                 >
                   +{selectedValues.length - maxCount} more

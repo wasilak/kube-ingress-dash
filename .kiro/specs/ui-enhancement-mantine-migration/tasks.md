@@ -1,0 +1,309 @@
+# Implementation Plan
+
+- [x] 1. Set up Mantine framework and theme configuration
+  - Install Mantine core packages (@mantine/core, @mantine/hooks, @mantine/notifications)
+  - Install icon library (@tabler/icons-react)
+  - Configure MantineProvider in src/app/layout.tsx
+  - Create theme configuration file matching current design tokens (colors, spacing, fonts)
+  - Set up CSS imports and verify Mantine styles load correctly
+  - Test basic Mantine component rendering
+  - _Requirements: 1.1, 1.5_
+
+- [x] 2. Migrate core UI components to Mantine
+  - [x] 2.1 Migrate Button component
+    - Replace all Button imports from shadcn to Mantine
+    - Update Button props to Mantine API (variant, size, etc.)
+    - Test all button variants across the application
+    - _Requirements: 1.1_
+  - [x] 2.2 Migrate Badge component
+    - Replace Badge imports with Mantine Badge
+    - Update Badge props and variants
+    - Verify visual consistency
+    - _Requirements: 1.1_
+  - [x] 2.3 Migrate Input and TextInput components
+    - Replace Input with Mantine TextInput
+    - Update SearchBar component to use Mantine TextInput
+    - Test search functionality
+    - _Requirements: 1.1_
+  - [x] 2.4 Migrate Select component
+    - Replace Select with Mantine Select
+    - Update namespace filter to use Mantine Select
+    - Add search capability to Select
+    - Test dropdown behavior
+    - _Requirements: 1.1_
+  - [x] 2.5 Migrate Card component
+    - Replace Card imports with Mantine Card
+    - Update Card.Header, Card.Content, Card.Footer to Mantine equivalents
+    - Verify card layout and styling
+    - _Requirements: 1.1, 1.4_
+
+- [ ] 3. Refactor IngressCard component with Mantine
+  - Update IngressCard to use Mantine Card component
+  - Add details icon button (ActionIcon with IconInfoCircle)
+  - Implement onDetailsClick callback prop
+  - Update card layout with Mantine Stack and Group components
+  - Maintain existing hosts and paths display
+  - Update TLS lock icon styling
+  - Test card rendering and interactions
+  - _Requirements: 1.1, 6.1, 6.2, 6.3, 6.4_
+
+- [ ] 4. Remove shadcn/ui dependencies
+  - Delete all files in src/components/ui directory
+  - Remove @radix-ui/\* packages from package.json
+  - Remove class-variance-authority from package.json
+  - Remove cmdk from package.json
+  - Update all remaining imports to use Mantine
+  - Run npm install to clean up node_modules
+  - Run build to verify no errors
+  - _Requirements: 1.2, 1.3_
+
+- [ ] 5. Update application title in header
+  - Locate title display in DashboardHeader component
+  - Change "kube-ingress-dash" to "Kube Ingress Dash"
+  - Verify title displays correctly
+  - _Requirements: 4.1, 4.2_
+
+- [ ] 6. Implement grouping system
+  - [ ] 6.1 Create grouping types and utilities
+    - Define GroupingMode type ('none' | 'namespace' | 'tls')
+    - Create groupIngresses utility function
+    - Implement logic for namespace grouping
+    - Implement logic for TLS status grouping
+    - Handle empty groups
+    - Add sorting for groups
+    - _Requirements: 5.2, 5.3, 5.4_
+  - [ ] 6.2 Create GroupingSelector component
+    - Build component with Mantine Select
+    - Add grouping mode options (None, Namespace, TLS Status)
+    - Implement onChange handler
+    - Style component for dashboard integration
+    - _Requirements: 5.1_
+  - [ ] 6.3 Create GroupedIngressGrid component
+    - Build component to render grouped sections
+    - Display group headers with counts
+    - Render ingress cards within each group
+    - Use Mantine SimpleGrid for responsive layout
+    - Handle empty groups display
+    - Add smooth transitions between grouping modes
+    - _Requirements: 5.5, 5.6, 5.7_
+  - [ ] 6.4 Integrate grouping into dashboard page
+    - Add grouping state to dashboard page
+    - Connect GroupingSelector to state
+    - Replace IngressList with GroupedIngressGrid
+    - Ensure grouping works with filters and search
+    - Add URL persistence for grouping mode
+    - Test grouping with various data sets
+    - _Requirements: 5.8, 5.9, 5.10_
+
+- [ ] 7. Enhance type system for new features
+  - Add CertificateDetails interface to src/types/ingress.ts
+  - Add certificate field to IngressData interface
+  - Add yamlManifest field to IngressData interface
+  - Create IngressDetailResponse type
+  - Create CertificateResponse type
+  - Update KubernetesIngress type if needed
+  - _Requirements: 8.1, 8.2, 8.3, 8.4_
+
+- [ ] 8. Implement certificate fetching in Kubernetes client
+  - [ ] 8.1 Add certificate parsing utilities
+    - Create certificate parser utility file
+    - Implement X.509 certificate parsing
+    - Extract expiration date, issuer, subject, domains
+    - Calculate days until expiration
+    - Determine certificate status (valid/expiring/expired)
+    - Handle parsing errors gracefully
+    - _Requirements: 7.2, 7.3_
+  - [ ] 8.2 Add Secret fetching to Kubernetes client
+    - Add method to fetch Secret by name and namespace
+    - Extract certificate data from Secret
+    - Parse certificate using utility functions
+    - Return CertificateDetails object
+    - Handle missing or inaccessible Secrets
+    - Add error logging
+    - _Requirements: 7.1, 7.5, 7.6_
+  - [ ] 8.3 Integrate certificate fetching with ingress data
+    - Update ingress transformer to include certificate details
+    - Fetch certificates for TLS-enabled ingresses
+    - Attach certificate data to IngressData objects
+    - Handle fetch failures gracefully
+    - _Requirements: 7.4_
+
+- [ ] 9. Create certificate details API endpoint
+  - Create /api/certificates/[namespace]/[name] route
+  - Implement GET handler for certificate details
+  - Use Kubernetes client to fetch certificate
+  - Return CertificateResponse with certificate details
+  - Handle errors and return appropriate status codes
+  - Add permission checks
+  - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6_
+
+- [ ] 10. Implement YAML generation
+  - Install js-yaml package
+  - Create YAML generation utility
+  - Convert IngressData to Kubernetes YAML format
+  - Include all ingress spec details
+  - Format YAML with proper indentation
+  - Add YAML to ingress detail responses
+  - _Requirements: 2.6_
+
+- [ ] 11. Create IngressDetailsModal component
+  - [ ] 11.1 Build modal shell and structure
+    - Create IngressDetailsModal component file
+    - Set up Mantine Modal with props (opened, onClose, ingress)
+    - Configure modal size and scroll behavior
+    - Add modal header with ingress name
+    - Create section layout structure
+    - _Requirements: 2.1, 2.10_
+  - [ ] 11.2 Implement main details section
+    - Display ingress name, namespace, creation timestamp
+    - Add status indicator with color coding
+    - Add TLS badge if enabled
+    - Display ingress class
+    - Format timestamps for readability
+    - _Requirements: 2.2_
+  - [ ] 11.3 Implement labels section
+    - Create grid layout for key-value pairs
+    - Display all labels from ingress
+    - Add copy button for individual values
+    - Handle empty labels state
+    - _Requirements: 2.3_
+  - [ ] 11.4 Implement annotations section
+    - Create grid layout for key-value pairs
+    - Display all annotations from ingress
+    - Add copy button for individual values
+    - Add collapsible behavior for many annotations
+    - Special formatting for known annotations
+    - Handle empty annotations state
+    - _Requirements: 2.4_
+  - [ ] 11.5 Implement ingress configuration section
+    - Display hosts list with external link icons
+    - Display paths with backend service information
+    - Show load balancer status
+    - Display rules breakdown
+    - Format configuration for readability
+    - _Requirements: 2.5_
+  - [ ] 11.6 Implement certificate section
+    - Conditionally render section only if TLS enabled
+    - Display certificate expiration date prominently
+    - Show days until expiration counter
+    - Display issuer and subject information
+    - List all valid domains
+    - Add warning indicator for expiring certificates (< 30 days)
+    - Add error indicator for expired certificates
+    - Show error message if certificate unavailable
+    - _Requirements: 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9_
+  - [ ] 11.7 Implement YAML manifest section
+    - Install react-syntax-highlighter
+    - Display YAML with syntax highlighting
+    - Add copy to clipboard button
+    - Implement copy functionality
+    - Add collapsible behavior
+    - Show line numbers
+    - Handle YAML generation errors
+    - _Requirements: 2.6, 2.7_
+
+- [ ] 12. Implement URL routing for modal state
+  - [ ] 12.1 Add URL parameter handling
+    - Parse ingress parameter from URL query string
+    - Extract namespace and name from parameter
+    - Find matching ingress in data
+    - Open modal if ingress found
+    - _Requirements: 2.8, 9.2, 9.3_
+  - [ ] 12.2 Update URL when modal opens
+    - Add ingress identifier to URL when modal opens
+    - Use format: ?ingress={namespace}/{name}
+    - Update browser history without page reload
+    - Preserve other query parameters (grouping, filters)
+    - _Requirements: 2.8, 9.1_
+  - [ ] 12.3 Clean URL when modal closes
+    - Remove ingress parameter from URL on close
+    - Update browser history
+    - Preserve other query parameters
+    - _Requirements: 9.4_
+  - [ ] 12.4 Handle invalid ingress URLs
+    - Validate ingress identifier format
+    - Show error notification for invalid identifiers
+    - Show error notification for ingress not found
+    - Clean up URL on error
+    - Handle malformed URLs gracefully
+    - _Requirements: 9.5_
+
+- [ ] 13. Integrate modal with dashboard
+  - Add modal state to dashboard page (selectedIngress, modalOpened)
+  - Pass onDetailsClick handler to IngressCard components
+  - Render IngressDetailsModal component
+  - Connect modal open/close handlers
+  - Implement URL synchronization
+  - Test modal opening from card click
+  - Test modal opening from direct URL
+  - Test modal closing and URL cleanup
+  - _Requirements: 2.1, 2.8, 2.9, 6.2_
+
+- [ ] 14. Implement lazy loading for certificate details
+  - Add loading state for certificate fetch
+  - Fetch certificate only when modal opens
+  - Show loading spinner while fetching
+  - Cache certificate details to avoid redundant requests
+  - Handle fetch errors with error message
+  - _Requirements: 3.1, 10.2, 10.3_
+
+- [ ] 15. Add performance optimizations
+  - [ ] 15.1 Implement component memoization
+    - Wrap IngressCard in React.memo with custom comparison
+    - Memoize GroupedIngressGrid sections
+    - Use useMemo for grouping calculations
+    - Use useCallback for event handlers
+    - _Requirements: 10.4_
+  - [ ] 15.2 Implement virtualization for large lists
+    - Install @tanstack/react-virtual
+    - Add virtualization to GroupedIngressGrid when count > 100
+    - Configure virtual scrolling with estimated card height
+    - Test with large data sets
+    - _Requirements: 10.5_
+
+- [ ] 16. Add loading states and error handling
+  - Add loading skeletons for certificate section
+  - Add loading state for YAML generation
+  - Implement error boundaries for modal sections
+  - Add error messages for failed operations
+  - Add retry mechanisms where appropriate
+  - Test error scenarios
+  - _Requirements: 3.9, 7.5, 7.6_
+
+- [ ] 17. Implement accessibility features
+  - Add ARIA labels to all icon buttons
+  - Implement keyboard navigation for modal
+  - Add focus trap within modal
+  - Ensure focus returns to trigger on close
+  - Test with screen readers
+  - Verify keyboard-only navigation works
+  - Check color contrast ratios
+  - _Requirements: All requirements (accessibility is cross-cutting)_
+
+- [ ] 18. Add animations and transitions
+  - Add smooth transitions for grouping mode changes
+  - Add modal open/close animations
+  - Add loading state animations
+  - Add hover effects on interactive elements
+  - Keep animations subtle and performant
+  - _Requirements: 1.4_
+
+- [ ] 19. Update documentation
+  - Update README with new features
+  - Document grouping functionality
+  - Document modal navigation and URL sharing
+  - Document certificate status indicators
+  - Add screenshots of new UI
+  - Update API documentation for new endpoints
+  - _Requirements: All requirements_
+
+- [ ] 20. Final testing and polish
+  - Run full test suite
+  - Test with various ingress configurations
+  - Test with different grouping modes
+  - Test certificate display with various states
+  - Test URL routing edge cases
+  - Verify accessibility compliance
+  - Check performance with large data sets
+  - Fix any remaining bugs
+  - _Requirements: All requirements_

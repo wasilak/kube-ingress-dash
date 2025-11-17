@@ -3,7 +3,7 @@ import { IngressData } from '@/types/ingress';
 import IngressCard from '@/components/ingress-card';
 import ErrorBoundary from '@/components/error-boundary';
 import { VirtualIngressGrid } from '@/components/virtual-ingress-grid';
-import { Button } from '@/components/ui/button';
+import { Button } from '@mantine/core';
 
 interface IngressListProps {
   ingresses: IngressData[];
@@ -26,7 +26,7 @@ export const IngressList: React.FC<IngressListProps> = ({
             : 'There are no ingresses in your cluster'}
         </p>
         {searchQuery && (
-          <Button className="mt-4" onClick={onClearSearch}>
+          <Button className="mt-4" onClick={onClearSearch} variant="filled">
             Clear search
           </Button>
         )}

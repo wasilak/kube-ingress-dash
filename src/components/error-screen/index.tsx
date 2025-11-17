@@ -50,8 +50,10 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
 
   const config = getErrorConfig(errorClassification, errorType, title);
 
-  const handleThemeChange = (newTheme: string) => {
-    setTheme(newTheme as 'light' | 'dark' | 'system');
+  const handleThemeChange = (newTheme: string | null) => {
+    if (newTheme) {
+      setTheme(newTheme as 'light' | 'dark' | 'system');
+    }
   };
 
   return (

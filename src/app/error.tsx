@@ -2,8 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button, Card, Title } from '@mantine/core';
 import { AlertCircle } from 'lucide-react';
 
 interface ErrorProps {
@@ -20,14 +19,16 @@ export default function Error({ error, reset }: ErrorProps) {
 
   return (
     <div className="container mx-auto py-8">
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader className="text-center">
+      <Card className="max-w-2xl mx-auto" padding="lg" radius="md" withBorder>
+        <Card.Section className="text-center p-6">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 mb-4">
             <AlertCircle className="h-6 w-6 text-destructive" />
           </div>
-          <CardTitle className="text-xl">Something went wrong</CardTitle>
-        </CardHeader>
-        <CardContent className="text-center">
+          <Title order={3} className="text-xl">
+            Something went wrong
+          </Title>
+        </Card.Section>
+        <Card.Section className="text-center p-6 pt-0">
           <p className="text-muted-foreground mb-4">
             {error.message || 'An unexpected error occurred'}
           </p>
@@ -35,10 +36,14 @@ export default function Error({ error, reset }: ErrorProps) {
             <Button variant="outline" onClick={() => router.refresh()}>
               Try Again
             </Button>
-            <Button onClick={() => router.push('/')}>Go Home</Button>
-            <Button onClick={reset}>Reset</Button>
+            <Button variant="filled" onClick={() => router.push('/')}>
+              Go Home
+            </Button>
+            <Button variant="filled" onClick={reset}>
+              Reset
+            </Button>
           </div>
-        </CardContent>
+        </Card.Section>
       </Card>
     </div>
   );

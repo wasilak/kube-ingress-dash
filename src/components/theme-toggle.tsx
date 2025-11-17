@@ -2,7 +2,7 @@
 
 import { Moon, Sun, Monitor } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
-import { Button } from '@/components/ui/button';
+import { ActionIcon } from '@mantine/core';
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -44,9 +44,14 @@ export function ThemeToggle() {
   };
 
   return (
-    <Button variant="ghost" size="icon" onClick={cycleTheme} title={getLabel()} className="h-9 w-9">
+    <ActionIcon
+      variant="subtle"
+      size="lg"
+      onClick={cycleTheme}
+      title={getLabel()}
+      aria-label={getLabel()}
+    >
       {getIcon()}
-      <span className="sr-only">{getLabel()}</span>
-    </Button>
+    </ActionIcon>
   );
 }

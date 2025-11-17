@@ -1,19 +1,11 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button, Card, Text, Title } from '@mantine/core';
 import { ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useTheme } from '@/components/theme-provider';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
+import { Select } from '@mantine/core';
 import Image from 'next/image';
 import { ErrorClassifier } from '@/lib/error-handler/classifier';
 import { ErrorClassification } from '@/types/errors';
@@ -136,8 +128,10 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
   const config = getErrorConfig();
   const { theme, setTheme } = useTheme();
 
-  const handleThemeChange = (newTheme: string) => {
-    setTheme(newTheme as 'light' | 'dark' | 'system');
+  const handleThemeChange = (newTheme: string | null) => {
+    if (newTheme) {
+      setTheme(newTheme as 'light' | 'dark' | 'system');
+    }
   };
 
   return (
@@ -158,24 +152,27 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
 
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
-            <Label htmlFor="theme-select">Theme:</Label>
-            <Select value={theme} onValueChange={handleThemeChange}>
-              <SelectTrigger id="theme-select" className="w-[120px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="light">Light</SelectItem>
-                <SelectItem value="dark">Dark</SelectItem>
-                <SelectItem value="system">System</SelectItem>
-              </SelectContent>
-            </Select>
+            <label htmlFor="theme-select" className="text-sm font-medium">
+              Theme:
+            </label>
+            <Select
+              id="theme-select"
+              value={theme}
+              onChange={handleThemeChange}
+              data={[
+                { value: 'light', label: 'Light' },
+                { value: 'dark', label: 'Dark' },
+                { value: 'system', label: 'System' },
+              ]}
+              className="w-[120px]"
+            />
           </div>
         </div>
       </div>
 
       <div className="flex justify-center items-center min-h-[50vh] p-4">
-        <Card className={`w-full max-w-2xl ${config.border}`}>
-          <CardHeader className="text-center">
+        <Card className={`w-full max-w-2xl ${config.border}`} padding="lg" radius="md" withBorder>
+          <Card.Section className="text-center p-6">
             <div className="flex justify-center mb-4">
               <Image
                 src="/images/logo.svg"
@@ -185,27 +182,34 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
                 className="h-16 w-16"
               />
             </div>
-            <CardTitle className="text-2xl">{config.title}</CardTitle>
-            <CardDescription>{config.description}</CardDescription>
-          </CardHeader>
-          <CardContent className="text-center">
+            <Title order={2} className="text-2xl">
+              {config.title}
+            </Title>
+            <Text c="dimmed" size="sm">
+              {config.description}
+            </Text>
+          </Card.Section>
+          <Card.Section className="text-center p-6 pt-0">
             <p className={`mb-6 ${config.text}`}>{smartMessage}</p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               {(onRetry || errorClassification?.retryable) && (
-                <Button onClick={onRetry} variant="default">
+                <Button onClick={onRetry} variant="filled">
                   Retry Connection
                 </Button>
               )}
 
-              <Button asChild variant="outline">
-                <Link href={smartDocLink} target="_blank">
-                  {smartDocText}
-                  <ExternalLink className="ml-2 h-4 w-4" />
-                </Link>
+              <Button
+                component={Link}
+                href={smartDocLink}
+                target="_blank"
+                variant="outline"
+                rightSection={<ExternalLink className="h-4 w-4" />}
+              >
+                {smartDocText}
               </Button>
             </div>
-          </CardContent>
+          </Card.Section>
         </Card>
       </div>
     </div>

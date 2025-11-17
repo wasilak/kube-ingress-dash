@@ -1,16 +1,7 @@
 'use client';
 
 import React, { memo } from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Button, Badge, Card, Text } from '@mantine/core';
 import { ExternalLink, Lock, Layers } from 'lucide-react';
 import { IngressData } from '@/types/ingress';
 
@@ -25,28 +16,36 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({ ingress, onClick: _o
   };
 
   return (
-    <Card className="flex flex-col h-full overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1 hover:border-primary border bg-transparent">
-      <CardHeader className="pb-3">
+    <Card
+      className="flex flex-col h-full overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1 hover:border-primary border bg-transparent"
+      padding="md"
+      radius="md"
+      withBorder
+    >
+      <div className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
             <div className="flex items-start gap-2">
-              <CardTitle
-                className="text-base leading-tight break-words hyphens-auto flex-1 min-w-0"
+              <Text
+                className="text-base leading-tight break-words hyphens-auto flex-1 min-w-0 font-semibold"
                 style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1rem)' }}
               >
                 {ingress.name}
-              </CardTitle>
+              </Text>
               {ingress.tls && <Lock className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />}
             </div>
-            <CardDescription className="mt-1 text-xs leading-tight break-words flex items-center gap-1">
+            <Text
+              c="dimmed"
+              className="mt-1 text-xs leading-tight break-words flex items-center gap-1"
+            >
               <Layers className="h-3 w-3 flex-shrink-0" />
               {ingress.namespace}
-            </CardDescription>
+            </Text>
           </div>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="flex-1 pb-0">
+      <div className="flex-1 pb-0">
         <div className="space-y-3">
           {/* Hosts - now as clickable buttons */}
           {ingress.hosts.length > 0 && (
@@ -68,13 +67,15 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({ ingress, onClick: _o
                     <Button
                       key={index}
                       variant="outline"
-                      size="sm"
+                      size="xs"
                       className="w-full justify-between h-8 text-xs px-3 truncate group"
                       onClick={() => handleLinkClick(finalUrl)}
                       title={finalUrl}
+                      rightSection={
+                        <ExternalLink className="h-3 w-3 opacity-50 group-hover:opacity-100 transition-opacity" />
+                      }
                     >
                       <span className="truncate">{finalUrl}</span>
-                      <ExternalLink className="h-3 w-3 ml-2 flex-shrink-0 opacity-50 group-hover:opacity-100 transition-opacity" />
                     </Button>
                   );
                 })}
@@ -104,17 +105,17 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({ ingress, onClick: _o
               );
             })()}
         </div>
-      </CardContent>
+      </div>
 
-      <CardFooter className="pt-3">
+      <div className="pt-3">
         <div className="flex flex-wrap gap-2 w-full">
           {ingress.annotations['kubernetes.io/ingress.class'] && (
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="light" size="sm">
               {ingress.annotations['kubernetes.io/ingress.class']}
             </Badge>
           )}
         </div>
-      </CardFooter>
+      </div>
     </Card>
   );
 };

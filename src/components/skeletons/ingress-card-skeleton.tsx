@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, Skeleton } from '@mantine/core';
 
 /**
  * Skeleton component for IngressCard loading state
@@ -6,34 +6,34 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
  */
 export function IngressCardSkeleton() {
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="pb-3">
+    <Card className="overflow-hidden" padding="md" radius="md" withBorder>
+      <div className="pb-3">
         <div className="space-y-2">
           {/* Title skeleton */}
-          <div className="h-5 bg-muted animate-pulse rounded w-3/4" />
+          <Skeleton height={20} width="75%" />
           {/* Namespace badge skeleton */}
-          <div className="h-4 bg-muted animate-pulse rounded w-1/3" />
+          <Skeleton height={16} width="33%" />
         </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
+      </div>
+      <div className="space-y-3">
         {/* Hosts section skeleton */}
         <div className="space-y-2">
-          <div className="h-4 bg-muted animate-pulse rounded w-1/4" />
+          <Skeleton height={16} width="25%" />
           <div className="space-y-1.5">
-            <div className="h-3 bg-muted animate-pulse rounded w-full" />
-            <div className="h-3 bg-muted animate-pulse rounded w-5/6" />
+            <Skeleton height={12} width="100%" />
+            <Skeleton height={12} width="83%" />
           </div>
         </div>
 
         {/* TLS badge skeleton */}
-        <div className="h-5 bg-muted animate-pulse rounded w-16" />
+        <Skeleton height={20} width={64} />
 
         {/* Metadata section skeleton */}
         <div className="space-y-1.5 pt-2">
-          <div className="h-3 bg-muted animate-pulse rounded w-full" />
-          <div className="h-3 bg-muted animate-pulse rounded w-4/5" />
+          <Skeleton height={12} width="100%" />
+          <Skeleton height={12} width="80%" />
         </div>
-      </CardContent>
+      </div>
     </Card>
   );
 }
