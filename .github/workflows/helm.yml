@@ -47,16 +47,13 @@ jobs:
         run: |
           cd charts/${{ github.event.repository.name }}
           VERSION=${GITHUB_REF_NAME#v}
-          # Update version in Chart.yaml temporarily for this build
+          # Update version and name in Chart.yaml temporarily for this build
           sed -i "s/version: .*/version: $VERSION/" Chart.yaml
           sed -i "s/appVersion: .*/appVersion: \"$VERSION\"/" Chart.yaml
-          # Package the chart
+          sed -i "s/name: .*/name: ${{ github.event.repository.name }}-chart/" Chart.yaml
+          # Package the chart (will now create kube-ingress-dash-chart-$VERSION.tgz)
           helm package . --destination /tmp
-          # Find the actual packaged file (handles any chart name format)
-          CHART_FILE=$(ls /tmp/*.tgz | head -n 1)
-          # Rename to add -chart suffix to avoid collision with Docker image in registry
-          mv "$CHART_FILE" /tmp/${{ github.event.repository.name }}-chart-$VERSION.tgz
-          # Push to OCI registry
+          # Push to OCI registry (Helm uses the chart name from Chart.yaml metadata)
           helm push /tmp/${{ github.event.repository.name }}-chart-$VERSION.tgz oci://${{ env.HELM_REGISTRY }}/${{ env.HELM_NAMESPACE }}
 
       - name: Push Artifact Hub metadata to OCI registry
