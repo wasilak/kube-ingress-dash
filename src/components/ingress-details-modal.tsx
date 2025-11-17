@@ -489,9 +489,20 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                     style={{
                       maxHeight: 'calc(100vh - 300px)',
                       overflowY: 'auto',
+                      borderRadius: '8px',
+                      border: '1px solid var(--mantine-color-default-border)',
+                      backgroundColor: 'var(--mantine-color-dark-6)',
                     }}
                   >
-                    <CodeHighlight code={ingress.yamlManifest} language="yaml" />
+                    <CodeHighlight
+                      code={ingress.yamlManifest}
+                      language="yaml"
+                      styles={{
+                        code: {
+                          fontSize: '12px',
+                        },
+                      }}
+                    />
                   </Box>
                 ) : (
                   <Alert color="yellow" variant="light">
