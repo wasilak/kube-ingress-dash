@@ -485,23 +485,29 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                     </Stack>
                   </Alert>
                 ) : ingress.yamlManifest ? (
-                  <CodeHighlight
-                    code={ingress.yamlManifest}
-                    language="yaml"
-                    withExpandButton={false}
+                  <Box
                     style={{
                       maxHeight: 'calc(100vh - 300px)',
                       overflowY: 'auto',
-                      borderRadius: '8px',
-                      border: '1px solid var(--mantine-color-default-border)',
                     }}
-                    styles={{
-                      code: {
-                        fontSize: '12px',
-                        padding: '12px',
-                      },
-                    }}
-                  />
+                  >
+                    <CodeHighlight
+                      code={ingress.yamlManifest}
+                      language="yaml"
+                      styles={{
+                        pre: {
+                          margin: 0,
+                          padding: '12px',
+                          fontSize: '12px',
+                          borderRadius: '8px',
+                          border: '1px solid var(--mantine-color-default-border)',
+                        },
+                        code: {
+                          padding: 0,
+                        },
+                      }}
+                    />
+                  </Box>
                 ) : (
                   <Alert color="yellow" variant="light">
                     <Stack gap="xs">
