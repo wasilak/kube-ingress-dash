@@ -81,17 +81,6 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  // Check if annotation is a known/special annotation
-  const isKnownAnnotation = (key: string): boolean => {
-    const knownPrefixes = [
-      'kubernetes.io/',
-      'nginx.ingress.kubernetes.io/',
-      'cert-manager.io/',
-      'external-dns.alpha.kubernetes.io/',
-    ];
-    return knownPrefixes.some((prefix) => key.startsWith(prefix));
-  };
-
   // Get counts
   const annotationCount = Object.keys(ingress.annotations).length;
   const labelCount = ingress.labels ? Object.keys(ingress.labels).length : 0;
@@ -418,29 +407,11 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                         <Table>
                           <Table.Tbody>
                             {Object.entries(ingress.annotations).map(([key, value]) => (
-                              <Table.Tr
-                                key={key}
-                                style={{
-                                  backgroundColor: isKnownAnnotation(key)
-                                    ? 'var(--mantine-color-blue-0)'
-                                    : undefined,
-                                }}
-                              >
+                              <Table.Tr key={key}>
                                 <Table.Td>
-                                  <Group gap="xs">
-                                    <Text
-                                      size="sm"
-                                      fw={600}
-                                      c={isKnownAnnotation(key) ? 'blue' : 'gray'}
-                                    >
-                                      {key}
-                                    </Text>
-                                    {isKnownAnnotation(key) && (
-                                      <Badge size="xs" variant="light" color="blue">
-                                        Known
-                                      </Badge>
-                                    )}
-                                  </Group>
+                                  <Text size="sm" fw={600}>
+                                    {key}
+                                  </Text>
                                 </Table.Td>
                                 <Table.Td>
                                   <Text size="sm">{value}</Text>
