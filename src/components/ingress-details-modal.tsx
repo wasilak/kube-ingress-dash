@@ -9,7 +9,6 @@ import {
   Group,
   Divider,
   ActionIcon,
-  Code,
   Alert,
   Collapse,
   Button,
@@ -92,9 +91,25 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
       title={ingress.name}
       size="95%"
       styles={{
+        content: {
+          backgroundColor: 'hsl(var(--background))',
+          border: '1px solid hsl(var(--border))',
+        },
+        header: {
+          backgroundColor: 'hsl(var(--background))',
+          borderBottom: '1px solid hsl(var(--border))',
+        },
+        title: {
+          color: 'hsl(var(--foreground))',
+          fontWeight: 600,
+        },
         body: {
           maxHeight: 'calc(100vh - 120px)',
           overflowY: 'auto',
+          backgroundColor: 'hsl(var(--background))',
+        },
+        close: {
+          color: 'hsl(var(--foreground))',
         },
       }}
     >
@@ -121,33 +136,54 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
               {/* Main Details Section */}
               <ModalSectionErrorBoundary sectionName="Details">
                 <Stack gap="md">
-                  <Text fw={600} size="sm" tt="uppercase" c="dimmed">
+                  <Text
+                    fw={600}
+                    size="sm"
+                    tt="uppercase"
+                    style={{ color: 'hsl(var(--muted-foreground))' }}
+                  >
                     Details
                   </Text>
                   <Divider />
                   <Stack gap="sm">
                     {/* Name */}
                     <Group gap="xs" wrap="nowrap">
-                      <Text size="sm" fw={500} style={{ minWidth: '120px' }}>
+                      <Text
+                        size="sm"
+                        fw={500}
+                        style={{ minWidth: '120px', color: 'hsl(var(--muted-foreground))' }}
+                      >
                         Name:
                       </Text>
-                      <Text size="sm">{ingress.name}</Text>
+                      <Text size="sm" style={{ color: 'hsl(var(--foreground))' }}>
+                        {ingress.name}
+                      </Text>
                     </Group>
 
                     {/* Namespace */}
                     <Group gap="xs" wrap="nowrap">
-                      <Text size="sm" fw={500} style={{ minWidth: '120px' }}>
+                      <Text
+                        size="sm"
+                        fw={500}
+                        style={{ minWidth: '120px', color: 'hsl(var(--muted-foreground))' }}
+                      >
                         Namespace:
                       </Text>
                       <Group gap="xs">
-                        <IconFolder size={14} />
-                        <Text size="sm">{ingress.namespace}</Text>
+                        <IconFolder size={14} style={{ color: 'hsl(var(--muted-foreground))' }} />
+                        <Text size="sm" style={{ color: 'hsl(var(--foreground))' }}>
+                          {ingress.namespace}
+                        </Text>
                       </Group>
                     </Group>
 
                     {/* TLS */}
                     <Group gap="xs" wrap="nowrap">
-                      <Text size="sm" fw={500} style={{ minWidth: '120px' }}>
+                      <Text
+                        size="sm"
+                        fw={500}
+                        style={{ minWidth: '120px', color: 'hsl(var(--muted-foreground))' }}
+                      >
                         TLS:
                       </Text>
                       {ingress.tls ? (
@@ -167,7 +203,11 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                     {/* Ingress Class */}
                     {ingress.annotations['kubernetes.io/ingress.class'] && (
                       <Group gap="xs" wrap="nowrap">
-                        <Text size="sm" fw={500} style={{ minWidth: '120px' }}>
+                        <Text
+                          size="sm"
+                          fw={500}
+                          style={{ minWidth: '120px', color: 'hsl(var(--muted-foreground))' }}
+                        >
                           Ingress Class:
                         </Text>
                         <Badge variant="outline" size="sm">
@@ -178,12 +218,18 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
 
                     {/* Creation Timestamp */}
                     <Group gap="xs" wrap="nowrap" align="flex-start">
-                      <Text size="sm" fw={500} style={{ minWidth: '120px' }}>
+                      <Text
+                        size="sm"
+                        fw={500}
+                        style={{ minWidth: '120px', color: 'hsl(var(--muted-foreground))' }}
+                      >
                         Created:
                       </Text>
                       <Group gap="xs">
-                        <IconClock size={14} />
-                        <Text size="sm">{formatTimestamp(ingress.creationTimestamp)}</Text>
+                        <IconClock size={14} style={{ color: 'hsl(var(--muted-foreground))' }} />
+                        <Text size="sm" style={{ color: 'hsl(var(--foreground))' }}>
+                          {formatTimestamp(ingress.creationTimestamp)}
+                        </Text>
                       </Group>
                     </Group>
                   </Stack>
@@ -193,7 +239,12 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
               {/* Configuration Section */}
               <ModalSectionErrorBoundary sectionName="Configuration">
                 <Stack gap="md">
-                  <Text fw={600} size="sm" tt="uppercase" c="dimmed">
+                  <Text
+                    fw={600}
+                    size="sm"
+                    tt="uppercase"
+                    style={{ color: 'hsl(var(--muted-foreground))' }}
+                  >
                     Configuration
                   </Text>
                   <Divider />
@@ -201,7 +252,7 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                   {/* Hosts */}
                   {ingress.hosts.length > 0 && (
                     <Stack gap="xs">
-                      <Text size="xs" fw={500}>
+                      <Text size="xs" fw={500} style={{ color: 'hsl(var(--foreground))' }}>
                         Hosts ({ingress.hosts.length})
                       </Text>
                       <Stack gap="xs">
@@ -262,7 +313,7 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                   {/* Paths */}
                   {ingress.paths.length > 0 && (
                     <Stack gap="xs">
-                      <Text size="xs" fw={500}>
+                      <Text size="xs" fw={500} style={{ color: 'hsl(var(--foreground))' }}>
                         Paths ({Array.from(new Set(ingress.paths)).length})
                       </Text>
                       <Stack gap="xs">
@@ -328,10 +379,15 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                             <IconChevronDown size={20} />
                           )}
                         </ActionIcon>
-                        <Text fw={600} size="sm" tt="uppercase" c="dimmed">
+                        <Text
+                          fw={600}
+                          size="sm"
+                          tt="uppercase"
+                          style={{ color: 'hsl(var(--muted-foreground))' }}
+                        >
                           Labels
                         </Text>
-                        <Text size="sm" c="dimmed">
+                        <Text size="sm" style={{ color: 'hsl(var(--muted-foreground))' }}>
                           ({labelCount})
                         </Text>
                       </Group>
@@ -343,12 +399,18 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                               Object.entries(ingress.labels).map(([key, value]) => (
                                 <Table.Tr key={key}>
                                   <Table.Td>
-                                    <Text size="sm" fw={600} c="blue">
+                                    <Text
+                                      size="sm"
+                                      fw={600}
+                                      style={{ color: 'hsl(var(--primary))' }}
+                                    >
                                       {key}
                                     </Text>
                                   </Table.Td>
                                   <Table.Td>
-                                    <Text size="sm">{value}</Text>
+                                    <Text size="sm" style={{ color: 'hsl(var(--foreground))' }}>
+                                      {value}
+                                    </Text>
                                   </Table.Td>
                                 </Table.Tr>
                               ))}
@@ -358,12 +420,17 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                     </>
                   ) : (
                     <>
-                      <Text fw={600} size="sm" tt="uppercase" c="dimmed">
+                      <Text
+                        fw={600}
+                        size="sm"
+                        tt="uppercase"
+                        style={{ color: 'hsl(var(--muted-foreground))' }}
+                      >
                         Labels
                       </Text>
                       <Divider />
                       <Alert color="gray" variant="light">
-                        <Text size="sm" c="dimmed">
+                        <Text size="sm" style={{ color: 'hsl(var(--muted-foreground))' }}>
                           No labels defined
                         </Text>
                       </Alert>
@@ -395,10 +462,15 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                             <IconChevronDown size={20} />
                           )}
                         </ActionIcon>
-                        <Text fw={600} size="sm" tt="uppercase" c="dimmed">
+                        <Text
+                          fw={600}
+                          size="sm"
+                          tt="uppercase"
+                          style={{ color: 'hsl(var(--muted-foreground))' }}
+                        >
                           Annotations
                         </Text>
-                        <Text size="sm" c="dimmed">
+                        <Text size="sm" style={{ color: 'hsl(var(--muted-foreground))' }}>
                           ({annotationCount})
                         </Text>
                       </Group>
@@ -409,12 +481,14 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                             {Object.entries(ingress.annotations).map(([key, value]) => (
                               <Table.Tr key={key}>
                                 <Table.Td>
-                                  <Text size="sm" fw={600} c="blue">
+                                  <Text size="sm" fw={600} style={{ color: 'hsl(var(--primary))' }}>
                                     {key}
                                   </Text>
                                 </Table.Td>
                                 <Table.Td>
-                                  <Text size="sm">{value}</Text>
+                                  <Text size="sm" style={{ color: 'hsl(var(--foreground))' }}>
+                                    {value}
+                                  </Text>
                                 </Table.Td>
                               </Table.Tr>
                             ))}
@@ -424,12 +498,17 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                     </>
                   ) : (
                     <>
-                      <Text fw={600} size="sm" tt="uppercase" c="dimmed">
+                      <Text
+                        fw={600}
+                        size="sm"
+                        tt="uppercase"
+                        style={{ color: 'hsl(var(--muted-foreground))' }}
+                      >
                         Annotations
                       </Text>
                       <Divider />
                       <Alert color="gray" variant="light">
-                        <Text size="sm" c="dimmed">
+                        <Text size="sm" style={{ color: 'hsl(var(--muted-foreground))' }}>
                           No annotations defined
                         </Text>
                       </Alert>
@@ -445,7 +524,12 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
             <ModalSectionErrorBoundary sectionName="YAML Manifest">
               <Stack gap="md">
                 <Group justify="space-between" align="center">
-                  <Text fw={600} size="sm" tt="uppercase" c="dimmed">
+                  <Text
+                    fw={600}
+                    size="sm"
+                    tt="uppercase"
+                    style={{ color: 'hsl(var(--muted-foreground))' }}
+                  >
                     YAML Manifest
                   </Text>
                   {ingress.yamlManifest && (
@@ -485,16 +569,41 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                     </Stack>
                   </Alert>
                 ) : ingress.yamlManifest ? (
-                  <Code
-                    block
+                  <Box
                     style={{
                       maxHeight: 'calc(100vh - 300px)',
                       overflowY: 'auto',
                       fontSize: '12px',
+                      padding: '12px',
+                      backgroundColor: 'hsl(var(--background))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: 'var(--mantine-radius-md)',
+                      fontFamily: 'var(--mantine-font-family-monospace)',
+                      whiteSpace: 'pre',
+                      color: 'hsl(var(--foreground))',
+                      cursor: 'text',
+                      transition: 'border-color 150ms ease',
                     }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = 'hsl(var(--primary))';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = 'hsl(var(--border))';
+                    }}
+                    onMouseEnter={(e) => {
+                      if (document.activeElement !== e.currentTarget) {
+                        e.currentTarget.style.borderColor = 'hsl(var(--primary))';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (document.activeElement !== e.currentTarget) {
+                        e.currentTarget.style.borderColor = 'hsl(var(--border))';
+                      }
+                    }}
+                    tabIndex={0}
                   >
                     {ingress.yamlManifest}
-                  </Code>
+                  </Box>
                 ) : (
                   <Alert color="yellow" variant="light">
                     <Stack gap="xs">
