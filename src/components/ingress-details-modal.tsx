@@ -13,9 +13,9 @@ import {
   Alert,
   Collapse,
   Button,
-  Box,
-  Loader,
   Grid,
+  CopyButton,
+  Tooltip,
 } from '@mantine/core';
 import {
   IconLock,
@@ -26,13 +26,9 @@ import {
   IconChevronDown,
   IconChevronUp,
   IconExternalLink,
-  IconWorld,
-  IconRoute,
   IconAlertCircle,
   IconRefresh,
 } from '@tabler/icons-react';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { IngressData } from '@/types/ingress';
 import { ModalSectionErrorBoundary } from '@/components/error-boundaries';
 
@@ -47,11 +43,8 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
   onClose,
   ingress,
 }) => {
-  const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [labelsExpanded, setLabelsExpanded] = useState(false);
   const [annotationsExpanded, setAnnotationsExpanded] = useState(false);
-  const [yamlCopied, setYamlCopied] = useState(false);
-  const [yamlLoading, setYamlLoading] = useState(false);
   const [yamlError, setYamlError] = useState<string | null>(null);
   const [copyError, setCopyError] = useState<string | null>(null);
 
@@ -76,46 +69,14 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
     }
   };
 
-  // Copy to clipboard handler
-  const handleCopy = async (text: string, key: string) => {
-    try {
-      setCopyError(null);
-      await navigator.clipboard.writeText(text);
-      setCopiedKey(key);
-      setTimeout(() => setCopiedKey(null), 2000);
-    } catch (error) {
-      console.error('Failed to copy:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to copy to clipboard';
-      setCopyError(errorMessage);
-      setTimeout(() => setCopyError(null), 3000);
-    }
-  };
-
-  // Copy YAML to clipboard
-  const handleCopyYaml = async () => {
-    if (!ingress.yamlManifest) return;
-    try {
-      setCopyError(null);
-      setYamlLoading(true);
-      await navigator.clipboard.writeText(ingress.yamlManifest);
-      setYamlCopied(true);
-      setTimeout(() => setYamlCopied(false), 2000);
-    } catch (error) {
-      console.error('Failed to copy YAML:', error);
-      const errorMessage =
-        error instanceof Error ? error.message : 'Failed to copy YAML to clipboard';
-      setCopyError(errorMessage);
-      setTimeout(() => setCopyError(null), 3000);
-    } finally {
-      setYamlLoading(false);
-    }
-  };
-
   // Retry YAML generation
   const handleRetryYaml = () => {
     setYamlError(null);
-    // In a real scenario, this would trigger a re-fetch of the YAML manifest
-    // For now, we just clear the error state
+  };
+
+  // Handle link click
+  const handleLinkClick = (url: string) => {
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   // Check if annotation is a known/special annotation
@@ -238,7 +199,7 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                 </Stack>
               </ModalSectionErrorBoundary>
 
-              {/* Ingress Configuration Section */}
+              {/* Configuration Section */}
               <ModalSectionErrorBoundary sectionName="Configuration">
                 <Stack gap="md">
                   <Text fw={600} size="sm" tt="uppercase" c="dimmed">
@@ -249,13 +210,10 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                   {/* Hosts */}
                   {ingress.hosts.length > 0 && (
                     <Stack gap="xs">
-                      <Group gap="xs">
-                        <IconWorld size={16} />
-                        <Text size="sm" fw={500}>
-                          Hosts ({ingress.hosts.length})
-                        </Text>
-                      </Group>
-                      <Stack gap="xs" pl="md">
+                      <Text size="xs" fw={500}>
+                        Hosts ({ingress.hosts.length})
+                      </Text>
+                      <Stack gap="xs">
                         {ingress.hosts.map((host, index) => {
                           const hostUrl =
                             ingress.urls && Array.isArray(ingress.urls) && ingress.urls.length > 0
@@ -265,19 +223,44 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                             hostUrl || (host.startsWith('http') ? host : `https://${host}`);
 
                           return (
-                            <Group key={index} gap="xs" wrap="nowrap">
-                              <Code style={{ flex: 1 }}>{host}</Code>
-                              <ActionIcon
-                                variant="subtle"
-                                size="sm"
-                                component="a"
-                                href={finalUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                aria-label={`Open ${host}`}
+                            <Group key={index} gap="xs" wrap="nowrap" justify="space-between">
+                              <Button
+                                variant="outline"
+                                size="xs"
+                                fullWidth
+                                justify="space-between"
+                                onClick={() => handleLinkClick(finalUrl)}
+                                title={finalUrl}
+                                rightSection={<IconExternalLink size={12} />}
+                                styles={{
+                                  root: {
+                                    height: '32px',
+                                    flex: 1,
+                                  },
+                                  inner: { justifyContent: 'space-between' },
+                                  label: {
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                  },
+                                }}
                               >
-                                <IconExternalLink size={14} />
-                              </ActionIcon>
+                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {finalUrl}
+                                </span>
+                              </Button>
+                              <CopyButton value={finalUrl}>
+                                {({ copied, copy }) => (
+                                  <Tooltip label={copied ? 'Copied' : 'Copy'} withArrow>
+                                    <ActionIcon
+                                      color={copied ? 'teal' : 'gray'}
+                                      variant="subtle"
+                                      onClick={copy}
+                                    >
+                                      {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                                    </ActionIcon>
+                                  </Tooltip>
+                                )}
+                              </CopyButton>
                             </Group>
                           );
                         })}
@@ -288,43 +271,31 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                   {/* Paths */}
                   {ingress.paths.length > 0 && (
                     <Stack gap="xs">
-                      <Group gap="xs">
-                        <IconRoute size={16} />
-                        <Text size="sm" fw={500}>
-                          Paths ({ingress.paths.length})
-                        </Text>
-                      </Group>
-                      <Stack gap="xs" pl="md">
-                        {Array.from(new Set(ingress.paths)).map((path, index) => (
-                          <Code key={index} style={{ display: 'block' }}>
-                            {path}
-                          </Code>
-                        ))}
-                      </Stack>
-                    </Stack>
-                  )}
-
-                  {/* URLs (if different from hosts) */}
-                  {ingress.urls && ingress.urls.length > 0 && (
-                    <Stack gap="xs">
-                      <Text size="sm" fw={500}>
-                        Full URLs
+                      <Text size="xs" fw={500}>
+                        Paths ({Array.from(new Set(ingress.paths)).length})
                       </Text>
-                      <Stack gap="xs" pl="md">
-                        {ingress.urls.map((url, index) => (
-                          <Group key={index} gap="xs" wrap="nowrap">
-                            <Code style={{ flex: 1, wordBreak: 'break-all' }}>{url}</Code>
-                            <ActionIcon
-                              variant="subtle"
-                              size="sm"
-                              component="a"
-                              href={url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              aria-label={`Open ${url}`}
+                      <Stack gap="xs">
+                        {Array.from(new Set(ingress.paths)).map((path, index) => (
+                          <Group key={index} gap="xs" wrap="nowrap" justify="space-between">
+                            <div
+                              className="w-full justify-start h-8 text-xs px-3 truncate border border-input rounded-md bg-transparent flex items-center"
+                              style={{ flex: 1 }}
                             >
-                              <IconExternalLink size={14} />
-                            </ActionIcon>
+                              {path}
+                            </div>
+                            <CopyButton value={path}>
+                              {({ copied, copy }) => (
+                                <Tooltip label={copied ? 'Copied' : 'Copy'} withArrow>
+                                  <ActionIcon
+                                    color={copied ? 'teal' : 'gray'}
+                                    variant="subtle"
+                                    onClick={copy}
+                                  >
+                                    {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                                  </ActionIcon>
+                                </Tooltip>
+                              )}
+                            </CopyButton>
                           </Group>
                         ))}
                       </Stack>
@@ -366,40 +337,34 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                         <Stack gap="xs">
                           {ingress.labels &&
                             Object.entries(ingress.labels).map(([key, value]) => (
-                              <Group key={key} gap="xs" wrap="nowrap" align="flex-start">
-                                <Code
-                                  style={{
-                                    flex: 1,
-                                    wordBreak: 'break-all',
-                                    padding: '8px 12px',
-                                  }}
+                              <Group key={key} gap="xs" wrap="nowrap" justify="space-between">
+                                <div
+                                  className="w-full justify-start h-8 text-xs px-3 truncate border border-input rounded-md bg-transparent flex items-center"
+                                  style={{ flex: 1 }}
                                 >
-                                  <Group gap="xs" wrap="nowrap" justify="space-between">
-                                    <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
-                                      <Text size="xs" fw={600} c="blue">
-                                        {key}
-                                      </Text>
-                                      <Text size="xs" style={{ wordBreak: 'break-all' }}>
-                                        {value}
-                                      </Text>
-                                    </Stack>
-                                    <ActionIcon
-                                      variant="subtle"
-                                      size="sm"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleCopy(value, `label-${key}`);
-                                      }}
-                                      aria-label={`Copy ${key} value`}
-                                    >
-                                      {copiedKey === `label-${key}` ? (
-                                        <IconCheck size={14} />
-                                      ) : (
-                                        <IconCopy size={14} />
-                                      )}
-                                    </ActionIcon>
-                                  </Group>
-                                </Code>
+                                  <Text size="xs" fw={600} c="blue" component="span">
+                                    {key}:
+                                  </Text>
+                                  <Text size="xs" component="span" ml={4}>
+                                    {value}
+                                  </Text>
+                                </div>
+                                <CopyButton value={`${key}: ${value}`}>
+                                  {({ copied, copy }) => (
+                                    <Tooltip label={copied ? 'Copied' : 'Copy'} withArrow>
+                                      <ActionIcon
+                                        color={copied ? 'teal' : 'gray'}
+                                        variant="subtle"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          copy();
+                                        }}
+                                      >
+                                        {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                                      </ActionIcon>
+                                    </Tooltip>
+                                  )}
+                                </CopyButton>
                               </Group>
                             ))}
                         </Stack>
@@ -455,54 +420,49 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                       <Collapse in={annotationsExpanded}>
                         <Stack gap="xs">
                           {Object.entries(ingress.annotations).map(([key, value]) => (
-                            <Group key={key} gap="xs" wrap="nowrap" align="flex-start">
-                              <Code
+                            <Group key={key} gap="xs" wrap="nowrap" justify="space-between">
+                              <div
+                                className="w-full justify-start h-8 text-xs px-3 truncate border border-input rounded-md bg-transparent flex items-center"
                                 style={{
                                   flex: 1,
-                                  wordBreak: 'break-all',
-                                  padding: '8px 12px',
                                   backgroundColor: isKnownAnnotation(key)
                                     ? 'var(--mantine-color-blue-0)'
                                     : undefined,
                                 }}
                               >
-                                <Group gap="xs" wrap="nowrap" justify="space-between">
-                                  <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
-                                    <Group gap="xs">
-                                      <Text
-                                        size="xs"
-                                        fw={600}
-                                        c={isKnownAnnotation(key) ? 'blue' : 'gray'}
-                                      >
-                                        {key}
-                                      </Text>
-                                      {isKnownAnnotation(key) && (
-                                        <Badge size="xs" variant="light" color="blue">
-                                          Known
-                                        </Badge>
-                                      )}
-                                    </Group>
-                                    <Text size="xs" style={{ wordBreak: 'break-all' }}>
-                                      {value}
-                                    </Text>
-                                  </Stack>
-                                  <ActionIcon
-                                    variant="subtle"
-                                    size="sm"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleCopy(value, `annotation-${key}`);
-                                    }}
-                                    aria-label={`Copy ${key} value`}
-                                  >
-                                    {copiedKey === `annotation-${key}` ? (
-                                      <IconCheck size={14} />
-                                    ) : (
-                                      <IconCopy size={14} />
-                                    )}
-                                  </ActionIcon>
-                                </Group>
-                              </Code>
+                                <Text
+                                  size="xs"
+                                  fw={600}
+                                  c={isKnownAnnotation(key) ? 'blue' : 'gray'}
+                                  component="span"
+                                >
+                                  {key}:
+                                </Text>
+                                {isKnownAnnotation(key) && (
+                                  <Badge size="xs" variant="light" color="blue" ml={4}>
+                                    Known
+                                  </Badge>
+                                )}
+                                <Text size="xs" component="span" ml={4}>
+                                  {value}
+                                </Text>
+                              </div>
+                              <CopyButton value={`${key}: ${value}`}>
+                                {({ copied, copy }) => (
+                                  <Tooltip label={copied ? 'Copied' : 'Copy'} withArrow>
+                                    <ActionIcon
+                                      color={copied ? 'teal' : 'gray'}
+                                      variant="subtle"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        copy();
+                                      }}
+                                    >
+                                      {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                                    </ActionIcon>
+                                  </Tooltip>
+                                )}
+                              </CopyButton>
                             </Group>
                           ))}
                         </Stack>
@@ -534,28 +494,21 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                   <Text fw={600} size="sm" tt="uppercase" c="dimmed">
                     YAML Manifest
                   </Text>
-                  <Group gap="xs">
-                    {ingress.yamlManifest && (
-                      <Button
-                        variant="light"
-                        size="xs"
-                        leftSection={
-                          yamlLoading ? (
-                            <Loader size={14} />
-                          ) : yamlCopied ? (
-                            <IconCheck size={14} />
-                          ) : (
-                            <IconCopy size={14} />
-                          )
-                        }
-                        onClick={handleCopyYaml}
-                        color={yamlCopied ? 'green' : 'blue'}
-                        disabled={yamlLoading}
-                      >
-                        {yamlLoading ? 'Copying...' : yamlCopied ? 'Copied!' : 'Copy YAML'}
-                      </Button>
-                    )}
-                  </Group>
+                  {ingress.yamlManifest && (
+                    <CopyButton value={ingress.yamlManifest}>
+                      {({ copied, copy }) => (
+                        <Button
+                          variant="light"
+                          size="xs"
+                          leftSection={copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+                          onClick={copy}
+                          color={copied ? 'teal' : 'blue'}
+                        >
+                          {copied ? 'Copied!' : 'Copy YAML'}
+                        </Button>
+                      )}
+                    </CopyButton>
+                  )}
                 </Group>
                 <Divider />
                 {yamlError ? (
@@ -578,26 +531,16 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                     </Stack>
                   </Alert>
                 ) : ingress.yamlManifest ? (
-                  <Box
+                  <Code
+                    block
                     style={{
-                      borderRadius: '8px',
-                      overflow: 'hidden',
-                      border: '1px solid var(--mantine-color-gray-3)',
+                      maxHeight: 'calc(100vh - 300px)',
+                      overflowY: 'auto',
+                      fontSize: '12px',
                     }}
                   >
-                    <SyntaxHighlighter
-                      language="yaml"
-                      style={vscDarkPlus}
-                      showLineNumbers
-                      customStyle={{
-                        margin: 0,
-                        fontSize: '12px',
-                        maxHeight: 'calc(100vh - 300px)',
-                      }}
-                    >
-                      {ingress.yamlManifest}
-                    </SyntaxHighlighter>
-                  </Box>
+                    {ingress.yamlManifest}
+                  </Code>
                 ) : (
                   <Alert color="yellow" variant="light">
                     <Stack gap="xs">

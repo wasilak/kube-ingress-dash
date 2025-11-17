@@ -1,8 +1,19 @@
 'use client';
 
 import React, { memo } from 'react';
-import { Button, Badge, Card, Text, Stack, Group, Divider } from '@mantine/core';
-import { IconExternalLink, IconLock, IconFolder } from '@tabler/icons-react';
+import {
+  Button,
+  Badge,
+  Card,
+  Text,
+  Stack,
+  Group,
+  Divider,
+  CopyButton,
+  ActionIcon,
+  Tooltip,
+} from '@mantine/core';
+import { IconExternalLink, IconLock, IconFolder, IconCopy, IconCheck } from '@tabler/icons-react';
 import { IngressData } from '@/types/ingress';
 
 interface IngressCardProps {
@@ -67,28 +78,45 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({
                 const finalUrl = hostUrl || (host.startsWith('http') ? host : `https://${host}`);
 
                 return (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    size="xs"
-                    fullWidth
-                    justify="space-between"
-                    onClick={() => handleLinkClick(finalUrl)}
-                    title={finalUrl}
-                    rightSection={<IconExternalLink size={12} />}
-                    styles={{
-                      root: {
-                        height: '32px',
-                      },
-                      inner: { justifyContent: 'space-between' },
-                      label: {
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      },
-                    }}
-                  >
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{finalUrl}</span>
-                  </Button>
+                  <Group key={index} gap="xs" wrap="nowrap" justify="space-between">
+                    <Button
+                      variant="outline"
+                      size="xs"
+                      fullWidth
+                      justify="space-between"
+                      onClick={() => handleLinkClick(finalUrl)}
+                      title={finalUrl}
+                      rightSection={<IconExternalLink size={12} />}
+                      styles={{
+                        root: {
+                          height: '32px',
+                          flex: 1,
+                        },
+                        inner: { justifyContent: 'space-between' },
+                        label: {
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        },
+                      }}
+                    >
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {finalUrl}
+                      </span>
+                    </Button>
+                    <CopyButton value={finalUrl}>
+                      {({ copied, copy }) => (
+                        <Tooltip label={copied ? 'Copied' : 'Copy'} withArrow>
+                          <ActionIcon
+                            color={copied ? 'teal' : 'gray'}
+                            variant="subtle"
+                            onClick={copy}
+                          >
+                            {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                          </ActionIcon>
+                        </Tooltip>
+                      )}
+                    </CopyButton>
+                  </Group>
                 );
               })}
             </Stack>
@@ -106,12 +134,27 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({
                 </Text>
                 <Stack gap="xs">
                   {uniquePaths.map((path, index) => (
-                    <div
-                      key={index}
-                      className="w-full justify-start h-8 text-xs px-3 truncate border border-input rounded-md bg-transparent flex items-center"
-                    >
-                      {path}
-                    </div>
+                    <Group key={index} gap="xs" wrap="nowrap" justify="space-between">
+                      <div
+                        className="w-full justify-start h-8 text-xs px-3 truncate border border-input rounded-md bg-transparent flex items-center"
+                        style={{ flex: 1 }}
+                      >
+                        {path}
+                      </div>
+                      <CopyButton value={path}>
+                        {({ copied, copy }) => (
+                          <Tooltip label={copied ? 'Copied' : 'Copy'} withArrow>
+                            <ActionIcon
+                              color={copied ? 'teal' : 'gray'}
+                              variant="subtle"
+                              onClick={copy}
+                            >
+                              {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                            </ActionIcon>
+                          </Tooltip>
+                        )}
+                      </CopyButton>
+                    </Group>
                   ))}
                 </Stack>
               </Stack>
