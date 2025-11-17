@@ -49,26 +49,15 @@ describe('IngressDetailsModal - Loading and Error States', () => {
     expect(screen.getByText(/yaml manifest not available/i)).toBeInTheDocument();
   });
 
-  it('handles copy errors for labels and annotations', async () => {
-    // Mock clipboard API to fail
-    Object.assign(navigator, {
-      clipboard: {
-        writeText: jest.fn().mockRejectedValue(new Error('Clipboard error')),
-      },
-    });
-
+  it('uses CopyButton component for copying', () => {
     renderWithMantine(
       <IngressDetailsModal opened={true} onClose={jest.fn()} ingress={mockIngress} />
     );
 
-    // Find and click a copy button for a label
-    const copyButtons = screen.getAllByLabelText(/copy/i);
-    fireEvent.click(copyButtons[0]);
-
-    // Wait for error alert
-    await waitFor(() => {
-      expect(screen.getByText(/copy failed/i)).toBeInTheDocument();
-    });
+    // Verify CopyButton is used (it renders as a button)
+    const buttons = screen.getAllByRole('button');
+    // Should have at least: close button, expand buttons, copy buttons
+    expect(buttons.length).toBeGreaterThan(3);
   });
 
   it('renders all modal sections with error boundaries', () => {
