@@ -45,20 +45,22 @@ jobs:
 
       - name: Package and push Helm chart to OCI registry
         run: |
-          cd charts/kube-ingress-dash
+          cd charts/${{ github.event.repository.name }}
           VERSION=${GITHUB_REF_NAME#v}
           # Update version in Chart.yaml temporarily for this build
           sed -i "s/version: .*/version: $VERSION/" Chart.yaml
           sed -i "s/appVersion: .*/appVersion: \"$VERSION\"/" Chart.yaml
-          # Package the chart
+          # Package the chart (creates ${{ github.event.repository.name }}-$VERSION.tgz based on chart name)
           helm package . --destination /tmp
-          # Push to OCI registry (Helm will use the chart name from Chart.yaml: kube-ingress-dash-chart)
-          helm push /tmp/kube-ingress-dash-chart-$VERSION.tgz oci://${{ env.HELM_REGISTRY }}/${{ env.HELM_NAMESPACE }}
+          # Rename to add -chart suffix to avoid collision with Docker image in registry
+          mv /tmp/${{ github.event.repository.name }}-$VERSION.tgz /tmp/${{ github.event.repository.name }}-chart-$VERSION.tgz
+          # Push to OCI registry
+          helm push /tmp/${{ github.event.repository.name }}-chart-$VERSION.tgz oci://${{ env.HELM_REGISTRY }}/${{ env.HELM_NAMESPACE }}
 
       - name: Push Artifact Hub metadata to OCI registry
         run: |
           # Push artifacthub-repo.yml as a separate OCI artifact with the special tag
           oras push \
-            ${{ env.HELM_REGISTRY }}/${{ env.HELM_NAMESPACE }}/kube-ingress-dash-chart:artifacthub.io \
+            ${{ env.HELM_REGISTRY }}/${{ env.HELM_NAMESPACE }}/${{ github.event.repository.name }}:artifacthub.io \
             --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml \
-            charts/kube-ingress-dash/artifacthub-repo.yml:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml
+            charts/${{ github.event.repository.name }}/artifacthub-repo.yml:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml
