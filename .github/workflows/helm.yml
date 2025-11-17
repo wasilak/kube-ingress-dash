@@ -63,6 +63,6 @@ jobs:
         run: |
           # Push artifacthub-repo.yml as a separate OCI artifact with the special tag
           oras push \
-            ${{ env.HELM_REGISTRY }}/${{ env.HELM_NAMESPACE }}/${{ github.event.repository.name }}:artifacthub.io \
+            ${{ env.HELM_REGISTRY }}/${{ env.HELM_NAMESPACE }}/${{ github.event.repository.name }}-chart:artifacthub.io \
             --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml \
             charts/${{ github.event.repository.name }}/artifacthub-repo.yml:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml
