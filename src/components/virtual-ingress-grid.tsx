@@ -1,7 +1,7 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
-import { Grid } from 'react-window';
+import { useRef, useEffect, useState, useMemo } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { IngressData } from '@/types/ingress';
 import IngressCard from '@/components/ingress-card';
 import ErrorBoundary from '@/components/error-boundary';
@@ -12,13 +12,6 @@ interface VirtualIngressGridProps {
   itemHeight?: number;
   gap?: number;
   onDetailsClick?: (ingress: IngressData) => void;
-}
-
-interface CellProps {
-  columnIndex: number;
-  rowIndex: number;
-  style: React.CSSProperties;
-  ariaAttributes: Record<string, string>;
 }
 
 export function VirtualIngressGrid({
@@ -67,66 +60,83 @@ export function VirtualIngressGrid({
     };
   }, [propColumnCount]);
 
-  const rowCount = Math.ceil(ingresses.length / columnCount);
-  const columnWidth = (dimensions.width - gap * (columnCount - 1)) / columnCount;
-
-  const CellComponent = ({ columnIndex, rowIndex, style }: CellProps) => {
-    const index = rowIndex * columnCount + columnIndex;
-
-    if (index >= ingresses.length) {
-      return null;
+  // Calculate rows based on column count
+  const rows = useMemo(() => {
+    const result: IngressData[][] = [];
+    for (let i = 0; i < ingresses.length; i += columnCount) {
+      result.push(ingresses.slice(i, i + columnCount));
     }
+    return result;
+  }, [ingresses, columnCount]);
 
-    const ingress = ingresses[index];
-
-    const adjustedStyle = {
-      ...style,
-      left: typeof style.left === 'number' ? style.left + columnIndex * gap : style.left,
-      top: typeof style.top === 'number' ? style.top + rowIndex * gap : style.top,
-      width: typeof style.width === 'number' ? style.width - gap : style.width,
-      height: typeof style.height === 'number' ? style.height - gap : style.height,
-    };
-
-    return (
-      <div style={adjustedStyle}>
-        <ErrorBoundary
-          key={`${ingress.namespace}/${ingress.name}`}
-          fallback={({ error }: { error: Error }) => (
-            <div className="p-4 bg-destructive/20 border border-destructive rounded-md h-full">
-              <h3 className="font-medium text-destructive">Error rendering ingress card</h3>
-              {process.env.NODE_ENV === 'development' && error && (
-                <pre className="text-xs mt-2 overflow-auto">{error.message}</pre>
-              )}
-            </div>
-          )}
-        >
-          <IngressCard
-            ingress={ingress}
-            onDetailsClick={onDetailsClick ? () => onDetailsClick(ingress) : undefined}
-          />
-        </ErrorBoundary>
-      </div>
-    );
-  };
+  // Create virtualizer for rows
+  const rowVirtualizer = useVirtualizer({
+    count: rows.length,
+    getScrollElement: () => containerRef.current,
+    estimateSize: () => itemHeight + gap,
+    overscan: 2,
+  });
 
   return (
     <div
       ref={containerRef}
-      className="w-full"
+      className="w-full overflow-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-900"
       style={{ height: dimensions.height > 0 ? `${dimensions.height}px` : '600px' }}
     >
-      {dimensions.width > 0 && (
-        <Grid
-          columnCount={columnCount}
-          columnWidth={columnWidth}
-          rowCount={rowCount}
-          rowHeight={itemHeight}
-          cellComponent={CellComponent as any}
-          cellProps={{} as any}
-          overscanCount={2}
-          className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-900"
-        />
-      )}
+      <div
+        style={{
+          height: `${rowVirtualizer.getTotalSize()}px`,
+          width: '100%',
+          position: 'relative',
+        }}
+      >
+        {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+          const row = rows[virtualRow.index];
+          if (!row) return null;
+
+          return (
+            <div
+              key={virtualRow.key}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: `${itemHeight}px`,
+                transform: `translateY(${virtualRow.start}px)`,
+              }}
+            >
+              <div
+                className="grid gap-6"
+                style={{
+                  gridTemplateColumns: `repeat(${columnCount}, 1fr)`,
+                }}
+              >
+                {row.map((ingress) => (
+                  <ErrorBoundary
+                    key={`${ingress.namespace}/${ingress.name}`}
+                    fallback={({ error }: { error: Error }) => (
+                      <div className="p-4 bg-destructive/20 border border-destructive rounded-md h-full">
+                        <h3 className="font-medium text-destructive">
+                          Error rendering ingress card
+                        </h3>
+                        {process.env.NODE_ENV === 'development' && error && (
+                          <pre className="text-xs mt-2 overflow-auto">{error.message}</pre>
+                        )}
+                      </div>
+                    )}
+                  >
+                    <IngressCard
+                      ingress={ingress}
+                      onDetailsClick={onDetailsClick ? () => onDetailsClick(ingress) : undefined}
+                    />
+                  </ErrorBoundary>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
