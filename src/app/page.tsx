@@ -45,7 +45,7 @@ function DashboardContent() {
   useEffect(() => {
     if (!isMounted) return;
 
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(window.location.search);
 
     if (groupingMode === 'none') {
       params.delete('group');
@@ -55,7 +55,7 @@ function DashboardContent() {
 
     const newUrl = params.toString() ? `?${params.toString()}` : '/';
     router.replace(newUrl, { scroll: false });
-  }, [groupingMode, isMounted, router, searchParams]);
+  }, [groupingMode, isMounted, router]);
 
   // Ingresses data and filtering
   const { ingresses, filteredIngresses, loading, allLabels, allAnnotations, updateIngresses } =
