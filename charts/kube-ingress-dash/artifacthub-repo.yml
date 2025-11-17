@@ -1,6 +1,6 @@
 displayName: Kube Ingress Dashboard
 name: kube-ingress-dash
-repositoryID: dbd25852-578f-4a43-aa1e-e01037fafe11
+repositoryID: 52c56cdf-ea70-44d1-ab29-ba04dbd4a304
 owners:
   - name: Piotr Boruc
     email: piotr.m.boruc@gmail.com
