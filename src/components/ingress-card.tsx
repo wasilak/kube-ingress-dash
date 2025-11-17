@@ -1,16 +1,21 @@
 'use client';
 
 import React, { memo } from 'react';
-import { Button, Badge, Card, Text } from '@mantine/core';
-import { ExternalLink, Lock, Layers } from 'lucide-react';
+import { Button, Badge, Card, Text, Stack, Group, ActionIcon } from '@mantine/core';
+import { IconExternalLink, IconLock, IconFolder, IconInfoCircle } from '@tabler/icons-react';
 import { IngressData } from '@/types/ingress';
 
 interface IngressCardProps {
   ingress: IngressData;
   onClick?: () => void;
+  onDetailsClick?: () => void;
 }
 
-const IngressCardComponent: React.FC<IngressCardProps> = ({ ingress, onClick: _onClick }) => {
+const IngressCardComponent: React.FC<IngressCardProps> = ({
+  ingress,
+  onClick: _onClick,
+  onDetailsClick,
+}) => {
   const handleLinkClick = (url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer');
   };
@@ -22,38 +27,55 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({ ingress, onClick: _o
       radius="md"
       withBorder
     >
-      <div className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start gap-2">
+      <Stack gap="md" style={{ height: '100%' }}>
+        {/* Header Section */}
+        <Group justify="space-between" align="flex-start" wrap="nowrap">
+          <Stack gap="xs" style={{ flex: 1, minWidth: 0 }}>
+            <Group gap="xs" wrap="nowrap" align="flex-start">
               <Text
                 className="text-base leading-tight break-words hyphens-auto flex-1 min-w-0 font-semibold"
                 style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1rem)' }}
               >
                 {ingress.name}
               </Text>
-              {ingress.tls && <Lock className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />}
-            </div>
-            <Text
-              c="dimmed"
-              className="mt-1 text-xs leading-tight break-words flex items-center gap-1"
+              {ingress.tls && (
+                <IconLock
+                  size={16}
+                  className="text-primary flex-shrink-0"
+                  style={{ marginTop: '2px' }}
+                />
+              )}
+            </Group>
+            <Group gap={4} wrap="nowrap">
+              <IconFolder size={12} className="flex-shrink-0" style={{ opacity: 0.6 }} />
+              <Text size="xs" c="dimmed" className="leading-tight break-words">
+                {ingress.namespace}
+              </Text>
+            </Group>
+          </Stack>
+          {onDetailsClick && (
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              size="lg"
+              onClick={onDetailsClick}
+              aria-label={`View details for ${ingress.name}`}
+              className="flex-shrink-0"
             >
-              <Layers className="h-3 w-3 flex-shrink-0" />
-              {ingress.namespace}
-            </Text>
-          </div>
-        </div>
-      </div>
+              <IconInfoCircle size={20} />
+            </ActionIcon>
+          )}
+        </Group>
 
-      <div className="flex-1 pb-0">
-        <div className="space-y-3">
+        {/* Content Section */}
+        <Stack gap="md" style={{ flex: 1 }}>
           {/* Hosts - now as clickable buttons */}
           {ingress.hosts.length > 0 && (
-            <div className="space-y-1">
-              <div className="text-xs font-medium">Hosts ({ingress.hosts.length})</div>
-              <div className="space-y-1 mt-1">
-                {' '}
-                {/* Added spacing and vertical layout */}
+            <Stack gap="xs">
+              <Text size="xs" fw={500}>
+                Hosts ({ingress.hosts.length})
+              </Text>
+              <Stack gap="xs">
                 {ingress.hosts.map((host, index) => {
                   // Create URLs from hosts (if not already present in urls)
                   const hostUrl =
@@ -68,19 +90,25 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({ ingress, onClick: _o
                       key={index}
                       variant="outline"
                       size="xs"
-                      className="w-full justify-between h-8 text-xs px-3 truncate group"
+                      fullWidth
+                      justify="space-between"
                       onClick={() => handleLinkClick(finalUrl)}
                       title={finalUrl}
-                      rightSection={
-                        <ExternalLink className="h-3 w-3 opacity-50 group-hover:opacity-100 transition-opacity" />
-                      }
+                      rightSection={<IconExternalLink size={12} />}
+                      styles={{
+                        root: { height: '32px' },
+                        inner: { justifyContent: 'space-between' },
+                        label: { overflow: 'hidden', textOverflow: 'ellipsis' },
+                      }}
                     >
-                      <span className="truncate">{finalUrl}</span>
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {finalUrl}
+                      </span>
                     </Button>
                   );
                 })}
-              </div>
-            </div>
+              </Stack>
+            </Stack>
           )}
 
           {/* Paths - updated to list format */}
@@ -88,10 +116,11 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({ ingress, onClick: _o
             (() => {
               const uniquePaths = Array.from(new Set(ingress.paths));
               return (
-                <div className="space-y-1">
-                  <div className="text-xs font-medium">Paths ({uniquePaths.length})</div>
-                  <div className="flex flex-col gap-1">
-                    {/* List unique paths */}
+                <Stack gap="xs">
+                  <Text size="xs" fw={500}>
+                    Paths ({uniquePaths.length})
+                  </Text>
+                  <Stack gap="xs">
                     {uniquePaths.map((path, index) => (
                       <div
                         key={index}
@@ -100,22 +129,21 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({ ingress, onClick: _o
                         {path}
                       </div>
                     ))}
-                  </div>
-                </div>
+                  </Stack>
+                </Stack>
               );
             })()}
-        </div>
-      </div>
+        </Stack>
 
-      <div className="pt-3">
-        <div className="flex flex-wrap gap-2 w-full">
+        {/* Footer Section */}
+        <Group gap="xs" wrap="wrap">
           {ingress.annotations['kubernetes.io/ingress.class'] && (
             <Badge variant="light" size="sm">
               {ingress.annotations['kubernetes.io/ingress.class']}
             </Badge>
           )}
-        </div>
-      </div>
+        </Group>
+      </Stack>
     </Card>
   );
 };
@@ -150,11 +178,12 @@ const IngressCard = memo(IngressCardComponent, (prevProps, nextProps) => {
     JSON.stringify(prevIngress.paths) !== JSON.stringify(nextIngress.paths) ||
     JSON.stringify(prevIngress.annotations) !== JSON.stringify(nextIngress.annotations);
 
-  // Compare onClick function reference
+  // Compare callback function references
   const onClickChanged = prevProps.onClick !== nextProps.onClick;
+  const onDetailsClickChanged = prevProps.onDetailsClick !== nextProps.onDetailsClick;
 
   // Return true if nothing changed (skip re-render), false if something changed (re-render)
-  return !dataChanged && !onClickChanged;
+  return !dataChanged && !onClickChanged && !onDetailsClickChanged;
 });
 
 IngressCard.displayName = 'IngressCard';

@@ -37,7 +37,7 @@
     - Verify card layout and styling
     - _Requirements: 1.1, 1.4_
 
-- [ ] 3. Refactor IngressCard component with Mantine
+- [x] 3. Refactor IngressCard component with Mantine
   - Update IngressCard to use Mantine Card component
   - Add details icon button (ActionIcon with IconInfoCircle)
   - Implement onDetailsClick callback prop
