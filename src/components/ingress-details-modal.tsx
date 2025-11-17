@@ -9,7 +9,6 @@ import {
   Group,
   Divider,
   ActionIcon,
-  Code,
   Alert,
   Collapse,
   Button,
@@ -19,6 +18,7 @@ import {
   Tooltip,
   Table,
 } from '@mantine/core';
+import { CodeHighlight } from '@mantine/code-highlight';
 import {
   IconLock,
   IconFolder,
@@ -485,16 +485,14 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                     </Stack>
                   </Alert>
                 ) : ingress.yamlManifest ? (
-                  <Code
-                    block
+                  <Box
                     style={{
                       maxHeight: 'calc(100vh - 300px)',
                       overflowY: 'auto',
-                      fontSize: '12px',
                     }}
                   >
-                    {ingress.yamlManifest}
-                  </Code>
+                    <CodeHighlight code={ingress.yamlManifest} language="yaml" />
+                  </Box>
                 ) : (
                   <Alert color="yellow" variant="light">
                     <Stack gap="xs">
