@@ -21,11 +21,10 @@ export function useNamespaces({ isMounted, error, ingresses }: UseNamespacesOpti
     return counts;
   }, [ingresses]);
 
-  // Filter namespaces to only show ones with ingresses
-  const namespacesWithIngresses = useMemo(
-    () => allNamespaces.filter((ns) => namespaceCounts[ns] > 0),
-    [allNamespaces, namespaceCounts]
-  );
+  // Return all namespaces from the API
+  // The API already filters to only return namespaces with ingresses
+  // Don't filter based on the ingresses list since that's already filtered by selectedNamespaces
+  const namespacesWithIngresses = useMemo(() => allNamespaces, [allNamespaces]);
 
   // Fetch all namespaces when component mounts
   useEffect(() => {

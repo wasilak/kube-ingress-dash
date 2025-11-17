@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useTheme } from '@/components/theme-provider';
+import { useMantineColorScheme } from '@mantine/core';
 import { ErrorClassifier } from '@/lib/error-handler/classifier';
 import { ErrorClassification } from '@/types/errors';
 import { getErrorConfig } from './error-config';
@@ -29,7 +29,7 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
   error,
   classification,
 }) => {
-  const { theme, setTheme } = useTheme();
+  const { colorScheme, setColorScheme } = useMantineColorScheme();
 
   // Classify the error if provided
   const errorClassification = classification || (error ? ErrorClassifier.classify(error) : null);
@@ -52,13 +52,13 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
 
   const handleThemeChange = (newTheme: string | null) => {
     if (newTheme) {
-      setTheme(newTheme as 'light' | 'dark' | 'system');
+      setColorScheme(newTheme as 'light' | 'dark' | 'auto');
     }
   };
 
   return (
     <div className="container mx-auto p-8">
-      <ErrorScreenHeader theme={theme} onThemeChange={handleThemeChange} />
+      <ErrorScreenHeader theme={colorScheme} onThemeChange={handleThemeChange} />
       <ErrorScreenCard
         config={config}
         message={smartMessage}

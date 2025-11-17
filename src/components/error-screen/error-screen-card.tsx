@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Card, Text, Title } from '@mantine/core';
+import { Button, Card, Text, Title, Center, Group } from '@mantine/core';
 import { ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -23,36 +23,31 @@ export const ErrorScreenCard: React.FC<ErrorScreenCardProps> = ({
   documentationText,
 }) => {
   return (
-    <div className="flex justify-center items-center min-h-[50vh] p-4">
+    <Center style={{ minHeight: '50vh' }} p="md">
       <Card
-        className={`w-full max-w-2xl ${config.border}`}
+        style={{
+          width: '100%',
+          maxWidth: 768,
+          border: `1px solid ${config.borderColor || 'var(--mantine-color-default-border)'}`,
+        }}
         padding="lg"
         radius="md"
-        style={{
-          border: '1px solid var(--mantine-color-default-border)',
-        }}
       >
-        <Card.Section className="text-center p-6">
-          <div className="flex justify-center mb-4">
-            <Image
-              src="/images/logo.svg"
-              alt="kube-ingress-dash logo"
-              width={64}
-              height={64}
-              className="h-16 w-16"
-            />
-          </div>
-          <Title order={2} className="text-2xl">
-            {config.title}
-          </Title>
+        <Card.Section p="xl" ta="center">
+          <Center mb="md">
+            <Image src="/images/logo.svg" alt="kube-ingress-dash logo" width={64} height={64} />
+          </Center>
+          <Title order={2}>{config.title}</Title>
           <Text c="dimmed" size="sm">
             {config.description}
           </Text>
         </Card.Section>
-        <Card.Section className="text-center p-6 pt-0">
-          <p className={`mb-6 ${config.text}`}>{message}</p>
+        <Card.Section p="xl" pt={0} ta="center">
+          <Text c={config.textColor} mb="xl">
+            {message}
+          </Text>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Group justify="center" gap="sm" wrap="wrap">
             {(onRetry || retryable) && (
               <Button onClick={onRetry} variant="filled">
                 Retry Connection
@@ -68,9 +63,9 @@ export const ErrorScreenCard: React.FC<ErrorScreenCardProps> = ({
             >
               {documentationText}
             </Button>
-          </div>
+          </Group>
         </Card.Section>
       </Card>
-    </div>
+    </Center>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { MultiSelect, MultiSelectOption } from './multi-select';
+import { MultiSelect, Group } from '@mantine/core';
 import { Layers } from 'lucide-react';
 
 export interface NamespaceFilterProps {
@@ -15,9 +15,9 @@ const NamespaceFilter: React.FC<NamespaceFilterProps> = ({
   onChange,
   namespaceCounts = {},
 }) => {
-  // Add "All" option to the beginning
+  // Add "All" option to the beginning with proper value/label separation
   const totalCount = Object.values(namespaceCounts).reduce((sum, count) => sum + count, 0);
-  const options: MultiSelectOption[] = [
+  const options = [
     { value: 'All', label: totalCount > 0 ? `All (${totalCount})` : 'All' },
     ...namespaces.map((ns) => ({
       value: ns,
@@ -39,17 +39,26 @@ const NamespaceFilter: React.FC<NamespaceFilterProps> = ({
   };
 
   return (
-    <div aria-label="Namespace Filter" className="flex items-center gap-2">
+    <Group gap="xs" wrap="nowrap" aria-label="Namespace Filter">
       <Layers className="h-4 w-4 flex-shrink-0" />
       <MultiSelect
-        options={options}
-        onValueChange={handleValueChange}
-        defaultValue={selected}
+        data={options}
+        value={selected}
+        onChange={handleValueChange}
         placeholder={isAllSelected ? 'All namespaces' : 'Select namespaces'}
-        hideSelectAll={false}
-        maxCount={2} // Show up to 2 namespace badges, then show "+X selected"
+        searchable
+        clearable
+        hidePickedOptions={false}
+        styles={{
+          root: {
+            width: 250,
+          },
+          input: {
+            minHeight: 'auto',
+          },
+        }}
       />
-    </div>
+    </Group>
   );
 };
 

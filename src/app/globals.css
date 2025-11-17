@@ -25,7 +25,8 @@
     --radius: 0.5rem;
   }
 
-  .dark {
+  /* Dark mode using Mantine's data attribute */
+  [data-mantine-color-scheme='dark'] {
     /* Dark mode indigo colors - high contrast for readability */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
@@ -47,16 +48,16 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 239 84% 67%;
   }
-  
+
   * {
     border-color: hsl(var(--border));
   }
-  
+
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
   }
-  
+
   /* Proper cursor for interactive elements */
   button,
   a,
@@ -68,7 +69,7 @@
   input[type="reset"] {
     cursor: pointer;
   }
-  
+
   button:disabled,
   [role="button"]:disabled {
     cursor: not-allowed;
@@ -80,212 +81,212 @@
   .bg-background {
     background-color: hsl(var(--background));
   }
-  
+
   .bg-foreground {
     background-color: hsl(var(--foreground));
   }
-  
+
   .bg-card {
     background-color: hsl(var(--card));
   }
-  
+
   .bg-popover {
     background-color: hsl(var(--popover));
   }
-  
+
   .bg-primary {
     background-color: hsl(var(--primary));
   }
-  
+
   .bg-secondary {
     background-color: hsl(var(--secondary));
   }
-  
+
   .bg-muted {
     background-color: hsl(var(--muted));
   }
-  
+
   .bg-accent {
     background-color: hsl(var(--accent));
   }
-  
+
   .bg-destructive {
     background-color: hsl(var(--destructive));
   }
-  
+
   /* Hover background utilities */
   .hover\:bg-primary\/90:hover {
     background-color: hsl(var(--primary) / 0.9);
   }
-  
+
   .hover\:bg-secondary\/80:hover {
     background-color: hsl(var(--secondary) / 0.8);
   }
-  
+
   .hover\:bg-destructive\/90:hover {
     background-color: hsl(var(--destructive) / 0.9);
   }
-  
+
   .hover\:bg-accent:hover {
     background-color: hsl(var(--accent));
   }
-  
+
   .hover\:bg-accent\/50:hover {
     background-color: hsl(var(--accent) / 0.5);
   }
-  
+
   .hover\:text-accent-foreground:hover {
     color: hsl(var(--accent-foreground));
   }
-  
+
   .text-foreground {
     color: hsl(var(--foreground));
   }
-  
+
   .text-background {
     color: hsl(var(--background));
   }
-  
+
   .text-card-foreground {
     color: hsl(var(--card-foreground));
   }
-  
+
   .text-popover-foreground {
     color: hsl(var(--popover-foreground));
   }
-  
+
   .text-primary {
     color: hsl(var(--primary));
   }
-  
+
   .text-primary-foreground {
     color: hsl(var(--primary-foreground));
   }
-  
+
   .text-secondary {
     color: hsl(var(--secondary));
   }
-  
+
   .text-secondary-foreground {
     color: hsl(var(--secondary-foreground));
   }
-  
+
   .text-muted {
     color: hsl(var(--muted));
   }
-  
+
   .text-muted-foreground {
     color: hsl(var(--muted-foreground));
   }
-  
+
   .text-accent {
     color: hsl(var(--accent));
   }
-  
+
   .text-accent-foreground {
     color: hsl(var(--accent-foreground));
   }
-  
+
   .text-destructive {
     color: hsl(var(--destructive));
   }
-  
+
   .text-destructive-foreground {
     color: hsl(var(--destructive-foreground));
   }
-  
+
   .text-foreground\/80 {
     color: hsl(var(--foreground) / 0.8);
   }
-  
+
   .text-foreground\/70 {
     color: hsl(var(--foreground) / 0.7);
   }
-  
+
   .border-border {
     border-color: hsl(var(--border));
   }
-  
+
   .border-input {
     border-color: hsl(var(--input));
   }
-  
+
   .border-primary {
     border-color: hsl(var(--primary));
   }
-  
+
   .border-primary\/20 {
     border-color: hsl(var(--primary) / 0.2);
   }
-  
+
   .border-primary\/50 {
     border-color: hsl(var(--primary) / 0.5);
   }
-  
+
   .border-secondary {
     border-color: hsl(var(--secondary));
   }
-  
+
   .border-destructive {
     border-color: hsl(var(--destructive));
   }
-  
+
   .border-destructive\/20 {
     border-color: hsl(var(--destructive) / 0.2);
   }
-  
+
   .border-transparent {
     border-color: transparent;
   }
-  
+
   /* Hover border utilities */
   .hover\:border-primary:hover {
     border-color: hsl(var(--primary));
   }
-  
+
   .hover\:border-primary\/50:hover {
     border-color: hsl(var(--primary) / 0.5);
   }
-  
+
   .hover\:border-destructive:hover {
     border-color: hsl(var(--destructive));
   }
-  
+
   .ring-ring {
     --tw-ring-color: hsl(var(--ring));
   }
-  
+
   .ring-primary {
     --tw-ring-color: hsl(var(--primary));
   }
-  
+
   .ring-offset-background {
     --tw-ring-offset-color: hsl(var(--background));
   }
-  
+
   /* Focus visible utilities */
   .focus-visible\:ring-primary:focus-visible {
     --tw-ring-color: hsl(var(--primary));
   }
-  
+
   .focus-visible\:border-primary:focus-visible {
     border-color: hsl(var(--primary));
   }
-  
+
   /* Focus utilities */
   .focus\:ring-primary:focus {
     --tw-ring-color: hsl(var(--primary));
   }
-  
+
   .focus\:border-primary:focus {
     border-color: hsl(var(--primary));
   }
-  
+
   /* Transform utilities */
   .hover\:-translate-y-1:hover {
     transform: translateY(-0.25rem);
   }
-  
+
   /* Shadow utilities */
   .hover\:shadow-lg:hover {
     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
@@ -452,16 +453,16 @@
   }
 
   /* Dark mode scrollbar */
-  .dark .scrollbar-thumb-gray-700::-webkit-scrollbar-thumb {
+  [data-mantine-color-scheme='dark'] .scrollbar-thumb-gray-700::-webkit-scrollbar-thumb {
     background-color: rgb(55 65 81);
     border-radius: 4px;
   }
 
-  .dark .scrollbar-thumb-gray-700::-webkit-scrollbar-thumb:hover {
+  [data-mantine-color-scheme='dark'] .scrollbar-thumb-gray-700::-webkit-scrollbar-thumb:hover {
     background-color: rgb(75 85 99);
   }
 
-  .dark .scrollbar-track-gray-900::-webkit-scrollbar-track {
+  [data-mantine-color-scheme='dark'] .scrollbar-track-gray-900::-webkit-scrollbar-track {
     background-color: rgb(17 24 39);
   }
 
@@ -474,7 +475,7 @@
     scrollbar-color: rgb(209 213 219) rgb(243 244 246);
   }
 
-  .dark .scrollbar-thumb-gray-700 {
+  [data-mantine-color-scheme='dark'] .scrollbar-thumb-gray-700 {
     scrollbar-color: rgb(55 65 81) rgb(17 24 39);
   }
 }
