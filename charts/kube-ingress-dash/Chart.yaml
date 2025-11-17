@@ -1,5 +1,5 @@
 apiVersion: v2
-name: kube-ingress-dash-chart
+name: Kube Ingress Dash
 description: A Kubernetes Ingress Dashboard
 type: application
 version: 0.2.4
