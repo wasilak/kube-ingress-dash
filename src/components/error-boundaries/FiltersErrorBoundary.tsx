@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Alert, Group, Text, Button } from '@mantine/core';
 
 interface FiltersErrorBoundaryProps {
   children: React.ReactNode;
@@ -50,19 +51,21 @@ class FiltersErrorBoundary extends React.Component<
       }
 
       return (
-        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
-          <div className="flex items-center justify-between">
+        <Alert color="red" variant="light">
+          <Group justify="space-between" align="flex-start">
             <div>
-              <h3 className="text-sm font-medium text-destructive">Filter Error</h3>
-              <p className="text-xs text-muted-foreground mt-1">
+              <Text size="sm" fw={500}>
+                Filter Error
+              </Text>
+              <Text size="xs" c="dimmed">
                 {this.state.error?.message || 'Unable to load filters'}
-              </p>
+              </Text>
             </div>
-            <button onClick={this.reset} className="text-xs text-primary hover:underline">
+            <Button size="xs" variant="subtle" onClick={this.reset}>
               Retry
-            </button>
-          </div>
-        </div>
+            </Button>
+          </Group>
+        </Alert>
       );
     }
 

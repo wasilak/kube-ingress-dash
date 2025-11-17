@@ -7,7 +7,6 @@ import ErrorBoundary from '@/components/error-boundary';
 import ErrorScreen from '@/components/error-screen';
 import { IngressCardSkeletonGrid } from '@/components/skeletons';
 import { useSearchSync } from '@/hooks/use-search-sync';
-import { useNamespaces } from '@/hooks/use-namespaces';
 import { useIngresses } from '@/hooks/use-ingresses';
 import { useSSEStream } from '@/hooks/use-sse-stream';
 import { DashboardHeader, DashboardStats, DashboardFilters } from '@/components/dashboard';
@@ -16,12 +15,13 @@ import {
   IngressListErrorBoundary,
   FiltersErrorBoundary,
 } from '@/components/error-boundaries';
-import { GroupingSelector } from '@/components/grouping-selector';
+
 import { GroupedIngressGrid } from '@/components/grouped-ingress-grid';
 import { GroupingMode } from '@/types/grouping';
 import { groupIngresses } from '@/lib/utils/grouping';
 import { IngressDetailsModal } from '@/components/ingress-details-modal';
 import { notifications } from '@mantine/notifications';
+import { Stack, Group, Box } from '@mantine/core';
 import { IngressData } from '@/types/ingress';
 
 function DashboardContent() {
@@ -159,12 +159,12 @@ function DashboardContent() {
     findIngressByIdentifier,
   ]);
 
-  // Namespaces management
-  const { namespaceCounts, namespacesWithIngresses } = useNamespaces({
-    isMounted,
-    error,
-    ingresses,
-  });
+  // Namespaces management (no longer needed since filters handle it)
+  // const { namespaceCounts, namespacesWithIngresses } = useNamespaces({
+  //   isMounted,
+  //   error,
+  //   ingresses,
+  // });
 
   // SSE stream for real-time updates
   useSSEStream({
@@ -269,22 +269,17 @@ function DashboardContent() {
     <div className="min-h-screen bg-background p-8">
       <DashboardErrorBoundary>
         <div className="max-w-6xl mx-auto space-y-8">
-          <DashboardHeader
-            namespaces={namespacesWithIngresses}
-            selectedNamespaces={selectedNamespaces}
-            onNamespaceChange={setSelectedNamespaces}
-            namespaceCounts={namespaceCounts}
-          />
+          <DashboardHeader />
 
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
+          <Stack gap="md">
+            <Group gap="md" align="flex-start" wrap="wrap">
+              <Box style={{ flex: 1, minWidth: 300 }}>
                 <SearchBar
                   onSearch={handleSearch}
                   value={searchQuery}
                   placeholder="Search ingresses by name, namespace, host, or path..."
                 />
-              </div>
+              </Box>
 
               <DashboardStats
                 totalIngresses={totalIngresses}
@@ -292,26 +287,24 @@ function DashboardContent() {
                 nonTlsIngresses={nonTlsIngresses}
                 filteredCount={filteredCount}
               />
-            </div>
+            </Group>
 
-            <div className="flex flex-col sm:flex-row gap-4">
-              <FiltersErrorBoundary>
-                <DashboardFilters
-                  allLabels={allLabels}
-                  allAnnotations={allAnnotations}
-                  selectedLabels={selectedLabels}
-                  selectedAnnotations={selectedAnnotations}
-                  onLabelsChange={setSelectedLabels}
-                  onAnnotationsChange={setSelectedAnnotations}
-                  ingresses={ingresses}
-                />
-              </FiltersErrorBoundary>
-
-              <div className="sm:ml-auto">
-                <GroupingSelector value={groupingMode} onChange={setGroupingMode} />
-              </div>
-            </div>
-          </div>
+            <FiltersErrorBoundary>
+              <DashboardFilters
+                allLabels={allLabels}
+                allAnnotations={allAnnotations}
+                selectedLabels={selectedLabels}
+                selectedAnnotations={selectedAnnotations}
+                onLabelsChange={setSelectedLabels}
+                onAnnotationsChange={setSelectedAnnotations}
+                ingresses={ingresses}
+                groupingMode={groupingMode}
+                onGroupingChange={setGroupingMode}
+                selectedNamespaces={selectedNamespaces}
+                onNamespacesChange={setSelectedNamespaces}
+              />
+            </FiltersErrorBoundary>
+          </Stack>
 
           {loading ? (
             <IngressCardSkeletonGrid count={6} />

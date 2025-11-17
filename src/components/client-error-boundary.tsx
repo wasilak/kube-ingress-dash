@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { AlertCircle } from 'lucide-react';
-import { Button, Card, Title } from '@mantine/core';
+import { Button, Card, Title, Container, Center, Group, Text, ThemeIcon } from '@mantine/core';
 
 interface ClientErrorBoundaryState {
   hasError: boolean;
@@ -29,31 +29,31 @@ class ClientErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="container mx-auto py-8">
-          <Card className="max-w-2xl mx-auto" padding="lg" radius="md" withBorder>
-            <Card.Section className="text-center p-6">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 mb-4">
-                <AlertCircle className="h-6 w-6 text-destructive" />
-              </div>
-              <Title order={3} className="text-xl">
-                Something went wrong
-              </Title>
+        <Container py="xl">
+          <Card style={{ maxWidth: 768, margin: '0 auto' }} padding="lg" radius="md" withBorder>
+            <Card.Section p="xl" ta="center">
+              <Center mb="md">
+                <ThemeIcon size={48} radius="xl" color="red" variant="light">
+                  <AlertCircle size={24} />
+                </ThemeIcon>
+              </Center>
+              <Title order={3}>Something went wrong</Title>
             </Card.Section>
-            <Card.Section className="text-center p-6 pt-0">
-              <p className="text-muted-foreground mb-4">
+            <Card.Section p="xl" pt={0} ta="center">
+              <Text c="dimmed" mb="md">
                 {this.state.error?.message || 'An unexpected error occurred'}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              </Text>
+              <Group justify="center" gap="sm" wrap="wrap">
                 <Button variant="outline" onClick={() => window.location.reload()}>
                   Refresh Page
                 </Button>
                 <Button variant="filled" onClick={() => this.setState({ hasError: false })}>
                   Try Again
                 </Button>
-              </div>
+              </Group>
             </Card.Section>
           </Card>
-        </div>
+        </Container>
       );
     }
 

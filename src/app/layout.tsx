@@ -6,7 +6,6 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ColorSchemeScript } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
-import { ThemeProvider } from '@/components/theme-provider';
 import ErrorBoundary from '@/components/error-boundary';
 import { MantineThemeProvider } from '@/components/mantine-theme-provider';
 
@@ -29,12 +28,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={inter.className}>
         <ErrorBoundary>
-          <ThemeProvider>
-            <MantineThemeProvider>
-              <Notifications position="top-right" />
-              {children}
-            </MantineThemeProvider>
-          </ThemeProvider>
+          <MantineThemeProvider>
+            <Notifications position="top-right" />
+            {children}
+          </MantineThemeProvider>
         </ErrorBoundary>
       </body>
     </html>

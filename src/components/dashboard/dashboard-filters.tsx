@@ -1,7 +1,9 @@
 import React, { useMemo } from 'react';
-import { MultiSelect } from '@/components/multi-select/index';
+import { MultiSelect, Grid, Group, Text, Stack, Select } from '@mantine/core';
 import { IngressData } from '@/types/ingress';
-import { Tag, FileText } from 'lucide-react';
+import { Tag, FileText, FolderTree, Layers } from 'lucide-react';
+
+import { GroupingMode } from '@/types/grouping';
 
 interface DashboardFiltersProps {
   allLabels: string[];
@@ -11,6 +13,10 @@ interface DashboardFiltersProps {
   onLabelsChange: (labels: string[]) => void;
   onAnnotationsChange: (annotations: string[]) => void;
   ingresses: IngressData[];
+  groupingMode?: GroupingMode;
+  onGroupingChange?: (mode: GroupingMode) => void;
+  selectedNamespaces?: string[];
+  onNamespacesChange?: (namespaces: string[]) => void;
 }
 
 export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
@@ -21,62 +27,244 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   onLabelsChange,
   onAnnotationsChange,
   ingresses,
+  groupingMode,
+  onGroupingChange,
+  selectedNamespaces,
+  onNamespacesChange,
 }) => {
-  const labelOptions = useMemo(
-    () =>
-      allLabels.map((label) => {
-        const count = ingresses.filter((ing) => {
-          if (!ing.labels) return false;
-          return Object.keys(ing.labels).some((key) => `${key}:${ing.labels![key]}` === label);
-        }).length;
-        return { value: label, label: `${label} (${count})` };
-      }),
-    [allLabels, ingresses]
-  );
+  // Group labels by key
+  const labelOptions = useMemo(() => {
+    const grouped = new Map<string, Map<string, { value: string; label: string; count: number }>>();
 
-  const annotationOptions = useMemo(
-    () =>
-      allAnnotations.map((annotation) => {
-        const count = ingresses.filter((ing) => {
-          if (!ing.annotations) return false;
-          return Object.keys(ing.annotations).some(
-            (key) => `${key}:${ing.annotations![key]}` === annotation
-          );
-        }).length;
-        return { value: annotation, label: `${annotation} (${count})` };
-      }),
-    [allAnnotations, ingresses]
-  );
+    allLabels.forEach((label) => {
+      const colonIndex = label.indexOf(':');
+      if (colonIndex === -1) return; // Skip malformed labels
+
+      const key = label.substring(0, colonIndex);
+      const value = label.substring(colonIndex + 1);
+
+      const count = ingresses.filter((ing) => {
+        if (!ing.labels) return false;
+        return Object.keys(ing.labels).some((k) => `${k}:${ing.labels![k]}` === label);
+      }).length;
+
+      if (!grouped.has(key)) {
+        grouped.set(key, new Map());
+      }
+
+      const keyGroup = grouped.get(key)!;
+      // Deduplicate by value - if exists, sum the counts
+      if (keyGroup.has(value)) {
+        const existing = keyGroup.get(value)!;
+        existing.count += count;
+        existing.label = `${value} (${existing.count})`;
+      } else {
+        keyGroup.set(value, {
+          value: label,
+          label: `${value} (${count})`,
+          count: count,
+        });
+      }
+    });
+
+    return Array.from(grouped.entries()).map(([key, itemsMap]) => ({
+      group: key,
+      items: Array.from(itemsMap.values()).map(({ value, label }) => ({ value, label })),
+    }));
+  }, [allLabels, ingresses]);
+
+  // Group annotations by key
+  const annotationOptions = useMemo(() => {
+    const grouped = new Map<string, Map<string, { value: string; label: string; count: number }>>();
+
+    allAnnotations.forEach((annotation) => {
+      const colonIndex = annotation.indexOf(':');
+      if (colonIndex === -1) return; // Skip malformed annotations
+
+      const key = annotation.substring(0, colonIndex);
+      const value = annotation.substring(colonIndex + 1);
+
+      const count = ingresses.filter((ing) => {
+        if (!ing.annotations) return false;
+        return Object.keys(ing.annotations).some(
+          (k) => `${k}:${ing.annotations![k]}` === annotation
+        );
+      }).length;
+
+      if (!grouped.has(key)) {
+        grouped.set(key, new Map());
+      }
+
+      const keyGroup = grouped.get(key)!;
+      // Deduplicate by value - if exists, sum the counts
+      if (keyGroup.has(value)) {
+        const existing = keyGroup.get(value)!;
+        existing.count += count;
+        existing.label = `${value} (${existing.count})`;
+      } else {
+        keyGroup.set(value, {
+          value: annotation,
+          label: `${value} (${count})`,
+          count: count,
+        });
+      }
+    });
+
+    return Array.from(grouped.entries()).map(([key, itemsMap]) => ({
+      group: key,
+      items: Array.from(itemsMap.values()).map(({ value, label }) => ({ value, label })),
+    }));
+  }, [allAnnotations, ingresses]);
+
+  // Extract namespaces from ingresses (same source as labels/annotations)
+  const namespaceOptions = useMemo(() => {
+    const namespacesSet = new Set(ingresses.map((ing) => ing.namespace));
+    const namespaces = Array.from(namespacesSet).sort();
+
+    const counts: Record<string, number> = {};
+    ingresses.forEach((ing) => {
+      counts[ing.namespace] = (counts[ing.namespace] || 0) + 1;
+    });
+
+    const totalCount = ingresses.length;
+
+    return [
+      { value: 'All', label: `All (${totalCount})` },
+      ...namespaces.map((ns) => ({
+        value: ns,
+        label: `${ns} (${counts[ns]})`,
+      })),
+    ];
+  }, [ingresses]);
+
+  const groupingOptions = [
+    { value: 'none', label: 'None' },
+    { value: 'namespace', label: 'Namespace' },
+    { value: 'tls', label: 'TLS Status' },
+  ];
+
+  const handleNamespaceChange = (values: string[]) => {
+    if (!onNamespacesChange) return;
+
+    if (values.includes('All')) {
+      onNamespacesChange(['All']);
+    } else {
+      onNamespacesChange(values);
+    }
+  };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-      <div className="space-y-2">
-        <label className="text-sm font-medium flex items-center gap-2">
-          <Tag className="h-4 w-4" />
-          Labels
-        </label>
-        <MultiSelect
-          options={labelOptions}
-          onValueChange={onLabelsChange}
-          defaultValue={selectedLabels}
-          placeholder="Select labels..."
-          maxCount={2}
-        />
-      </div>
+    <Grid gutter="md" pt="xs">
+      {selectedNamespaces !== undefined && onNamespacesChange && (
+        <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
+          <Stack gap="xs">
+            <Group gap="xs">
+              <Layers className="h-4 w-4" />
+              <Text size="sm" fw={500}>
+                Namespaces
+              </Text>
+            </Group>
+            <MultiSelect
+              data={namespaceOptions}
+              value={selectedNamespaces}
+              onChange={handleNamespaceChange}
+              placeholder="Select namespaces"
+              searchable
+              clearable
+              hidePickedOptions={false}
+              styles={{
+                root: {
+                  width: '100%',
+                },
+                input: {
+                  minHeight: 'auto',
+                },
+              }}
+            />
+          </Stack>
+        </Grid.Col>
+      )}
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium flex items-center gap-2">
-          <FileText className="h-4 w-4" />
-          Annotations
-        </label>
-        <MultiSelect
-          options={annotationOptions}
-          onValueChange={onAnnotationsChange}
-          defaultValue={selectedAnnotations}
-          placeholder="Select annotations..."
-          maxCount={2}
-        />
-      </div>
-    </div>
+      <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
+        <Stack gap="xs">
+          <Group gap="xs">
+            <Tag className="h-4 w-4" />
+            <Text size="sm" fw={500}>
+              Labels
+            </Text>
+          </Group>
+          <MultiSelect
+            data={labelOptions}
+            value={selectedLabels}
+            onChange={onLabelsChange}
+            placeholder="Select labels..."
+            searchable
+            clearable
+            hidePickedOptions={false}
+            styles={{
+              root: {
+                width: '100%',
+              },
+              input: {
+                minHeight: 'auto',
+              },
+            }}
+          />
+        </Stack>
+      </Grid.Col>
+
+      <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
+        <Stack gap="xs">
+          <Group gap="xs">
+            <FileText className="h-4 w-4" />
+            <Text size="sm" fw={500}>
+              Annotations
+            </Text>
+          </Group>
+          <MultiSelect
+            data={annotationOptions}
+            value={selectedAnnotations}
+            onChange={onAnnotationsChange}
+            placeholder="Select annotations..."
+            searchable
+            clearable
+            hidePickedOptions={false}
+            styles={{
+              root: {
+                width: '100%',
+              },
+              input: {
+                minHeight: 'auto',
+              },
+            }}
+          />
+        </Stack>
+      </Grid.Col>
+
+      {groupingMode !== undefined && onGroupingChange && (
+        <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
+          <Stack gap="xs">
+            <Group gap="xs">
+              <FolderTree className="h-4 w-4" />
+              <Text size="sm" fw={500}>
+                Group by
+              </Text>
+            </Group>
+            <Select
+              placeholder="Select grouping"
+              data={groupingOptions}
+              value={groupingMode}
+              onChange={(val) => val && onGroupingChange(val as GroupingMode)}
+              allowDeselect={false}
+              styles={{
+                root: {
+                  minWidth: '180px',
+                },
+              }}
+            />
+          </Stack>
+        </Grid.Col>
+      )}
+    </Grid>
   );
 };

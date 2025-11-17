@@ -1,4 +1,5 @@
 import React from 'react';
+import { Group, Text } from '@mantine/core';
 
 interface DashboardStatsProps {
   totalIngresses: number;
@@ -14,22 +15,22 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
   filteredCount,
 }) => {
   return (
-    <div className="flex items-center space-x-4 text-sm">
-      <div className="flex items-center gap-1">
+    <Group gap="md">
+      <Group gap="xs">
         <div className="h-3 w-3 rounded-full bg-primary"></div>
-        <span>Ingresses: {totalIngresses}</span>
-      </div>
-      <div className="flex items-center gap-1">
+        <Text size="sm">Ingresses: {totalIngresses}</Text>
+      </Group>
+      <Group gap="xs">
         <div className="h-3 w-3 rounded-full bg-green-500"></div>
-        <span>TLS: {tlsIngresses}</span>
-      </div>
-      <div className="flex items-center gap-1">
+        <Text size="sm">TLS: {tlsIngresses}</Text>
+      </Group>
+      <Group gap="xs">
         <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
-        <span>Not TLS: {nonTlsIngresses}</span>
-      </div>
-      <div className="text-foreground/70">
+        <Text size="sm">Not TLS: {nonTlsIngresses}</Text>
+      </Group>
+      <Text size="sm" c="dimmed">
         Showing: {filteredCount}/{totalIngresses}
-      </div>
-    </div>
+      </Text>
+    </Group>
   );
 };

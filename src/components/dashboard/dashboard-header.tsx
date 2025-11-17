@@ -1,37 +1,19 @@
 import React from 'react';
 import Image from 'next/image';
-import { NamespaceFilter } from '@/components/namespace-filter';
+import { Group } from '@mantine/core';
 import { ThemeToggle } from '@/components/theme-toggle';
 
-interface DashboardHeaderProps {
-  namespaces: string[];
-  selectedNamespaces: string[];
-  onNamespaceChange: (namespaces: string[]) => void;
-  namespaceCounts: Record<string, number>;
-}
-
-export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
-  namespaces,
-  selectedNamespaces,
-  onNamespaceChange,
-  namespaceCounts,
-}) => {
+export const DashboardHeader: React.FC = () => {
   return (
-    <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-      <div className="flex items-center gap-2">
-        <Image src="/images/logo.svg" alt="Kube Ingress Dash logo" width={40} height={40} />
-        <h1 className="text-3xl font-bold">Kube Ingress Dash</h1>
-      </div>
+    <header>
+      <Group justify="space-between" align="flex-start" wrap="wrap">
+        <Group gap="sm">
+          <Image src="/images/logo.svg" alt="Kube Ingress Dash logo" width={40} height={40} />
+          <h1 className="text-3xl font-bold">Kube Ingress Dash</h1>
+        </Group>
 
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-        <NamespaceFilter
-          namespaces={namespaces}
-          selected={selectedNamespaces}
-          onChange={onNamespaceChange}
-          namespaceCounts={namespaceCounts}
-        />
         <ThemeToggle />
-      </div>
+      </Group>
     </header>
   );
 };

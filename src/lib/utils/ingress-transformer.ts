@@ -238,7 +238,13 @@ export function filterIngressesAdvanced(
     if (selectedLabels.length > 0 && ingress.labels) {
       for (const selectedLabel of selectedLabels) {
         // Parse label in "key:value" format
-        const [key, value] = selectedLabel.split(':');
+        // Use indexOf to handle label keys that may contain colons
+        const colonIndex = selectedLabel.indexOf(':');
+        if (colonIndex === -1) continue; // Skip malformed labels
+
+        const key = selectedLabel.substring(0, colonIndex);
+        const value = selectedLabel.substring(colonIndex + 1);
+
         if (ingress.labels[key] && ingress.labels[key] === value) {
           hasMatchingLabel = true;
           break; // Found a match, no need to check remaining labels
@@ -254,7 +260,13 @@ export function filterIngressesAdvanced(
     if (selectedAnnotations.length > 0 && ingress.annotations) {
       for (const selectedAnnotation of selectedAnnotations) {
         // Parse annotation in "key:value" format
-        const [key, value] = selectedAnnotation.split(':');
+        // Use indexOf to handle annotation keys that may contain colons
+        const colonIndex = selectedAnnotation.indexOf(':');
+        if (colonIndex === -1) continue; // Skip malformed annotations
+
+        const key = selectedAnnotation.substring(0, colonIndex);
+        const value = selectedAnnotation.substring(colonIndex + 1);
+
         if (ingress.annotations[key] && ingress.annotations[key] === value) {
           hasMatchingAnnotation = true;
           break; // Found a match, no need to check remaining annotations

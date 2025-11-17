@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Center } from '@mantine/core';
 import ErrorScreen from '@/components/error-screen';
 
 interface IngressListErrorBoundaryProps {
@@ -51,7 +52,7 @@ class IngressListErrorBoundary extends React.Component<
       }
 
       return (
-        <div className="flex flex-col items-center justify-center min-h-[400px] p-8">
+        <Center style={{ minHeight: 400 }} p="xl">
           <ErrorScreen
             title="Ingress List Error"
             message={this.state.error?.message || 'Unable to display ingress list'}
@@ -59,7 +60,7 @@ class IngressListErrorBoundary extends React.Component<
             onRetry={this.reset}
             errorType="generic"
           />
-        </div>
+        </Center>
       );
     }
 

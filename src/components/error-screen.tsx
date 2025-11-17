@@ -1,11 +1,19 @@
 'use client';
 
 import React from 'react';
-import { Button, Card, Text, Title } from '@mantine/core';
+import {
+  Button,
+  Card,
+  Text,
+  Title,
+  Select,
+  useMantineColorScheme,
+  Container,
+  Group,
+  Center,
+} from '@mantine/core';
 import { ExternalLink } from 'lucide-react';
 import Link from 'next/link';
-import { useTheme } from '@/components/theme-provider';
-import { Select } from '@mantine/core';
 import Image from 'next/image';
 import { ErrorClassifier } from '@/lib/error-handler/classifier';
 import { ErrorClassification } from '@/types/errors';
@@ -55,43 +63,38 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
       switch (errorClassification.category) {
         case 'authentication':
           return {
-            iconColor: 'text-red-500',
             title: title || 'Authentication Error',
             description: 'Authentication is required to access this resource',
-            border: 'border-red-500',
-            text: 'text-red-500',
+            borderColor: 'var(--mantine-color-red-6)',
+            textColor: 'red',
           };
         case 'authorization':
           return {
-            iconColor: 'text-orange-500',
             title: title || 'Permission Error',
             description: "You don't have sufficient permissions to access Kubernetes resources",
-            border: 'border-orange-500',
-            text: 'text-orange-500',
+            borderColor: 'var(--mantine-color-orange-6)',
+            textColor: 'orange',
           };
         case 'rate_limit':
           return {
-            iconColor: 'text-yellow-500',
             title: title || 'Rate Limit Exceeded',
             description: 'Too many requests have been made',
-            border: 'border-yellow-500',
-            text: 'text-yellow-500',
+            borderColor: 'var(--mantine-color-yellow-6)',
+            textColor: 'yellow',
           };
         case 'transient':
           return {
-            iconColor: 'text-amber-500',
             title: title || 'Temporary Error',
             description: 'A temporary issue occurred, please try again',
-            border: 'border-amber-500',
-            text: 'text-amber-500',
+            borderColor: 'var(--mantine-color-yellow-7)',
+            textColor: 'yellow',
           };
         case 'permanent':
           return {
-            iconColor: 'text-red-600',
             title: title || 'Error',
             description: 'An error occurred while processing your request',
-            border: 'border-red-600',
-            text: 'text-red-600',
+            borderColor: 'var(--mantine-color-red-7)',
+            textColor: 'red',
           };
       }
     }
@@ -100,99 +103,87 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
     switch (errorType) {
       case 'permission':
         return {
-          iconColor: 'text-orange-500',
           title: title || 'Permission Error',
           description: "You don't have sufficient permissions to access Kubernetes resources",
-          border: 'border-orange-500',
-          text: 'text-orange-500',
+          borderColor: 'var(--mantine-color-orange-6)',
+          textColor: 'orange',
         };
       case 'api':
         return {
-          iconColor: 'text-amber-500',
           title: title || 'API Error',
           description: 'There was an issue connecting to the Kubernetes API',
-          border: 'border-amber-500',
-          text: 'text-amber-500',
+          borderColor: 'var(--mantine-color-yellow-7)',
+          textColor: 'yellow',
         };
       default:
         return {
-          iconColor: 'text-muted-foreground',
           title: title || 'Error',
           description: 'An error occurred',
-          border: 'border-input',
-          text: 'text-muted-foreground',
+          borderColor: 'var(--mantine-color-gray-4)',
+          textColor: 'dimmed',
         };
     }
   };
 
   const config = getErrorConfig();
-  const { theme, setTheme } = useTheme();
+  const { colorScheme, setColorScheme } = useMantineColorScheme();
 
   const handleThemeChange = (newTheme: string | null) => {
     if (newTheme) {
-      setTheme(newTheme as 'light' | 'dark' | 'system');
+      setColorScheme(newTheme as 'light' | 'dark' | 'auto');
     }
   };
 
   return (
-    <div className="container mx-auto p-8">
-      <div className="flex flex-col sm:flex-row items-start justify-between mb-8 gap-4">
-        <div className="flex items-center gap-2">
-          <div>
-            <Image
-              src="/images/logo.svg"
-              alt="kube-ingress-dash logo"
-              width={40}
-              height={40}
-              className="text-muted-foreground"
-            />
-          </div>
-          <h1 className="text-3xl font-bold">kube-ingress-dash</h1>
-        </div>
+    <Container size="xl" p="xl">
+      <Group justify="space-between" align="flex-start" mb="xl" wrap="wrap">
+        <Group gap="sm">
+          <Image src="/images/logo.svg" alt="kube-ingress-dash logo" width={40} height={40} />
+          <Title order={1} size="h2">
+            kube-ingress-dash
+          </Title>
+        </Group>
 
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <label htmlFor="theme-select" className="text-sm font-medium">
-              Theme:
-            </label>
-            <Select
-              id="theme-select"
-              value={theme}
-              onChange={handleThemeChange}
-              data={[
-                { value: 'light', label: 'Light' },
-                { value: 'dark', label: 'Dark' },
-                { value: 'system', label: 'System' },
-              ]}
-              className="w-[120px]"
-            />
-          </div>
-        </div>
-      </div>
+        <Group gap="sm">
+          <Text size="sm" fw={500}>
+            Theme:
+          </Text>
+          <Select
+            value={colorScheme}
+            onChange={handleThemeChange}
+            data={[
+              { value: 'light', label: 'Light' },
+              { value: 'dark', label: 'Dark' },
+              { value: 'auto', label: 'System' },
+            ]}
+            style={{ width: 120 }}
+          />
+        </Group>
+      </Group>
 
-      <div className="flex justify-center items-center min-h-[50vh] p-4">
-        <Card className={`w-full max-w-2xl ${config.border}`} padding="lg" radius="md" withBorder>
-          <Card.Section className="text-center p-6">
-            <div className="flex justify-center mb-4">
-              <Image
-                src="/images/logo.svg"
-                alt="kube-ingress-dash logo"
-                width={64}
-                height={64}
-                className="h-16 w-16"
-              />
-            </div>
-            <Title order={2} className="text-2xl">
-              {config.title}
-            </Title>
+      <Center style={{ minHeight: '50vh' }} p="md">
+        <Card
+          style={{ width: '100%', maxWidth: 768 }}
+          padding="lg"
+          radius="md"
+          withBorder
+          bd={`1px solid ${config.borderColor}`}
+        >
+          <Card.Section p="xl" ta="center">
+            <Center mb="md">
+              <Image src="/images/logo.svg" alt="kube-ingress-dash logo" width={64} height={64} />
+            </Center>
+            <Title order={2}>{config.title}</Title>
             <Text c="dimmed" size="sm">
               {config.description}
             </Text>
           </Card.Section>
-          <Card.Section className="text-center p-6 pt-0">
-            <p className={`mb-6 ${config.text}`}>{smartMessage}</p>
+          <Card.Section p="xl" pt={0} ta="center">
+            <Text c={config.textColor} mb="xl">
+              {smartMessage}
+            </Text>
 
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Group justify="center" gap="sm" wrap="wrap">
               {(onRetry || errorClassification?.retryable) && (
                 <Button onClick={onRetry} variant="filled">
                   Retry Connection
@@ -208,11 +199,11 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({
               >
                 {smartDocText}
               </Button>
-            </div>
+            </Group>
           </Card.Section>
         </Card>
-      </div>
-    </div>
+      </Center>
+    </Container>
   );
 };
 
