@@ -50,10 +50,12 @@ jobs:
           # Update version in Chart.yaml temporarily for this build
           sed -i "s/version: .*/version: $VERSION/" Chart.yaml
           sed -i "s/appVersion: .*/appVersion: \"$VERSION\"/" Chart.yaml
-          # Package the chart (creates ${{ github.event.repository.name }}-$VERSION.tgz based on chart name)
+          # Package the chart
           helm package . --destination /tmp
+          # Find the actual packaged file (handles any chart name format)
+          CHART_FILE=$(ls /tmp/*.tgz | head -n 1)
           # Rename to add -chart suffix to avoid collision with Docker image in registry
-          mv /tmp/${{ github.event.repository.name }}-$VERSION.tgz /tmp/${{ github.event.repository.name }}-chart-$VERSION.tgz
+          mv "$CHART_FILE" /tmp/${{ github.event.repository.name }}-chart-$VERSION.tgz
           # Push to OCI registry
           helm push /tmp/${{ github.event.repository.name }}-chart-$VERSION.tgz oci://${{ env.HELM_REGISTRY }}/${{ env.HELM_NAMESPACE }}
 
