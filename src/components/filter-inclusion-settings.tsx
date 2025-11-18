@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { MultiSelect, Text, Stack, Badge, useMantineColorScheme } from '@mantine/core';
+import { MultiSelect, Text, Stack, Badge } from '@mantine/core';
 import { useSettings } from '@/contexts/settings-context';
 import type { FilterSettings } from '@/lib/settings-storage';
 
@@ -40,7 +40,6 @@ const CONFIG = {
 
 export function FilterInclusionSettings({ type, allItems }: FilterInclusionSettingsProps) {
   const { settings, updateSetting } = useSettings();
-  const { colorScheme } = useMantineColorScheme();
   const config = CONFIG[type];
 
   // Calculate included items (all items minus excluded ones)
@@ -54,8 +53,6 @@ export function FilterInclusionSettings({ type, allItems }: FilterInclusionSetti
     const excluded = allItems.filter((item) => !values.includes(item));
     updateSetting(config.settingsKey, excluded);
   };
-
-  const isDark = colorScheme === 'dark';
 
   return (
     <Stack gap="md">
@@ -78,15 +75,6 @@ export function FilterInclusionSettings({ type, allItems }: FilterInclusionSetti
         clearable
         maxDropdownHeight={300}
         description={config.helpText}
-        styles={{
-          pill: {
-            backgroundColor: isDark
-              ? 'var(--mantine-color-indigo-9)'
-              : 'var(--mantine-color-indigo-1)',
-            color: isDark ? 'var(--mantine-color-indigo-2)' : 'var(--mantine-color-indigo-9)',
-            border: '1px solid var(--mantine-color-indigo-6)',
-          },
-        }}
       />
     </Stack>
   );

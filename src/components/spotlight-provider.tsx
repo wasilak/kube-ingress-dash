@@ -12,6 +12,7 @@ import {
   IconSearch,
   IconLock,
   IconLockOpen,
+  IconExternalLink,
 } from '@tabler/icons-react';
 import { useSpotlightIngresses } from '@/contexts/spotlight-context';
 
@@ -77,7 +78,41 @@ export function SpotlightProviderWrapper({ children }: { children: React.ReactNo
       })),
     };
 
-    return ingresses.length > 0 ? [navigationGroup, ingressGroup] : [navigationGroup];
+    // Extract unique host URLs from filtered ingresses
+    const hostUrls = new Set<string>();
+    ingresses.forEach((ingress) => {
+      if (ingress.hosts && ingress.hosts.length > 0) {
+        ingress.hosts.forEach((host) => {
+          const protocol = ingress.tls ? 'https' : 'http';
+          hostUrls.add(`${protocol}://${host}`);
+        });
+      }
+    });
+
+    const hostsGroup: SpotlightActionGroupData = {
+      group: 'Host URLs',
+      actions: Array.from(hostUrls)
+        .sort()
+        .map((url) => ({
+          id: `host-${url}`,
+          label: url,
+          description: 'Open in new tab',
+          onClick: () => {
+            window.open(url, '_blank', 'noopener,noreferrer');
+          },
+          leftSection: <IconExternalLink size={20} />,
+        })),
+    };
+
+    const groups = [navigationGroup];
+    if (ingresses.length > 0) {
+      groups.push(ingressGroup);
+    }
+    if (hostUrls.size > 0) {
+      groups.push(hostsGroup);
+    }
+
+    return groups;
   }, [ingresses, router]);
 
   return (

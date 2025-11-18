@@ -37,7 +37,7 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({
       padding="lg"
       radius="md"
       withBorder
-      className="hover-lift animate-fade-in"
+      className="animate-fade-in"
       style={{ backgroundColor: 'transparent' }}
     >
       {/* Header Section */}
