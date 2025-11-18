@@ -50,19 +50,31 @@
 
 /* Mantine component hover state overrides for consistent blue border */
 
-/* TextInput hover */
+/* TextInput - transparent background */
+.mantine-TextInput-input {
+  background-color: transparent !important;
+}
+
 .mantine-TextInput-input:hover:not(:focus):not(:disabled) {
   border-color: hsl(var(--primary)) !important;
   transition: border-color 200ms ease;
 }
 
-/* MultiSelect hover */
+/* MultiSelect - transparent background */
+.mantine-MultiSelect-input {
+  background-color: transparent !important;
+}
+
 .mantine-MultiSelect-input:hover:not(:focus):not(:disabled) {
   border-color: hsl(var(--primary)) !important;
   transition: border-color 200ms ease;
 }
 
-/* Select hover */
+/* Select - transparent background */
+.mantine-Select-input {
+  background-color: transparent !important;
+}
+
 .mantine-Select-input:hover:not(:focus):not(:disabled) {
   border-color: hsl(var(--primary)) !important;
   transition: border-color 200ms ease;
@@ -296,43 +308,6 @@
 }
 
 /* Spotlight styling to match application theme */
-.mantine-Spotlight-root {
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-}
-
-.mantine-Spotlight-content {
-  border-radius: var(--mantine-radius-md);
-  border: 1px solid hsl(var(--border));
-  max-height: 70vh;
-  width: 100%;
-  max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  margin: 0 auto;
-}
-
-.mantine-Spotlight-search {
-  border-bottom: 1px solid hsl(var(--border));
-  flex-shrink: 0;
-}
-
-.mantine-Spotlight-actionsList {
-  overflow-y: auto;
-  max-height: calc(70vh - 60px);
-  flex: 1;
-}
-
-.mantine-Spotlight-action {
-  border-radius: var(--mantine-radius-sm);
-  padding: 0.75rem 1rem;
-  transition: all 150ms ease;
-  cursor: pointer;
-}
-
 /* Match MultiSelect option hover styling */
 .mantine-Spotlight-action[data-hovered] {
   background-color: hsl(var(--primary));
@@ -345,19 +320,6 @@
 
 .mantine-Spotlight-action[data-hovered] .mantine-Spotlight-actionDescription {
   color: rgba(255, 255, 255, 0.85);
-}
-
-.mantine-Spotlight-actionLabel {
-  font-weight: 500;
-  font-size: 0.9375rem;
-  line-height: 1.4;
-  color: hsl(var(--foreground));
-}
-
-.mantine-Spotlight-actionDescription {
-  font-size: var(--mantine-font-size-sm);
-  color: hsl(var(--muted-foreground));
-  margin-top: 0.25rem;
 }
 
 /* Highlighted query text styling - match the hover state */
@@ -381,18 +343,4 @@
   background-color: rgba(255, 255, 255, 0.3);
   color: white;
   font-weight: 700;
-}
-
-.mantine-Spotlight-empty {
-  padding: 2rem;
-  text-align: center;
-  color: hsl(var(--muted-foreground));
-}
-
-.mantine-Spotlight-actionsGroup {
-  padding-top: 0.5rem;
-}
-
-.mantine-Spotlight-actionsGroup:first-of-type {
-  padding-top: 0;
 }

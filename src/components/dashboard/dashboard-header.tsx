@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Group, Anchor, Button } from '@mantine/core';
+import { Group, Anchor, Button, Divider } from '@mantine/core';
 import { IconSettings, IconSun, IconMoon, IconDeviceDesktop } from '@tabler/icons-react';
 import { useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
 
@@ -42,8 +42,8 @@ export const DashboardHeader: React.FC = () => {
   };
 
   return (
-    <header>
-      <Group justify="space-between" align="flex-start" wrap="wrap">
+    <div>
+      <Group justify="space-between" align="flex-start" wrap="wrap" mb="md">
         <Group gap="sm">
           <Image src="/images/logo.svg" alt="Kube Ingress Dash logo" width={40} height={40} />
           <Anchor component={Link} href="/" underline="never" c="inherit">
@@ -72,6 +72,7 @@ export const DashboardHeader: React.FC = () => {
           </Button>
         </Group>
       </Group>
-    </header>
+      <Divider />
+    </div>
   );
 };

@@ -84,15 +84,30 @@ export const mantineTheme = createTheme({
       defaultProps: {
         radius: 'md',
       },
+      styles: {
+        input: {
+          backgroundColor: 'transparent',
+        },
+      },
     },
     MultiSelect: {
       defaultProps: {
         radius: 'md',
       },
+      styles: {
+        input: {
+          backgroundColor: 'transparent',
+        },
+      },
     },
     Select: {
       defaultProps: {
         radius: 'md',
+      },
+      styles: {
+        input: {
+          backgroundColor: 'transparent',
+        },
       },
     },
     Badge: {
