@@ -18,7 +18,14 @@ const sidebars = {
     {
       type: 'category',
       label: 'Features',
-      items: ['features/error-handling', 'features/multi-namespace-streaming'],
+      items: [
+        'features/index',
+        'features/grouping',
+        'features/ingress-details',
+        'features/settings',
+        'features/error-handling',
+        'features/multi-namespace-streaming',
+      ],
     },
     {
       type: 'category',

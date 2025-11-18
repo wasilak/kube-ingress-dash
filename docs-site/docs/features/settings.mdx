@@ -1,0 +1,278 @@
+---
+sidebar_position: 5
+title: Settings and Customization
+---
+
+# Settings and Customization
+
+The settings screen allows you to customize which labels, namespaces, and annotations appear in the dashboard filter dropdowns, helping you focus on the most relevant filters for your workflow.
+
+## Accessing Settings
+
+Click the "Settings" link in the dashboard header (next to the application title) to access the settings screen.
+
+## Settings Tabs
+
+The settings screen is organized into three tabs:
+
+### Namespaces Tab
+
+Control which namespaces appear in the namespace filter dropdown.
+
+**Features:**
+- Multi-select component showing all available namespaces
+- All namespaces are included by default
+- Deselect namespaces to exclude them from the filter
+- Count of excluded namespaces shown
+- Changes save automatically to browser localStorage
+
+**Use cases:**
+- Hide system namespaces (kube-system, kube-public, etc.)
+- Focus on specific application namespaces
+- Simplify namespace filter for team members
+- Reduce clutter in multi-tenant clusters
+
+**Example:**
+```
+Exclude namespaces like:
+- kube-system
+- kube-public
+- kube-node-lease
+- default (if not used)
+```
+
+### Labels Tab
+
+Control which labels appear in the label filter dropdown.
+
+**Features:**
+- Multi-select component showing all labels found on ingresses
+- All labels are included by default
+- Deselect labels to exclude them from the filter
+- Count of excluded labels shown
+- Changes save automatically to browser localStorage
+
+**Use cases:**
+- Hide internal/system labels
+- Focus on business-relevant labels
+- Simplify label filter for specific workflows
+- Remove labels that aren't useful for filtering
+
+**Example:**
+```
+Exclude labels like:
+- app.kubernetes.io/managed-by
+- helm.sh/chart
+- app.kubernetes.io/instance
+- Internal tracking labels
+```
+
+### Annotations Tab
+
+Control which annotations appear in the annotation filter dropdown.
+
+**Features:**
+- Multi-select component showing all annotations found on ingresses
+- All annotations are included by default
+- Deselect annotations to exclude them from the filter
+- Count of excluded annotations shown
+- Changes save automatically to browser localStorage
+
+**Use cases:**
+- Hide verbose controller annotations
+- Focus on custom annotations
+- Simplify annotation filter
+- Remove annotations that aren't useful for filtering
+
+**Example:**
+```
+Exclude annotations like:
+- kubectl.kubernetes.io/last-applied-configuration
+- field.cattle.io/* (Rancher annotations)
+- Long certificate manager annotations
+- Internal metadata annotations
+```
+
+## How Settings Work
+
+### Automatic Discovery
+
+The dashboard automatically discovers all unique:
+- Namespaces from ingress resources
+- Labels from ingress resources
+- Annotations from ingress resources
+
+These are presented in the settings multi-select components.
+
+### Inclusion by Default
+
+All discovered items are included by default. You explicitly exclude items you don't want to see in filters.
+
+### Real-time Updates
+
+When you change settings:
+1. Changes save immediately to browser localStorage
+2. Dashboard filters update automatically
+3. Excluded items disappear from filter dropdowns
+4. No page refresh required
+
+### Persistence
+
+Settings are stored in browser localStorage:
+- Persist across browser sessions
+- Specific to each browser/device
+- Not synced across devices
+- Cleared when browser data is cleared
+
+## Using Settings
+
+### Excluding Items
+
+1. Navigate to Settings
+2. Select the appropriate tab (Namespaces, Labels, or Annotations)
+3. Click the multi-select dropdown
+4. Deselect items you want to exclude
+5. Close the dropdown - changes save automatically
+
+### Including Items Again
+
+1. Navigate to Settings
+2. Select the appropriate tab
+3. Click the multi-select dropdown
+4. Select items you want to include again
+5. Close the dropdown - changes save automatically
+
+### Resetting to Defaults
+
+To reset settings:
+1. Navigate to Settings
+2. Select the appropriate tab
+3. Click the multi-select dropdown
+4. Select all items
+5. Close the dropdown
+
+Or clear browser localStorage:
+```javascript
+localStorage.removeItem('kube-ingress-dash-settings')
+```
+
+## Impact on Dashboard
+
+### Filter Dropdowns
+
+Excluded items do not appear in:
+- Namespace filter dropdown
+- Label filter dropdown
+- Annotation filter dropdown
+
+### Ingress Display
+
+Settings only affect filter dropdowns, not:
+- Ingress card display
+- Ingress details modal
+- Search functionality
+- Grouping functionality
+
+All ingresses remain visible and searchable regardless of settings.
+
+### Search
+
+Search functionality is not affected by settings:
+- You can still search for excluded namespaces
+- You can still search for excluded labels
+- You can still search for excluded annotations
+
+Settings only control what appears in filter dropdowns.
+
+## Best Practices
+
+### For Small Teams
+
+Exclude:
+- System namespaces
+- Internal labels
+- Verbose annotations
+
+Keep:
+- Application namespaces
+- Business labels
+- Custom annotations
+
+### For Large Clusters
+
+Exclude:
+- Unused namespaces
+- Auto-generated labels
+- Controller-specific annotations
+
+Keep:
+- Active namespaces
+- Team/project labels
+- Custom routing annotations
+
+### For Specific Workflows
+
+**Development:**
+- Include dev/staging namespaces
+- Include environment labels
+- Include debug annotations
+
+**Production:**
+- Include production namespaces
+- Include release labels
+- Include monitoring annotations
+
+**Security Audits:**
+- Include all namespaces
+- Include security labels
+- Include TLS annotations
+
+## Keyboard Navigation
+
+The settings screen is fully keyboard accessible:
+- Tab through multi-select components
+- Arrow keys to navigate options
+- Space/Enter to select/deselect
+- Escape to close dropdowns
+
+## Spotlight Integration
+
+Quick access to settings via Spotlight (Cmd+K / Ctrl+K):
+- "Go to Settings - Namespaces"
+- "Go to Settings - Labels"
+- "Go to Settings - Annotations"
+
+## Examples
+
+### Hiding System Namespaces
+
+1. Go to Settings → Namespaces tab
+2. Open the multi-select dropdown
+3. Deselect: kube-system, kube-public, kube-node-lease
+4. Close dropdown
+5. Return to dashboard
+6. Namespace filter now only shows application namespaces
+
+### Focusing on Team Labels
+
+1. Go to Settings → Labels tab
+2. Open the multi-select dropdown
+3. Deselect all Helm and Kubernetes system labels
+4. Keep only team/project labels selected
+5. Close dropdown
+6. Label filter now only shows relevant team labels
+
+### Simplifying Annotation Filters
+
+1. Go to Settings → Annotations tab
+2. Open the multi-select dropdown
+3. Deselect verbose controller annotations
+4. Keep only custom routing annotations
+5. Close dropdown
+6. Annotation filter is now much simpler
+
+## Related Features
+
+- [Features Overview](/features)
+- [Grouping System](/features/grouping)
+- [Ingress Details Modal](/features/ingress-details)

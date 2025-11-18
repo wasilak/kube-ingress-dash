@@ -291,12 +291,12 @@
   - Keep animations subtle and performant
   - _Requirements: 1.4_
 
-- [ ] 17. Update documentation
+- [x] 17. Update documentation
   - Update README with new features
   - Document grouping functionality
   - Document modal navigation and URL sharing
   - Document settings screen and filter exclusions
-  - Add screenshots of new UI
+  - Remove any md documents outside of docs-site (docusaurus) from the whole codebase
   - _Requirements: All requirements_
 
 - [ ] 18. Final testing and polish
