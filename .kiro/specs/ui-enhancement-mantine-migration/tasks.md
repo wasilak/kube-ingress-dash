@@ -299,7 +299,7 @@
   - Remove any md documents outside of docs-site (docusaurus) from the whole codebase
   - _Requirements: All requirements_
 
-- [ ] 18. Final testing and polish
+- [x] 18. Final testing and polish
   - Fix any remaining bugs
   - _Requirements: All requirements_
 
