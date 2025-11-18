@@ -1,23 +1,78 @@
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
 /* Mantine component hover state overrides for consistent blue border */
 
 /* TextInput hover */
 .mantine-TextInput-input:hover:not(:focus):not(:disabled) {
   border-color: hsl(var(--primary)) !important;
+  transition: border-color 200ms ease;
 }
 
 /* MultiSelect hover */
 .mantine-MultiSelect-input:hover:not(:focus):not(:disabled) {
   border-color: hsl(var(--primary)) !important;
+  transition: border-color 200ms ease;
 }
 
 /* Select hover */
 .mantine-Select-input:hover:not(:focus):not(:disabled) {
   border-color: hsl(var(--primary)) !important;
+  transition: border-color 200ms ease;
 }
 
 /* ActionIcon hover */
 .mantine-ActionIcon-root:hover:not(:disabled) {
   border-color: hsl(var(--primary)) !important;
+  transition: all 200ms ease;
+  transform: scale(1.05);
 }
 
 /* Button outline variant */
@@ -26,6 +81,7 @@
   border: 1px solid hsl(var(--border)) !important;
   color: hsl(var(--foreground)) !important;
   font-weight: 500 !important;
+  transition: all 200ms ease;
 }
 
 .mantine-Button-root[data-variant="outline"] .mantine-Button-label {
@@ -35,15 +91,209 @@
 .mantine-Button-root[data-variant="outline"]:hover:not(:disabled) {
   border-color: hsl(var(--primary)) !important;
   background-color: hsl(var(--background)) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mantine-Button-root[data-variant="outline"]:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 /* Card hover */
+.mantine-Card-root {
+  transition: all 200ms ease;
+}
+
 .mantine-Card-root:hover {
   border-color: hsl(var(--primary)) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* MultiSelect - maintain consistent width and prevent resizing */
 /* Note: Individual components should set their own width via styles prop */
+
+/* Animation utility classes */
+.animate-fade-in {
+  animation: fadeIn 300ms ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 300ms ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 200ms ease-out;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 0%,
+    hsl(var(--muted-foreground) / 0.1) 50%,
+    hsl(var(--muted)) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Smooth transitions for layout changes */
+.transition-layout {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Group section animations */
+.group-section {
+  animation: slideUp 400ms ease-out;
+}
+
+.group-section:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.group-section:nth-child(2) {
+  animation-delay: 50ms;
+}
+
+.group-section:nth-child(3) {
+  animation-delay: 100ms;
+}
+
+.group-section:nth-child(4) {
+  animation-delay: 150ms;
+}
+
+.group-section:nth-child(5) {
+  animation-delay: 200ms;
+}
+
+/* Modal animations */
+.mantine-Modal-root {
+  animation: fadeIn 200ms ease-out;
+}
+
+.mantine-Modal-content {
+  animation: scaleIn 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mantine-Modal-overlay {
+  animation: fadeIn 200ms ease-out;
+}
+
+/* Collapse animations */
+.mantine-Collapse-root {
+  transition: height 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Loading skeleton animations */
+.skeleton-loading {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 0%,
+    hsl(var(--muted-foreground) / 0.15) 50%,
+    hsl(var(--muted)) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: var(--mantine-radius-md);
+}
+
+/* Hover lift effect for interactive cards */
+.hover-lift {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Badge animations */
+.mantine-Badge-root {
+  transition: all 150ms ease;
+}
+
+.mantine-Badge-root:hover {
+  transform: scale(1.05);
+}
+
+/* Copy button feedback animation */
+.copy-success {
+  animation: scaleIn 200ms ease-out;
+}
+
+/* Smooth icon transitions */
+.mantine-ActionIcon-root svg {
+  transition: transform 150ms ease;
+}
+
+.mantine-ActionIcon-root:hover svg {
+  transform: scale(1.1);
+}
+
+/* Button press effect */
+.mantine-Button-root:active:not(:disabled) {
+  transform: scale(0.98);
+  transition: transform 100ms ease;
+}
+
+/* Smooth focus transitions */
+.mantine-TextInput-input:focus,
+.mantine-Select-input:focus,
+.mantine-MultiSelect-input:focus {
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+/* Divider fade in */
+.mantine-Divider-root {
+  animation: fadeIn 300ms ease-out;
+}
+
+/* Alert animations */
+.mantine-Alert-root {
+  animation: slideUp 300ms ease-out;
+}
+
+/* Performance optimizations */
+.hover-lift,
+.mantine-Card-root,
+.mantine-Button-root,
+.mantine-ActionIcon-root {
+  will-change: transform;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Select dropdown animations */
+.mantine-Select-dropdown {
+  animation: slideUp 200ms ease-out;
+}
+
+.mantine-MultiSelect-dropdown {
+  animation: slideUp 200ms ease-out;
+}
+
+/* Tooltip animations */
+.mantine-Tooltip-tooltip {
+  animation: scaleIn 150ms ease-out;
+}
+
+/* Popover animations */
+.mantine-Popover-dropdown {
+  animation: scaleIn 200ms ease-out;
+}
 
 /* Spotlight styling to match application theme */
 .mantine-Spotlight-root {

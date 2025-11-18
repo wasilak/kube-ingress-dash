@@ -6,7 +6,7 @@ import { Card, Skeleton } from '@mantine/core';
  */
 export function IngressCardSkeleton() {
   return (
-    <Card className="overflow-hidden" padding="md" radius="md" withBorder>
+    <Card className="overflow-hidden animate-pulse" padding="md" radius="md" withBorder>
       <div className="pb-3">
         <div className="space-y-2">
           {/* Title skeleton */}

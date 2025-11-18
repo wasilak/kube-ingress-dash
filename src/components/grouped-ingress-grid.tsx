@@ -43,11 +43,15 @@ const GroupedIngressGridComponent: React.FC<GroupedIngressGridProps> = ({
     if (isSingleAllGroup) {
       return null; // Will be handled separately
     }
-    return groups.map((group) => {
+    return groups.map((group, index) => {
       const isExpanded = expandedGroups[group.key] ?? true;
 
       return (
-        <div key={group.key} className="space-y-4">
+        <div
+          key={group.key}
+          className="space-y-4 group-section"
+          style={{ animationDelay: `${index * 50}ms` }}
+        >
           <Group gap="sm" style={{ cursor: 'pointer' }} onClick={() => toggleGroup(group.key)}>
             <ActionIcon
               variant="subtle"
@@ -64,9 +68,9 @@ const GroupedIngressGridComponent: React.FC<GroupedIngressGridProps> = ({
             </Text>
           </Group>
 
-          <Collapse in={isExpanded}>
+          <Collapse in={isExpanded} transitionDuration={300} transitionTimingFunction="ease">
             {group.count === 0 ? (
-              <div className="text-center py-8 px-4 border border-dashed rounded-lg">
+              <div className="text-center py-8 px-4 border border-dashed rounded-lg animate-fade-in">
                 <Text c="dimmed">
                   No ingresses in this group
                   {searchQuery && ` matching "${searchQuery}"`}
@@ -76,7 +80,7 @@ const GroupedIngressGridComponent: React.FC<GroupedIngressGridProps> = ({
               // Use virtualization for large groups
               <VirtualIngressGrid ingresses={group.ingresses} onDetailsClick={onDetailsClick} />
             ) : (
-              <Grid gutter="md">
+              <Grid gutter="md" className="animate-fade-in">
                 {group.ingresses.map((ingress) => (
                   <Grid.Col key={ingress.name} span={{ base: 12, md: 6, lg: 4 }}>
                     <ErrorBoundary
@@ -116,7 +120,7 @@ const GroupedIngressGridComponent: React.FC<GroupedIngressGridProps> = ({
     }
 
     return (
-      <Grid gutter="md">
+      <Grid gutter="md" className="animate-fade-in">
         {singleGroupIngresses.map((ingress) => (
           <Grid.Col key={ingress.name} span={{ base: 12, md: 6, lg: 4 }}>
             <ErrorBoundary

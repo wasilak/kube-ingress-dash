@@ -37,7 +37,7 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({
       padding="lg"
       radius="md"
       withBorder
-      className="transition-all duration-200 hover:-translate-y-0.5"
+      className="hover-lift animate-fade-in"
       style={{ backgroundColor: 'transparent' }}
     >
       {/* Header Section */}
@@ -111,6 +111,7 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({
                             color={copied ? 'teal' : 'gray'}
                             variant="subtle"
                             onClick={copy}
+                            className={copied ? 'copy-success' : ''}
                           >
                             {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
                           </ActionIcon>
@@ -161,6 +162,7 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({
                               color={copied ? 'teal' : 'gray'}
                               variant="subtle"
                               onClick={copy}
+                              className={copied ? 'copy-success' : ''}
                             >
                               {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
                             </ActionIcon>
