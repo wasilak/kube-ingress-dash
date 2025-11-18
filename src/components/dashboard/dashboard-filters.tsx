@@ -4,6 +4,7 @@ import { IngressData } from '@/types/ingress';
 import { Tag, FileText, FolderTree, Layers } from 'lucide-react';
 
 import { GroupingMode } from '@/types/grouping';
+import { useSettings } from '@/contexts/settings-context';
 
 interface DashboardFiltersProps {
   allLabels: string[];
@@ -32,11 +33,29 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   selectedNamespaces,
   onNamespacesChange,
 }) => {
+  const { settings } = useSettings();
+
+  // Filter labels based on settings
+  const filteredLabels = useMemo(() => {
+    return allLabels.filter((label) => {
+      const key = label.split(':')[0];
+      return !settings.excludedLabels.includes(key);
+    });
+  }, [allLabels, settings.excludedLabels]);
+
+  // Filter annotations based on settings
+  const filteredAnnotations = useMemo(() => {
+    return allAnnotations.filter((annotation) => {
+      const key = annotation.split(':')[0];
+      return !settings.excludedAnnotations.includes(key);
+    });
+  }, [allAnnotations, settings.excludedAnnotations]);
+
   // Group labels by key
   const labelOptions = useMemo(() => {
     const grouped = new Map<string, Map<string, { value: string; label: string; count: number }>>();
 
-    allLabels.forEach((label) => {
+    filteredLabels.forEach((label) => {
       const colonIndex = label.indexOf(':');
       if (colonIndex === -1) return; // Skip malformed labels
 
@@ -71,13 +90,13 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
       group: key,
       items: Array.from(itemsMap.values()).map(({ value, label }) => ({ value, label })),
     }));
-  }, [allLabels, ingresses]);
+  }, [filteredLabels, ingresses]);
 
   // Group annotations by key
   const annotationOptions = useMemo(() => {
     const grouped = new Map<string, Map<string, { value: string; label: string; count: number }>>();
 
-    allAnnotations.forEach((annotation) => {
+    filteredAnnotations.forEach((annotation) => {
       const colonIndex = annotation.indexOf(':');
       if (colonIndex === -1) return; // Skip malformed annotations
 
@@ -114,12 +133,15 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
       group: key,
       items: Array.from(itemsMap.values()).map(({ value, label }) => ({ value, label })),
     }));
-  }, [allAnnotations, ingresses]);
+  }, [filteredAnnotations, ingresses]);
 
   // Extract namespaces from ingresses (same source as labels/annotations)
   const namespaceOptions = useMemo(() => {
     const namespacesSet = new Set(ingresses.map((ing) => ing.namespace));
-    const namespaces = Array.from(namespacesSet).sort();
+    const allNamespaces = Array.from(namespacesSet).sort();
+
+    // Filter out excluded namespaces
+    const namespaces = allNamespaces.filter((ns) => !settings.excludedNamespaces.includes(ns));
 
     const counts: Record<string, number> = {};
     ingresses.forEach((ing) => {
@@ -135,7 +157,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
         label: `${ns} (${counts[ns]})`,
       })),
     ];
-  }, [ingresses]);
+  }, [ingresses, settings.excludedNamespaces]);
 
   const groupingOptions = [
     { value: 'none', label: 'None' },
