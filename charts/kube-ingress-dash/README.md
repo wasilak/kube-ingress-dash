@@ -31,7 +31,7 @@ Kube Ingress Dash is a modern, lightweight dashboard for visualizing and monitor
 Add the Helm repository (if using HTTP-based repository):
 
 ```bash
-helm repo add kube-ingress-dash https://your-repo-url
+helm repo add kube-ingress-dash https://github.com/wasilak/kube-ingress-dash
 helm repo update
 ```
 
