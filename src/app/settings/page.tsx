@@ -5,14 +5,14 @@ import { SettingsTabs } from '@/components/settings-tabs';
 import { LabelExclusionSettings } from '@/components/label-exclusion-settings';
 import { NamespaceExclusionSettings } from '@/components/namespace-exclusion-settings';
 import { AnnotationExclusionSettings } from '@/components/annotation-exclusion-settings';
-import { DashboardHeader } from '@/components/dashboard/dashboard-header';
+import { PageHeader } from '@/components/page-header';
 
 export default function SettingsPage() {
   return (
     <Container size="lg" py="xl">
-      <DashboardHeader />
+      <PageHeader />
 
-      <Title order={1} mb="md" mt="xl">
+      <Title order={1} mb="md">
         Settings
       </Title>
       <Text c="dimmed" mb="xl">

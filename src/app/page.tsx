@@ -9,12 +9,13 @@ import { IngressCardSkeletonGrid } from '@/components/skeletons';
 import { useSearchSync } from '@/hooks/use-search-sync';
 import { useIngresses } from '@/hooks/use-ingresses';
 import { useSSEStream } from '@/hooks/use-sse-stream';
-import { DashboardHeader, DashboardStats, DashboardFilters } from '@/components/dashboard';
+import { DashboardStats, DashboardFilters } from '@/components/dashboard';
 import {
   DashboardErrorBoundary,
   IngressListErrorBoundary,
   FiltersErrorBoundary,
 } from '@/components/error-boundaries';
+import { PageHeader } from '@/components/page-header';
 
 import { GroupedIngressGrid } from '@/components/grouped-ingress-grid';
 import { GroupingMode } from '@/types/grouping';
@@ -269,7 +270,7 @@ function DashboardContent() {
     <div className="min-h-screen bg-background p-8">
       <DashboardErrorBoundary>
         <div className="max-w-6xl mx-auto space-y-8">
-          <DashboardHeader />
+          <PageHeader />
 
           <Stack gap="md">
             <Group gap="md" align="flex-start" wrap="wrap">
