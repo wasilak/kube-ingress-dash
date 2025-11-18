@@ -1,10 +1,38 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Group, Anchor } from '@mantine/core';
-import { ThemeToggle } from '@/components/theme-toggle';
+import { Group, Anchor, Button } from '@mantine/core';
+import { IconSettings, IconSun, IconMoon, IconDeviceDesktop } from '@tabler/icons-react';
+import { useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
 
 export const DashboardHeader: React.FC = () => {
+  const { colorScheme, setColorScheme } = useMantineColorScheme();
+  const computedColorScheme = useComputedColorScheme('light');
+
+  const cycleTheme = () => {
+    if (colorScheme === 'light') {
+      setColorScheme('dark');
+    } else if (colorScheme === 'dark') {
+      setColorScheme('auto');
+    } else {
+      setColorScheme('light');
+    }
+  };
+
+  const getThemeIcon = () => {
+    if (colorScheme === 'auto') {
+      return <IconDeviceDesktop size={16} />;
+    }
+    return computedColorScheme === 'dark' ? <IconMoon size={16} /> : <IconSun size={16} />;
+  };
+
+  const getThemeLabel = () => {
+    if (colorScheme === 'auto') {
+      return 'System';
+    }
+    return computedColorScheme === 'dark' ? 'Dark' : 'Light';
+  };
+
   return (
     <header>
       <Group justify="space-between" align="flex-start" wrap="wrap">
@@ -15,14 +43,29 @@ export const DashboardHeader: React.FC = () => {
               <h1 className="text-3xl font-bold">Kube Ingress Dash</h1>
             </Anchor>
           </Link>
-          <Link href="/settings" passHref legacyBehavior>
-            <Anchor component="a" size="sm" ml="md">
-              Settings
-            </Anchor>
-          </Link>
         </Group>
 
-        <ThemeToggle />
+        <Group gap="xs">
+          <Link href="/settings" passHref legacyBehavior>
+            <Button
+              component="a"
+              variant="outline"
+              size="xs"
+              leftSection={<IconSettings size={16} />}
+            >
+              Settings
+            </Button>
+          </Link>
+          <Button
+            variant="outline"
+            size="xs"
+            onClick={cycleTheme}
+            leftSection={getThemeIcon()}
+            title={`${getThemeLabel()} mode`}
+          >
+            {getThemeLabel()}
+          </Button>
+        </Group>
       </Group>
     </header>
   );
