@@ -44,3 +44,105 @@
 
 /* MultiSelect - maintain consistent width and prevent resizing */
 /* Note: Individual components should set their own width via styles prop */
+
+/* Spotlight styling to match application theme */
+.mantine-Spotlight-root {
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.mantine-Spotlight-content {
+  border-radius: var(--mantine-radius-md);
+  border: 1px solid hsl(var(--border));
+  max-height: 70vh;
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+}
+
+.mantine-Spotlight-search {
+  border-bottom: 1px solid hsl(var(--border));
+  flex-shrink: 0;
+}
+
+.mantine-Spotlight-actionsList {
+  overflow-y: auto;
+  max-height: calc(70vh - 60px);
+  flex: 1;
+}
+
+.mantine-Spotlight-action {
+  border-radius: var(--mantine-radius-sm);
+  padding: 0.75rem 1rem;
+  transition: all 150ms ease;
+  cursor: pointer;
+}
+
+/* Match MultiSelect option hover styling */
+.mantine-Spotlight-action[data-hovered] {
+  background-color: hsl(var(--primary));
+  color: white;
+}
+
+.mantine-Spotlight-action[data-hovered] .mantine-Spotlight-actionLabel {
+  color: white;
+}
+
+.mantine-Spotlight-action[data-hovered] .mantine-Spotlight-actionDescription {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.mantine-Spotlight-actionLabel {
+  font-weight: 500;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  color: hsl(var(--foreground));
+}
+
+.mantine-Spotlight-actionDescription {
+  font-size: var(--mantine-font-size-sm);
+  color: hsl(var(--muted-foreground));
+  margin-top: 0.25rem;
+}
+
+/* Highlighted query text styling - match the hover state */
+.mantine-Spotlight-action mark,
+.mantine-Spotlight-actionLabel mark {
+  background-color: hsl(var(--primary) / 0.2);
+  color: hsl(var(--primary));
+  font-weight: 600;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+}
+
+[data-mantine-color-scheme="dark"] .mantine-Spotlight-action mark,
+[data-mantine-color-scheme="dark"] .mantine-Spotlight-actionLabel mark {
+  background-color: hsl(var(--primary) / 0.3);
+  color: hsl(239 84% 75%);
+}
+
+/* When hovered, make the mark stand out with white background */
+.mantine-Spotlight-action[data-hovered] mark {
+  background-color: rgba(255, 255, 255, 0.3);
+  color: white;
+  font-weight: 700;
+}
+
+.mantine-Spotlight-empty {
+  padding: 2rem;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+}
+
+.mantine-Spotlight-actionsGroup {
+  padding-top: 0.5rem;
+}
+
+.mantine-Spotlight-actionsGroup:first-of-type {
+  padding-top: 0;
+}
