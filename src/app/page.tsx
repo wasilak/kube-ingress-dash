@@ -24,10 +24,12 @@ import { IngressDetailsModal } from '@/components/ingress-details-modal';
 import { notifications } from '@mantine/notifications';
 import { Stack, Group, Box } from '@mantine/core';
 import { IngressData } from '@/types/ingress';
+import { useSettings } from '@/contexts/settings-context';
 
 function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { settings } = useSettings();
   const [error, setError] = useState<string | null>(null);
   const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
   const [selectedAnnotations, setSelectedAnnotations] = useState<string[]>([]);
@@ -176,16 +178,48 @@ function DashboardContent() {
     onError: setError,
   });
 
+  // Apply settings exclusions to filtered ingresses
+  const settingsFilteredIngresses = useMemo(() => {
+    return filteredIngresses.filter((ingress) => {
+      // Filter by excluded namespaces
+      if (settings.excludedNamespaces.includes(ingress.namespace)) {
+        return false;
+      }
+
+      // Filter by excluded labels
+      if (ingress.labels) {
+        const hasExcludedLabel = Object.keys(ingress.labels).some((label) =>
+          settings.excludedLabels.includes(label)
+        );
+        if (hasExcludedLabel) {
+          return false;
+        }
+      }
+
+      // Filter by excluded annotations
+      if (ingress.annotations) {
+        const hasExcludedAnnotation = Object.keys(ingress.annotations).some((annotation) =>
+          settings.excludedAnnotations.includes(annotation)
+        );
+        if (hasExcludedAnnotation) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [filteredIngresses, settings]);
+
   // Calculate stats
   const totalIngresses = ingresses.length;
   const tlsIngresses = ingresses.filter((ingress) => ingress.tls).length;
   const nonTlsIngresses = totalIngresses - tlsIngresses;
-  const filteredCount = filteredIngresses.length;
+  const filteredCount = settingsFilteredIngresses.length;
 
   // Group ingresses based on selected mode
   const groupedIngresses = useMemo(
-    () => groupIngresses(filteredIngresses, groupingMode),
-    [filteredIngresses, groupingMode]
+    () => groupIngresses(settingsFilteredIngresses, groupingMode),
+    [settingsFilteredIngresses, groupingMode]
   );
 
   // Handle opening modal and updating URL (Sub-task 10.2)
@@ -309,13 +343,13 @@ function DashboardContent() {
 
           {loading ? (
             <IngressCardSkeletonGrid count={6} />
-          ) : filteredIngresses.length === 0 ? (
+          ) : settingsFilteredIngresses.length === 0 ? (
             <div className="text-center py-12">
               <h3 className="text-lg font-bold">No ingresses found</h3>
               <p className="text-muted-foreground mt-1">
                 {debouncedSearchQuery
                   ? `No ingresses match your search for "${debouncedSearchQuery}"`
-                  : 'There are no ingresses in your cluster'}
+                  : 'There are no ingresses in your cluster or all are filtered by settings'}
               </p>
             </div>
           ) : (
