@@ -1,0 +1,493 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Kube Ingress Dash Helm Chart Values",
+  "description": "JSON Schema for kube-ingress-dash Helm chart values.yaml configuration",
+  "type": "object",
+  "properties": {
+    "image": {
+      "type": "object",
+      "description": "Container image configuration",
+      "additionalProperties": false,
+      "properties": {
+        "repository": {
+          "type": "string",
+          "description": "Container image repository",
+          "default": "ghcr.io/wasilak/kube-ingress-dash",
+          "examples": ["ghcr.io/wasilak/kube-ingress-dash", "docker.io/myorg/kube-ingress-dash"]
+        },
+        "pullPolicy": {
+          "type": "string",
+          "description": "Image pull policy",
+          "enum": ["Always", "IfNotPresent", "Never"],
+          "default": "IfNotPresent"
+        },
+        "tag": {
+          "type": "string",
+          "description": "Overrides the image tag whose default is the chart appVersion",
+          "default": "",
+          "pattern": "^[a-zA-Z0-9._-]*$",
+          "examples": ["0.2.4", "latest", "v1.0.0"]
+        }
+      },
+      "required": ["repository", "pullPolicy"]
+    },
+    "imagePullSecrets": {
+      "type": "array",
+      "description": "Image pull secrets for private registries",
+      "items": {
+        "type": "object"
+      }
+    },
+    "nameOverride": {
+      "type": "string",
+      "description": "Override the name of the chart"
+    },
+    "fullnameOverride": {
+      "type": "string",
+      "description": "Override the fullname of the chart"
+    },
+    "service": {
+      "type": "object",
+      "description": "Kubernetes Service configuration",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Kubernetes Service type",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer", "ExternalName"],
+          "default": "ClusterIP"
+        },
+        "port": {
+          "type": "integer",
+          "description": "Service port",
+          "minimum": 1,
+          "maximum": 65535,
+          "default": 3000
+        },
+        "targetPort": {
+          "type": "integer",
+          "description": "Container target port",
+          "minimum": 1,
+          "maximum": 65535,
+          "default": 3000
+        }
+      },
+      "required": ["type", "port", "targetPort"]
+    },
+    "ingress": {
+      "type": "object",
+      "description": "Kubernetes Ingress configuration",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable ingress resource creation",
+          "default": false
+        },
+        "className": {
+          "type": "string",
+          "description": "Ingress class name",
+          "default": "",
+          "examples": ["nginx", "traefik", "alb"]
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Ingress annotations",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "hosts": {
+          "type": "array",
+          "description": "Ingress hosts configuration",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "host": {
+                "type": "string",
+                "description": "Hostname"
+              },
+              "paths": {
+                "type": "array",
+                "description": "Path configurations",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "description": "URL path",
+                      "default": "/",
+                      "pattern": "^/.*$"
+                    },
+                    "pathType": {
+                      "type": "string",
+                      "description": "Path type",
+                      "enum": ["Prefix", "Exact", "ImplementationSpecific"],
+                      "default": "Prefix"
+                    }
+                  },
+                  "required": ["path", "pathType"]
+                }
+              }
+            }
+          }
+        },
+        "tls": {
+          "type": "array",
+          "description": "TLS configuration",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "secretName": {
+                "type": "string",
+                "description": "Secret name containing TLS certificate"
+              },
+              "hosts": {
+                "type": "array",
+                "description": "Hosts covered by the certificate",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "description": "CPU and memory resource limits and requests",
+      "additionalProperties": false,
+      "properties": {
+        "limits": {
+          "type": "object",
+          "description": "Resource limits",
+          "additionalProperties": false,
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "description": "CPU limit"
+            },
+            "memory": {
+              "type": "string",
+              "description": "Memory limit"
+            }
+          }
+        },
+        "requests": {
+          "type": "object",
+          "description": "Resource requests",
+          "additionalProperties": false,
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "description": "CPU request"
+            },
+            "memory": {
+              "type": "string",
+              "description": "Memory request"
+            }
+          }
+        }
+      }
+    },
+    "nodeSelector": {
+      "type": "object",
+      "description": "Node selector for pod assignment",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "tolerations": {
+      "type": "array",
+      "description": "Tolerations for pod assignment",
+      "items": {
+        "type": "object"
+      }
+    },
+    "affinity": {
+      "type": "array",
+      "description": "Affinity rules for pod assignment",
+      "items": {
+        "type": "object"
+      }
+    },
+    "replicaCount": {
+      "type": "integer",
+      "description": "Number of replicas",
+      "minimum": 1,
+      "default": 1
+    },
+    "strategy": {
+      "type": "object",
+      "description": "Deployment strategy configuration",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Deployment strategy type",
+          "enum": ["RollingUpdate", "Recreate"],
+          "default": "RollingUpdate"
+        },
+        "rollingUpdate": {
+          "type": "object",
+          "description": "Rolling update configuration",
+          "additionalProperties": false,
+          "properties": {
+            "maxSurge": {
+              "type": "integer",
+              "description": "Maximum number of pods that can be created over the desired number",
+              "minimum": 0,
+              "default": 1
+            },
+            "maxUnavailable": {
+              "type": "integer",
+              "description": "Maximum number of pods that can be unavailable during the update",
+              "minimum": 0,
+              "default": 0
+            }
+          }
+        }
+      }
+    },
+    "autoscaling": {
+      "type": "object",
+      "description": "Horizontal Pod Autoscaler configuration",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable horizontal pod autoscaling",
+          "default": false
+        },
+        "minReplicas": {
+          "type": "integer",
+          "description": "Minimum number of replicas",
+          "minimum": 1,
+          "default": 1
+        },
+        "maxReplicas": {
+          "type": "integer",
+          "description": "Maximum number of replicas",
+          "minimum": 1,
+          "default": 100
+        },
+        "targetCPUUtilizationPercentage": {
+          "type": "integer",
+          "description": "Target CPU utilization percentage",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 80
+        },
+        "targetMemoryUtilizationPercentage": {
+          "type": "integer",
+          "description": "Target memory utilization percentage",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": ["enabled"]
+    },
+    "env": {
+      "type": "array",
+      "description": "Environment variables",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Environment variable name",
+            "pattern": "^[A-Z_][A-Z0-9_]*$"
+          },
+          "value": {
+            "type": "string",
+            "description": "Environment variable value"
+          }
+        },
+        "required": ["name", "value"]
+      }
+    },
+    "podAnnotations": {
+      "type": "object",
+      "description": "Annotations to add to pods",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "podSecurityContext": {
+      "type": "object",
+      "description": "Security context for the pod",
+      "additionalProperties": true,
+      "properties": {
+        "fsGroup": {
+          "type": "integer",
+          "description": "Filesystem group ID"
+        }
+      }
+    },
+    "securityContext": {
+      "type": "object",
+      "description": "Security context for the container",
+      "additionalProperties": true,
+      "properties": {
+        "capabilities": {
+          "type": "object",
+          "description": "Linux capabilities",
+          "additionalProperties": false,
+          "properties": {
+            "drop": {
+              "type": "array",
+              "description": "Capabilities to drop",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "readOnlyRootFilesystem": {
+          "type": "boolean",
+          "description": "Mount root filesystem as read-only"
+        },
+        "runAsNonRoot": {
+          "type": "boolean",
+          "description": "Run container as non-root user"
+        },
+        "runAsUser": {
+          "type": "integer",
+          "description": "User ID to run the container"
+        }
+      }
+    },
+    "serviceAccount": {
+      "type": "object",
+      "description": "Service account configuration",
+      "additionalProperties": false,
+      "properties": {
+        "create": {
+          "type": "boolean",
+          "description": "Specifies whether a service account should be created",
+          "default": true
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Annotations to add to the service account",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the service account to use"
+        }
+      }
+    },
+    "rbac": {
+      "type": "object",
+      "description": "RBAC configuration for Kubernetes API access",
+      "additionalProperties": false,
+      "properties": {
+        "create": {
+          "type": "boolean",
+          "description": "Specifies whether RBAC resources should be created",
+          "default": true
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Specifies whether RBAC resources should be enabled",
+          "default": true
+        },
+        "clusterRoleName": {
+          "type": "string",
+          "description": "ClusterRole name"
+        },
+        "clusterRoleBinding": {
+          "type": "boolean",
+          "description": "Create ClusterRoleBinding",
+          "default": true
+        },
+        "serviceAccountName": {
+          "type": "string",
+          "description": "ServiceAccount name for the role binding"
+        }
+      }
+    },
+    "livenessProbe": {
+      "type": "object",
+      "description": "Liveness probe configuration",
+      "additionalProperties": false,
+      "properties": {
+        "initialDelaySeconds": {
+          "type": "integer",
+          "description": "Initial delay before liveness probe starts",
+          "minimum": 0,
+          "default": 30
+        },
+        "periodSeconds": {
+          "type": "integer",
+          "description": "How often to perform the probe",
+          "minimum": 1,
+          "default": 10
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "description": "Probe timeout",
+          "minimum": 1,
+          "default": 5
+        },
+        "successThreshold": {
+          "type": "integer",
+          "description": "Minimum consecutive successes for the probe to be considered successful",
+          "minimum": 1,
+          "default": 1
+        },
+        "failureThreshold": {
+          "type": "integer",
+          "description": "Minimum consecutive failures for the probe to be considered failed",
+          "minimum": 1,
+          "default": 3
+        }
+      }
+    },
+    "readinessProbe": {
+      "type": "object",
+      "description": "Readiness probe configuration",
+      "additionalProperties": false,
+      "properties": {
+        "initialDelaySeconds": {
+          "type": "integer",
+          "description": "Initial delay before readiness probe starts",
+          "minimum": 0,
+          "default": 10
+        },
+        "periodSeconds": {
+          "type": "integer",
+          "description": "How often to perform the probe",
+          "minimum": 1,
+          "default": 5
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "description": "Probe timeout",
+          "minimum": 1,
+          "default": 5
+        },
+        "successThreshold": {
+          "type": "integer",
+          "description": "Minimum consecutive successes for the probe to be considered successful",
+          "minimum": 1,
+          "default": 1
+        },
+        "failureThreshold": {
+          "type": "integer",
+          "description": "Minimum consecutive failures for the probe to be considered failed",
+          "minimum": 1,
+          "default": 3
+        }
+      }
+    }
+  }
+}

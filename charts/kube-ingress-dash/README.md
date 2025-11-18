@@ -60,6 +60,52 @@ helm install kube-ingress-dash ./charts/kube-ingress-dash
 
 The following table lists the configurable parameters and their default values. You can override these values using `--set` flags or by providing a custom `values.yaml` file.
 
+### Values Schema Validation
+
+This chart includes a JSON Schema (`values.schema.json`) that validates your configuration values. The schema ensures:
+
+- Type safety for all configuration values
+- Validation of enum values (e.g., service types, pull policies)
+- Range validation for numeric values (e.g., ports, replica counts)
+- Required field validation
+- Pattern matching for strings (e.g., environment variable names)
+
+#### Validating Your Configuration Locally
+
+You can validate your custom values file before installation using `ajv-cli`:
+
+```bash
+# Install ajv-cli globally
+npm install -g ajv-cli
+
+# Validate your values file
+ajv validate -s charts/kube-ingress-dash/values.schema.json -d your-values.yaml
+```
+
+#### Schema Features
+
+- **Automatic validation**: Helm 3.1+ automatically validates values against the schema
+- **IDE support**: Many IDEs provide autocomplete and validation when editing values.yaml
+- **Artifact Hub integration**: The schema is used by Artifact Hub to provide better documentation
+- **CI/CD integration**: Use the schema in your CI/CD pipelines to catch configuration errors early
+
+#### Example Validation Errors
+
+If you provide invalid values, you'll see helpful error messages:
+
+```bash
+# Invalid pull policy
+image:
+  pullPolicy: InvalidPolicy  # Error: must be one of [Always, IfNotPresent, Never]
+
+# Invalid port number
+service:
+  port: 99999  # Error: must be <= 65535
+
+# Invalid replica count
+replicaCount: -1  # Error: must be >= 1
+```
+
 ### Example: Enable Ingress
 
 ```yaml
@@ -97,6 +143,86 @@ autoscaling:
   minReplicas: 2
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
+```
+
+### Example: Complete Production Configuration
+
+```yaml
+# Production-ready configuration example
+image:
+  repository: ghcr.io/wasilak/kube-ingress-dash
+  pullPolicy: IfNotPresent
+  tag: "0.2.4"
+
+replicaCount: 3
+
+service:
+  type: ClusterIP
+  port: 3000
+  targetPort: 3000
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: ingress-dash.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: ingress-dash-tls
+      hosts:
+        - ingress-dash.example.com
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+
+serviceAccount:
+  create: true
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::123456789012:role/kube-ingress-dash"
+
+rbac:
+  create: true
+  enabled: true
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "3000"
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+
+livenessProbe:
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 5
+  failureThreshold: 3
 ```
 
 ## Maintainers
