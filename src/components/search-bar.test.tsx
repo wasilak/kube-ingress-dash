@@ -1,6 +1,11 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { MantineProvider } from '@mantine/core';
 import SearchBar from '@/components/search-bar';
+
+const renderWithMantine = (component: React.ReactElement) => {
+  return render(<MantineProvider>{component}</MantineProvider>);
+};
 
 describe('SearchBar', () => {
   const mockOnSearch = jest.fn();
@@ -10,7 +15,7 @@ describe('SearchBar', () => {
   });
 
   it('renders with default props', () => {
-    render(<SearchBar onSearch={mockOnSearch} value="" />);
+    renderWithMantine(<SearchBar onSearch={mockOnSearch} value="" />);
 
     const input = screen.getByPlaceholderText('Search ingresses...');
     expect(input).toBeInTheDocument();
@@ -18,14 +23,14 @@ describe('SearchBar', () => {
   });
 
   it('renders with provided value', () => {
-    render(<SearchBar onSearch={mockOnSearch} value="test query" />);
+    renderWithMantine(<SearchBar onSearch={mockOnSearch} value="test query" />);
 
     const input = screen.getByPlaceholderText('Search ingresses...');
     expect(input).toHaveValue('test query');
   });
 
   it('calls onSearch when input changes', () => {
-    render(<SearchBar onSearch={mockOnSearch} value="" />);
+    renderWithMantine(<SearchBar onSearch={mockOnSearch} value="" />);
 
     const input = screen.getByPlaceholderText('Search ingresses...');
     fireEvent.change(input, { target: { value: 'new query' } });
@@ -34,7 +39,7 @@ describe('SearchBar', () => {
   });
 
   it('calls onSearch when input changes with existing value', () => {
-    render(<SearchBar onSearch={mockOnSearch} value="old query" />);
+    renderWithMantine(<SearchBar onSearch={mockOnSearch} value="old query" />);
 
     const input = screen.getByPlaceholderText('Search ingresses...');
     fireEvent.change(input, { target: { value: 'updated query' } });
@@ -43,11 +48,10 @@ describe('SearchBar', () => {
   });
 
   it('has correct accessibility attributes', () => {
-    render(<SearchBar onSearch={mockOnSearch} value="" />);
+    renderWithMantine(<SearchBar onSearch={mockOnSearch} value="" />);
 
     const input = screen.getByPlaceholderText('Search ingresses...');
     expect(input).toHaveAttribute('type', 'text');
     expect(input).toHaveAttribute('placeholder', 'Search ingresses...');
-    expect(input).toHaveClass('flex', 'h-10', 'w-full', 'rounded-md', 'border');
   });
 });

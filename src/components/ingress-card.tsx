@@ -190,7 +190,13 @@ const IngressCardComponent: React.FC<IngressCardProps> = ({
       {onDetailsClick && (
         <>
           <Divider my="md" />
-          <Button variant="outline" size="sm" fullWidth onClick={onDetailsClick}>
+          <Button
+            variant="outline"
+            size="sm"
+            fullWidth
+            onClick={onDetailsClick}
+            aria-label={`View details for ${ingress.name}`}
+          >
             Show details
           </Button>
         </>
