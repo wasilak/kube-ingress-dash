@@ -1,0 +1,169 @@
+---
+sidebar_position: 3
+title: Grouping System
+---
+
+# Grouping System
+
+The grouping system allows you to organize ingress resources in different ways to match your workflow and make it easier to find and manage ingresses.
+
+## Overview
+
+The grouping selector is located in the dashboard header, next to the search and filter controls. It provides three grouping modes that change how ingresses are displayed on the dashboard.
+
+## Grouping Modes
+
+### None (Default)
+
+Displays all ingresses in a single responsive grid without any grouping.
+
+**Best for:**
+- Small to medium number of ingresses
+- When you want to see everything at once
+- Quick scanning of all resources
+
+### By Namespace
+
+Organizes ingresses into separate sections, one for each namespace.
+
+**Features:**
+- Each namespace gets its own section with a header
+- Section headers show the namespace name and ingress count
+- Empty namespaces are shown with zero count
+- Sections are sorted alphabetically by namespace name
+
+**Best for:**
+- Multi-tenant clusters
+- Organizing by team or project
+- Isolating ingresses by environment (if using namespace-based environments)
+
+**Example:**
+```
+Namespace: default (5)
+[Ingress cards for default namespace]
+
+Namespace: production (12)
+[Ingress cards for production namespace]
+
+Namespace: staging (8)
+[Ingress cards for staging namespace]
+```
+
+### By TLS Status
+
+Organizes ingresses into two groups based on TLS configuration.
+
+**Features:**
+- Two sections: "TLS Enabled" and "TLS Disabled"
+- Each section shows the count of ingresses
+- Both sections are always visible, even if empty
+- Helps identify ingresses that need TLS configuration
+
+**Best for:**
+- Security audits
+- Identifying ingresses without TLS
+- Ensuring compliance with security policies
+- Migration to HTTPS
+
+**Example:**
+```
+TLS Enabled (18)
+[Ingress cards with TLS configured]
+
+TLS Disabled (3)
+[Ingress cards without TLS]
+```
+
+## Using Grouping
+
+### Selecting a Grouping Mode
+
+1. Click the grouping selector dropdown in the dashboard header
+2. Choose your desired grouping mode
+3. The dashboard updates immediately to show the new grouping
+
+### URL Persistence
+
+The selected grouping mode is automatically saved in the URL:
+- `/?group=none` - No grouping
+- `/?group=namespace` - Group by namespace
+- `/?group=tls` - Group by TLS status
+
+This allows you to:
+- Bookmark your preferred grouping mode
+- Share links with specific grouping
+- Navigate back/forward through grouping changes
+
+## Interaction with Filters
+
+Grouping works seamlessly with search and filters:
+
+### With Search
+- Search applies across all groups
+- Empty groups are shown if no ingresses match
+- Group counts update to reflect filtered results
+
+### With Namespace Filter
+- When filtering by namespace, only selected namespaces appear
+- Group counts reflect the filtered set
+- Other groups show zero count if filtered out
+
+### With Label/Annotation Filters
+- Filters apply within each group
+- Group counts update based on filter results
+- Empty groups remain visible
+
+## Performance
+
+The grouping system is optimized for performance:
+- Grouping calculations are memoized
+- Only visible groups are rendered
+- Smooth transitions between grouping modes
+- No performance impact on large ingress lists
+
+## Keyboard Navigation
+
+Navigate between groups using keyboard:
+- Tab through ingress cards within each group
+- Logical tab order maintained across groups
+- Focus indicators clearly visible
+
+## Best Practices
+
+### For Small Clusters (< 20 ingresses)
+Use "None" grouping for simplest view.
+
+### For Multi-Namespace Clusters
+Use "By Namespace" grouping to organize by team or project.
+
+### For Security Reviews
+Use "By TLS Status" grouping to identify ingresses needing TLS.
+
+### For Mixed Workflows
+Switch between grouping modes as needed - your preference is saved in the URL.
+
+## Examples
+
+### Finding Ingresses Without TLS
+
+1. Select "By TLS Status" grouping
+2. Look at the "TLS Disabled" section
+3. Review each ingress and add TLS configuration as needed
+
+### Reviewing a Specific Namespace
+
+1. Select "By Namespace" grouping
+2. Scroll to the namespace section
+3. Review all ingresses in that namespace
+
+### Sharing a Grouped View
+
+1. Select your desired grouping mode
+2. Copy the URL from the browser
+3. Share with team members - they'll see the same grouping
+
+## Related Features
+
+- [Features Overview](/features)
+- [Ingress Details Modal](/features/ingress-details)
+- [Settings and Customization](/features/settings)

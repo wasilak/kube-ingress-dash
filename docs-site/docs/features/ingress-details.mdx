@@ -1,0 +1,233 @@
+---
+sidebar_position: 4
+title: Ingress Details Modal
+---
+
+# Ingress Details Modal
+
+The ingress details modal provides comprehensive information about a specific ingress resource, including configuration, labels, annotations, and the raw YAML manifest.
+
+## Opening the Modal
+
+There are two ways to open the ingress details modal:
+
+### From an Ingress Card
+
+Click the info icon (ⓘ) on any ingress card to open its details modal.
+
+### Direct URL Navigation
+
+Navigate directly to an ingress using the URL format:
+```
+/?ingress={namespace}/{name}
+```
+
+For example:
+```
+/?ingress=default/my-app-ingress
+```
+
+This allows you to:
+- Bookmark specific ingresses
+- Share direct links to ingress details
+- Navigate to ingresses from external tools
+
+## Modal Sections
+
+The modal is organized into several sections, each providing specific information about the ingress.
+
+### Main Details
+
+The top section displays core ingress information:
+
+- **Name**: The ingress resource name
+- **Namespace**: The Kubernetes namespace
+- **Creation Timestamp**: When the ingress was created (formatted as relative time)
+- **Status**: Current status with color-coded indicator
+  - Green: Ready
+  - Yellow: Pending
+  - Red: Error
+  - Gray: Unknown
+- **TLS Badge**: Displayed if TLS is enabled
+- **Ingress Class**: The ingress controller class
+
+### Labels
+
+Displays all Kubernetes labels attached to the ingress:
+
+- Grid layout for easy scanning
+- Key-value pairs clearly separated
+- Copy button for each value
+- Empty state message if no labels
+
+**Use cases:**
+- Identifying resource ownership
+- Understanding resource organization
+- Copying labels for new resources
+
+### Annotations
+
+Shows all annotations on the ingress:
+
+- Grid layout for readability
+- Special formatting for known annotations
+- Copy button for each value
+- Collapsible section for many annotations
+- Empty state message if no annotations
+
+**Common annotations:**
+- `nginx.ingress.kubernetes.io/*` - NGINX ingress controller settings
+- `cert-manager.io/*` - Certificate manager configuration
+- `kubernetes.io/*` - Standard Kubernetes annotations
+
+### Ingress Configuration
+
+Displays the ingress routing configuration:
+
+#### Hosts
+- List of all configured hosts
+- External link icon for each host
+- Clickable to open in new tab
+
+#### Paths
+- All configured paths for each host
+- Backend service information
+- Service name and port
+
+#### Load Balancer
+- Load balancer IP or hostname
+- Status information
+
+#### Rules
+- Complete breakdown of routing rules
+- Host-to-path-to-service mappings
+
+### YAML Manifest
+
+The bottom section shows the raw Kubernetes YAML:
+
+**Features:**
+- Syntax highlighting for readability
+- Line numbers
+- Copy to clipboard button
+- Collapsible section to save space
+- Formatted with proper indentation
+
+**Use cases:**
+- Copying configuration for new ingresses
+- Debugging configuration issues
+- Sharing exact configuration with team
+- Creating backup of configuration
+
+## URL Synchronization
+
+The modal state is synchronized with the browser URL:
+
+### When Opening
+- URL updates to include ingress identifier
+- Format: `?ingress={namespace}/{name}`
+- Browser history entry created
+- Other URL parameters preserved (grouping, search)
+
+### When Closing
+- Ingress parameter removed from URL
+- Browser history updated
+- Other URL parameters preserved
+- Focus returns to the ingress card
+
+### Error Handling
+- Invalid ingress identifier → Error notification shown
+- Ingress not found → Error notification and URL cleaned
+- Malformed URL → Parameter ignored gracefully
+
+## Keyboard Navigation
+
+The modal is fully keyboard accessible:
+
+- **Escape**: Close the modal
+- **Tab**: Navigate through interactive elements
+- **Enter/Space**: Activate buttons
+- **Focus trap**: Focus stays within modal while open
+- **Focus return**: Focus returns to trigger button on close
+
+## Copy Functionality
+
+Multiple copy buttons throughout the modal:
+
+### Individual Values
+- Copy button next to each label value
+- Copy button next to each annotation value
+- Click to copy to clipboard
+- Success feedback animation
+
+### YAML Manifest
+- Large copy button at top of YAML section
+- Copies entire YAML to clipboard
+- Success notification
+
+## Responsive Design
+
+The modal adapts to different screen sizes:
+
+### Desktop
+- Large modal with comfortable spacing
+- Side-by-side layout for key-value pairs
+- Full YAML visible
+
+### Tablet
+- Medium-sized modal
+- Adjusted spacing
+- Scrollable content
+
+### Mobile
+- Full-screen modal
+- Stacked layout
+- Touch-friendly buttons
+- Optimized for small screens
+
+## Performance
+
+The modal is optimized for performance:
+
+- Lazy loading of modal content
+- YAML generation on-demand
+- Syntax highlighter loaded dynamically
+- Smooth animations (respects prefers-reduced-motion)
+
+## Examples
+
+### Viewing Ingress Configuration
+
+1. Click the info icon on an ingress card
+2. Review the main details and status
+3. Check the hosts and paths configuration
+4. Verify backend services are correct
+
+### Copying YAML for New Ingress
+
+1. Open the details modal for an existing ingress
+2. Scroll to the YAML Manifest section
+3. Click the copy button
+4. Paste into your editor
+5. Modify as needed for the new ingress
+
+### Sharing Ingress Details
+
+1. Open the details modal
+2. Copy the URL from the browser address bar
+3. Share with team members
+4. They'll see the same ingress details when opening the link
+
+### Debugging Annotations
+
+1. Open the ingress details modal
+2. Scroll to the Annotations section
+3. Review all annotations
+4. Copy specific annotation values for testing
+5. Compare with documentation or working examples
+
+## Related Features
+
+- [Features Overview](/features)
+- [Grouping System](/features/grouping)
+- [Settings and Customization](/features/settings)

@@ -1,0 +1,174 @@
+---
+sidebar_position: 1
+title: Features Overview
+---
+
+# Features Overview
+
+Kube Ingress Dash provides a comprehensive set of features for monitoring and managing Kubernetes ingress resources.
+
+## Core Features
+
+### Real-time Ingress Monitoring
+
+Watch ingress resources update in real-time using Server-Sent Events (SSE). Changes to ingresses are automatically reflected in the dashboard without requiring page refreshes.
+
+### Multi-Namespace Support
+
+Monitor ingresses across multiple namespaces simultaneously. The dashboard provides a namespace filter that allows you to:
+- View all namespaces at once
+- Filter to specific namespaces
+- Quickly switch between namespace views
+
+### Advanced Search and Filtering
+
+Quickly find ingresses using the powerful search functionality:
+- Search by ingress name
+- Search by namespace
+- Search by host
+- Search by path
+- Real-time filtering as you type
+- URL-based search persistence (shareable search links)
+
+### Flexible Grouping System
+
+Organize ingresses in different ways to match your workflow:
+
+- **None**: View all ingresses in a single grid (default)
+- **By Namespace**: Organize ingresses into separate sections per namespace
+- **By TLS Status**: Group ingresses by TLS enabled/disabled status
+
+Grouping mode is persisted in the URL for easy bookmarking and sharing.
+
+### Detailed Ingress Information
+
+Click the details icon on any ingress card to view comprehensive information:
+
+- **Main Details**: Name, namespace, creation timestamp, status, and ingress class
+- **Labels**: All Kubernetes labels with copy functionality
+- **Annotations**: All annotations with copy functionality and special formatting
+- **Configuration**: Hosts, paths, backend services, and load balancer status
+- **YAML Manifest**: Syntax-highlighted YAML with copy-to-clipboard functionality
+
+### URL-Based Navigation
+
+Share direct links to specific ingress details:
+- Modal state is reflected in the URL
+- Navigate directly to ingress details via URL
+- Bookmark specific ingresses for quick access
+- Share links with team members
+
+### Settings and Customization
+
+Configure which labels, namespaces, and annotations appear in filters:
+
+- Access settings via the Settings link in the header
+- Exclude specific labels from filter dropdowns
+- Exclude specific namespaces from filter dropdowns
+- Exclude specific annotations from filter dropdowns
+- Settings persist in browser localStorage
+
+### Keyboard Navigation
+
+Quick navigation using keyboard shortcuts:
+- **Cmd+K / Ctrl+K**: Open Spotlight search for quick navigation
+- Navigate to Dashboard, Settings pages, and more
+- Accessible keyboard-first interface
+
+## User Interface
+
+### Modern Design with Mantine
+
+Built with Mantine UI framework for:
+- Consistent, professional appearance
+- Responsive design for all screen sizes
+- Accessible components following WCAG guidelines
+- Smooth animations and transitions
+
+### Dark/Light Theme
+
+Toggle between light, dark, and auto (system) themes:
+- Custom indigo color scheme
+- Optimized for readability in both modes
+- Theme preference persists across sessions
+
+### TLS Visualization
+
+Clear indicators for TLS-enabled ingresses:
+- Lock icon on ingress cards
+- TLS badge in details modal
+- Group by TLS status for quick overview
+
+
+### Service Navigation
+
+Direct links to your services from the dashboard:
+- Clickable host buttons on ingress cards
+- External link icons for easy identification
+- Opens services in new tabs
+
+## Performance
+
+### Virtual Scrolling
+
+Efficient rendering of large ingress lists:
+- Automatically enabled for lists with 100+ ingresses
+- Smooth scrolling performance
+- Minimal memory footprint
+
+### Optimized Loading
+
+Fast initial load and updates:
+- Loading skeletons for better perceived performance
+- Lazy loading of modal content
+- Efficient re-rendering with React memoization
+
+### Responsive Design
+
+Works seamlessly across devices:
+- Desktop, tablet, and mobile support
+- Touch-friendly interface
+- Adaptive layouts
+
+## Error Handling
+
+### Comprehensive Error Boundaries
+
+Graceful error handling throughout the application:
+- Component-level error boundaries
+- Retry mechanisms for failed operations
+- Circuit breaker pattern for API calls
+- User-friendly error messages
+
+### Health Checks
+
+Monitor Kubernetes API connectivity:
+- Liveness and readiness probes
+- Health check endpoint at `/api/health`
+- Automatic reconnection on connection loss
+
+## Security
+
+### Security Headers
+
+Built-in security headers middleware:
+- Content Security Policy
+- X-Frame-Options
+- X-Content-Type-Options
+- Referrer-Policy
+
+### RBAC Support
+
+Proper Kubernetes RBAC integration:
+- Read-only access to ingress resources
+- Namespace-scoped permissions
+- Service account authentication
+
+## Next Steps
+
+- Learn about [Grouping System](/features/grouping)
+- Explore [Ingress Details Modal](/features/ingress-details)
+- Configure [Settings and Customization](/features/settings)
+- Understand [Multi-Namespace Streaming](/features/multi-namespace-streaming)
+- Learn about [Error Handling](/features/error-handling)
+- Review [Deployment Options](/deployment)
