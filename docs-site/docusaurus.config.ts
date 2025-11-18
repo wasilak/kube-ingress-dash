@@ -58,8 +58,11 @@ const config: Config = {
       onBrokenMarkdownLinks: 'throw',
     },
     preprocessor: ({ fileContent }) => {
-      const helmVersion = process.env.HELM_VERSION || 'local';
-      const dockerVersion = process.env.DOCKER_VERSION || 'local';
+      // remove leading v from helm version
+      const helmVersion = process.env.HELM_VERSION?.replace(/^v/g, '') || 'local';
+
+      // remove leading v from docker version
+      const dockerVersion = process.env.DOCKER_VERSION?.replace(/^v/g, '') || 'local';
       return fileContent
         .replaceAll('@HELM_VERSION@', helmVersion)
         .replaceAll('@DOCKER_VERSION@', dockerVersion);
