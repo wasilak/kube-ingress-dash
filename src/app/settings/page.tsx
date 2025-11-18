@@ -1,6 +1,7 @@
 'use client';
 
 import { Container, Title, Text, Tabs } from '@mantine/core';
+import Link from 'next/link';
 import { SettingsTabs } from '@/components/settings-tabs';
 import { LabelExclusionSettings } from '@/components/label-exclusion-settings';
 import { NamespaceExclusionSettings } from '@/components/namespace-exclusion-settings';
@@ -32,6 +33,12 @@ export default function SettingsPage() {
           <AnnotationExclusionSettings />
         </Tabs.Panel>
       </SettingsTabs>
+
+      <Text mt="xl">
+        <Link href="/" style={{ color: 'var(--mantine-color-blue-6)' }}>
+          ← Back to Dashboard
+        </Link>
+      </Text>
     </Container>
   );
 }
