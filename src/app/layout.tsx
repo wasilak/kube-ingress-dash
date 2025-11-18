@@ -8,6 +8,7 @@ import { ColorSchemeScript } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import ErrorBoundary from '@/components/error-boundary';
 import { MantineThemeProvider } from '@/components/mantine-theme-provider';
+import { SettingsProvider } from '@/contexts/settings-context';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -29,8 +30,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={inter.className}>
         <ErrorBoundary>
           <MantineThemeProvider>
-            <Notifications position="top-right" />
-            {children}
+            <SettingsProvider>
+              <Notifications position="top-right" />
+              {children}
+            </SettingsProvider>
           </MantineThemeProvider>
         </ErrorBoundary>
       </body>
