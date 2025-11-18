@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Group, Anchor, Button } from '@mantine/core';
@@ -8,6 +8,12 @@ import { useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
 export const DashboardHeader: React.FC = () => {
   const { colorScheme, setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme('light');
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration mismatch by only rendering theme-dependent content after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const cycleTheme = () => {
     if (colorScheme === 'light') {
@@ -20,6 +26,7 @@ export const DashboardHeader: React.FC = () => {
   };
 
   const getThemeIcon = () => {
+    if (!mounted) return <IconSun size={16} />;
     if (colorScheme === 'auto') {
       return <IconDeviceDesktop size={16} />;
     }
@@ -27,6 +34,7 @@ export const DashboardHeader: React.FC = () => {
   };
 
   const getThemeLabel = () => {
+    if (!mounted) return 'Light';
     if (colorScheme === 'auto') {
       return 'System';
     }
@@ -38,24 +46,21 @@ export const DashboardHeader: React.FC = () => {
       <Group justify="space-between" align="flex-start" wrap="wrap">
         <Group gap="sm">
           <Image src="/images/logo.svg" alt="Kube Ingress Dash logo" width={40} height={40} />
-          <Link href="/" passHref legacyBehavior>
-            <Anchor component="a" underline="never" c="inherit">
-              <h1 className="text-3xl font-bold">Kube Ingress Dash</h1>
-            </Anchor>
-          </Link>
+          <Anchor component={Link} href="/" underline="never" c="inherit">
+            <h1 className="text-3xl font-bold">Kube Ingress Dash</h1>
+          </Anchor>
         </Group>
 
         <Group gap="xs">
-          <Link href="/settings" passHref legacyBehavior>
-            <Button
-              component="a"
-              variant="outline"
-              size="xs"
-              leftSection={<IconSettings size={16} />}
-            >
-              Settings
-            </Button>
-          </Link>
+          <Button
+            component={Link}
+            href="/settings"
+            variant="outline"
+            size="xs"
+            leftSection={<IconSettings size={16} />}
+          >
+            Settings
+          </Button>
           <Button
             variant="outline"
             size="xs"

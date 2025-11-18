@@ -53,17 +53,16 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
         </Tabs.Panel>
       </Tabs>
 
-      <Link href="/" passHref legacyBehavior>
-        <Button
-          component="a"
-          variant="outline"
-          size="xs"
-          mt="xl"
-          leftSection={<IconArrowLeft size={16} />}
-        >
-          Back to Dashboard
-        </Button>
-      </Link>
+      <Button
+        component={Link}
+        href="/"
+        variant="outline"
+        size="xs"
+        mt="xl"
+        leftSection={<IconArrowLeft size={16} />}
+      >
+        Back to Dashboard
+      </Button>
     </Container>
   );
 }
