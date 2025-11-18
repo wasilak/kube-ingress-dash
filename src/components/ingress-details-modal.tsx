@@ -90,6 +90,11 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
       onClose={onClose}
       title={ingress.name}
       size="95%"
+      transitionProps={{
+        transition: 'scale',
+        duration: 250,
+        timingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      }}
       styles={{
         content: {
           backgroundColor: 'hsl(var(--background))',
@@ -123,6 +128,7 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
             variant="light"
             withCloseButton
             onClose={() => setCopyError(null)}
+            className="animate-slide-up"
           >
             <Text size="sm">{copyError}</Text>
           </Alert>
@@ -135,7 +141,7 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
             <Stack gap="xl">
               {/* Main Details Section */}
               <ModalSectionErrorBoundary sectionName="Details">
-                <Stack gap="md">
+                <Stack gap="md" className="animate-slide-up">
                   <Text
                     fw={600}
                     size="sm"
@@ -238,7 +244,7 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
 
               {/* Configuration Section */}
               <ModalSectionErrorBoundary sectionName="Configuration">
-                <Stack gap="md">
+                <Stack gap="md" className="animate-slide-up" style={{ animationDelay: '50ms' }}>
                   <Text
                     fw={600}
                     size="sm"
@@ -297,6 +303,7 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                                       color={copied ? 'teal' : 'gray'}
                                       variant="subtle"
                                       onClick={copy}
+                                      className={copied ? 'copy-success' : ''}
                                     >
                                       {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
                                     </ActionIcon>
@@ -344,6 +351,7 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                                     color={copied ? 'teal' : 'gray'}
                                     variant="subtle"
                                     onClick={copy}
+                                    className={copied ? 'copy-success' : ''}
                                   >
                                     {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
                                   </ActionIcon>
@@ -360,7 +368,7 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
 
               {/* Labels Section */}
               <ModalSectionErrorBoundary sectionName="Labels">
-                <Stack gap="md">
+                <Stack gap="md" className="animate-slide-up" style={{ animationDelay: '100ms' }}>
                   {labelCount > 0 ? (
                     <>
                       <Group
@@ -392,8 +400,12 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                         </Text>
                       </Group>
                       <Divider />
-                      <Collapse in={labelsExpanded}>
-                        <Table>
+                      <Collapse
+                        in={labelsExpanded}
+                        transitionDuration={300}
+                        transitionTimingFunction="ease"
+                      >
+                        <Table className="animate-fade-in">
                           <Table.Tbody>
                             {ingress.labels &&
                               Object.entries(ingress.labels).map(([key, value]) => (
@@ -441,7 +453,7 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
 
               {/* Annotations Section */}
               <ModalSectionErrorBoundary sectionName="Annotations">
-                <Stack gap="md">
+                <Stack gap="md" className="animate-slide-up" style={{ animationDelay: '150ms' }}>
                   {annotationCount > 0 ? (
                     <>
                       <Group
@@ -475,8 +487,12 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                         </Text>
                       </Group>
                       <Divider />
-                      <Collapse in={annotationsExpanded}>
-                        <Table>
+                      <Collapse
+                        in={annotationsExpanded}
+                        transitionDuration={300}
+                        transitionTimingFunction="ease"
+                      >
+                        <Table className="animate-fade-in">
                           <Table.Tbody>
                             {Object.entries(ingress.annotations).map(([key, value]) => (
                               <Table.Tr key={key}>
@@ -522,7 +538,7 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
           {/* Right Column - YAML Manifest */}
           <Grid.Col span={{ base: 12, md: 6 }}>
             <ModalSectionErrorBoundary sectionName="YAML Manifest">
-              <Stack gap="md">
+              <Stack gap="md" className="animate-slide-up" style={{ animationDelay: '200ms' }}>
                 <Group justify="space-between" align="center">
                   <Text
                     fw={600}
@@ -541,6 +557,7 @@ export const IngressDetailsModal: React.FC<IngressDetailsModalProps> = ({
                           leftSection={copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
                           onClick={copy}
                           color={copied ? 'teal' : 'blue'}
+                          className={copied ? 'copy-success' : ''}
                         >
                           {copied ? 'Copied!' : 'Copy YAML'}
                         </Button>

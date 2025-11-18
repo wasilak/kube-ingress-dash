@@ -42,6 +42,7 @@ const SearchBarComponent: React.FC<SearchBarProps> = ({
             size="sm"
             onClick={clearSearch}
             aria-label="Clear search"
+            className="animate-scale-in"
           >
             <X className="h-4 w-4" />
           </ActionIcon>

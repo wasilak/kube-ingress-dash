@@ -283,7 +283,7 @@
   - Check color contrast ratios
   - _Requirements: All requirements (accessibility is cross-cutting)_
 
-- [ ] 16. Add animations and transitions
+- [x] 16. Add animations and transitions
   - Add smooth transitions for grouping mode changes
   - Add modal open/close animations
   - Add loading state animations
