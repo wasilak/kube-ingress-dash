@@ -25,11 +25,13 @@ import { notifications } from '@mantine/notifications';
 import { Stack, Group, Box } from '@mantine/core';
 import { IngressData } from '@/types/ingress';
 import { useSettings } from '@/contexts/settings-context';
+import { useSpotlightIngresses } from '@/contexts/spotlight-context';
 
 function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { settings } = useSettings();
+  const { setIngresses: setSpotlightIngresses } = useSpotlightIngresses();
   const [error, setError] = useState<string | null>(null);
   const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
   const [selectedAnnotations, setSelectedAnnotations] = useState<string[]>([]);
@@ -209,6 +211,11 @@ function DashboardContent() {
       return true;
     });
   }, [filteredIngresses, settings]);
+
+  // Update spotlight ingresses whenever filtered ingresses change
+  useEffect(() => {
+    setSpotlightIngresses(settingsFilteredIngresses);
+  }, [settingsFilteredIngresses, setSpotlightIngresses]);
 
   // Calculate stats
   const totalIngresses = ingresses.length;

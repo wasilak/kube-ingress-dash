@@ -341,3 +341,25 @@
     - Document how to validate locally
     - Prepare for Artifact Hub publication
     - _Requirements: TBD_
+
+- [x] 15. Implement Mantine Spotlight for navigation
+  - [x] 15.1 Install and configure Mantine Spotlight
+    - Install @mantine/spotlight package
+    - Add SpotlightProvider to app layout
+    - Configure keyboard shortcut (Cmd+K / Ctrl+K)
+    - _Requirements: TBD_
+
+  - [x] 15.2 Create navigation actions
+    - Define spotlight actions for navigation
+    - Action: "Go to Dashboard" → navigate to "/"
+    - Action: "Go to Settings - Namespaces" → navigate to "/settings/namespaces"
+    - Action: "Go to Settings - Labels" → navigate to "/settings/labels"
+    - Action: "Go to Settings - Annotations" → navigate to "/settings/annotations"
+    - Add appropriate icons for each action
+    - _Requirements: TBD_
+
+  - [x] 15.3 Style spotlight to match application theme
+    - Configure spotlight colors to use indigo theme
+    - Ensure proper dark mode support
+    - Match border and highlight colors with existing UI
+    - _Requirements: TBD_
