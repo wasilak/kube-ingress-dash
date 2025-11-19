@@ -2,8 +2,8 @@ apiVersion: v2
 name: kube-ingress-dash
 description: A Kubernetes Ingress Dashboard
 type: application
-version: 0.3.0
-appVersion: "0.3.0"
+version: 0.3.1
+appVersion: "0.3.1"
 keywords:
   - kubernetes
   - ingress
